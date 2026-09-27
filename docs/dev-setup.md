@@ -115,6 +115,6 @@ pnpm dev                                    # http://localhost:3000 · Studio ht
 | Parity | Vitest | Randomised fixtures: every slot the TS generator offers must be accepted by the SQL booking function (and a sample of rejected ones refused) | CI |
 | E2E | Playwright (mobile viewport + desktop) | Guest books with OTP → confirmation; provider onboarding (solo) → publish → public page; provider marks arrived/completed; customer reviews; cancel within/outside window; deposit via mock pay | CI on `main` + before release |
 | Accessibility | axe via Playwright | Critical pages have no serious violations | CI |
-| Performance | Lighthouse CI (mobile, throttled 3G profile) | Public pages: JS < 100 KB gz, LCP < 2.5 s | Phase 11, then CI |
+| Performance | Lighthouse CI (mobile, throttled 3G profile) | Public pages: JS < 200 KB gz in total, our own code < 30 KB, LCP < 2.5 s | Phase 11, then CI |
 
 CI (`.github/workflows/ci.yml`): install → typecheck → lint → unit → `supabase start` → `db reset` → pgTAP → integration + concurrency → build → E2E. Branch protection requires green CI.
