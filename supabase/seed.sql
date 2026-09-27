@@ -8,6 +8,7 @@
 --   +233200000004  Kojo   owner   osu-glow-spa  (team, draft)
 --   +233200000005  Akosua manager osu-glow-spa
 --   +233200000006  Yaw    customer (no business)
+--   +233200000007  Demo   owner   5 more published businesses (marketplace/search demo)
 --   +233200000009  Admin  platform super_admin
 
 -- ---------------------------------------------------------------------------
@@ -120,6 +121,7 @@ from (values
   ('a0000000-0000-4000-8000-000000000004'::uuid, '233200000004', 'Kojo Boateng'),
   ('a0000000-0000-4000-8000-000000000005'::uuid, '233200000005', 'Akosua Darko'),
   ('a0000000-0000-4000-8000-000000000006'::uuid, '233200000006', 'Yaw Adjei'),
+  ('a0000000-0000-4000-8000-000000000007'::uuid, '233200000007', 'Demo Owner'),
   ('a0000000-0000-4000-8000-000000000009'::uuid, '233200000009', 'Platform Admin')
 ) as u(id, phone, full_name);
 
@@ -225,3 +227,62 @@ insert into public.staff_working_hours (business_id, staff_id, weekday, during)
 select s.business_id, s.id, d, '[10:00,16:00)'::public.timerange
 from public.staff s cross join generate_series(2, 6) d
 where s.display_name = 'Efua';
+
+-- More published businesses for the marketplace (Phase 4): each SPEC §11 example query has a real answer.
+insert into public.businesses (id, slug, name, description, kind, status, country_code, currency_code, phone_e164, whatsapp_e164, created_by, published_at)
+values
+  ('b0000000-0000-4000-8000-000000000004', 'lens-by-kofi', 'Lens by Kofi', 'Portraits, graduations and weddings in Kumasi.', 'solo', 'published', 'GH', 'GHS', '+233200000007', '+233200000007', 'a0000000-0000-4000-8000-000000000007', now() - interval '20 days'),
+  ('b0000000-0000-4000-8000-000000000005', 'sparkle-home-cleaning', 'Sparkle Home Cleaning', 'Deep and regular home cleaning in Tema and Accra.', 'team', 'published', 'GH', 'GHS', '+233200000007', '+233200000007', 'a0000000-0000-4000-8000-000000000007', now() - interval '10 days'),
+  ('b0000000-0000-4000-8000-000000000006', 'glow-nails-east-legon', 'Glow Nails', 'Gel, acrylics and pedicures near the American House junction.', 'solo', 'published', 'GH', 'GHS', '+233200000007', '+233200000007', 'a0000000-0000-4000-8000-000000000007', now() - interval '3 days'),
+  ('b0000000-0000-4000-8000-000000000007', 'calm-touch-spa', 'Calm Touch Spa', 'Swedish and deep tissue massage in Airport Residential.', 'team', 'published', 'GH', 'GHS', '+233200000007', null, 'a0000000-0000-4000-8000-000000000007', now() - interval '1 day'),
+  ('b0000000-0000-4000-8000-000000000008', 'kumasi-maths-tutors', 'Kumasi Maths Tutors', 'WASSCE and BECE maths lessons at home or online.', 'solo', 'published', 'GH', 'GHS', '+233200000007', '+233200000007', 'a0000000-0000-4000-8000-000000000007', now() - interval '40 days');
+
+insert into public.business_members (business_id, user_id, role)
+select id, 'a0000000-0000-4000-8000-000000000007', 'owner' from public.businesses where id::text between 'b0000000-0000-4000-8000-000000000004' and 'b0000000-0000-4000-8000-000000000008';
+
+insert into public.business_categories (business_id, category_id, is_primary)
+select v.id, c.id, true
+from (values ('b0000000-0000-4000-8000-000000000004'::uuid, 'photography'), ('b0000000-0000-4000-8000-000000000005'::uuid, 'cleaning'),
+             ('b0000000-0000-4000-8000-000000000006'::uuid, 'nails'), ('b0000000-0000-4000-8000-000000000007'::uuid, 'spa-massage'),
+             ('b0000000-0000-4000-8000-000000000008'::uuid, 'tutoring')) as v(id, cat)
+join public.categories c on c.slug = v.cat;
+
+insert into public.business_locations (business_id, country_code, city_id, area_id, address_line, landmark, lat, lng)
+select v.id, 'GH', ci.id, a.id, v.address, v.landmark, v.lat, v.lng
+from (values
+  ('b0000000-0000-4000-8000-000000000004'::uuid, 'kumasi', 'ahodwo', 'Ahodwo Roundabout', 'Opposite the Golden Tulip hotel', 6.6680, -1.6270),
+  ('b0000000-0000-4000-8000-000000000005'::uuid, 'tema', 'community-25', 'Community 25 Mall road', null, 5.7030, -0.0200),
+  ('b0000000-0000-4000-8000-000000000006'::uuid, 'accra', 'east-legon', 'American House, 2nd floor', 'Near the American House junction', 5.6370, -0.1540),
+  ('b0000000-0000-4000-8000-000000000007'::uuid, 'accra', 'airport-residential', 'Airport Residential', 'Behind the Airport Shell station', 5.6010, -0.1790),
+  ('b0000000-0000-4000-8000-000000000008'::uuid, 'kumasi', 'asokwa', 'Asokwa', null, 6.6700, -1.6100)
+) as v(id, city, area, address, landmark, lat, lng)
+join public.cities ci on ci.slug = v.city
+join public.areas a on a.city_id = ci.id and a.slug = v.area;
+
+insert into public.booking_rules (business_id)
+select id from public.businesses where id::text between 'b0000000-0000-4000-8000-000000000004' and 'b0000000-0000-4000-8000-000000000008';
+
+insert into public.staff (business_id, user_id, display_name, role_title)
+select id, 'a0000000-0000-4000-8000-000000000007', split_part(name, ' ', 1), null
+from public.businesses where id::text between 'b0000000-0000-4000-8000-000000000004' and 'b0000000-0000-4000-8000-000000000008';
+
+insert into public.services (business_id, name, price_minor, price_type, currency_code, duration_minutes)
+values
+  ('b0000000-0000-4000-8000-000000000004', 'Portrait session', 40000, 'from', 'GHS', 60),
+  ('b0000000-0000-4000-8000-000000000004', 'Graduation shoot', 60000, 'fixed', 'GHS', 90),
+  ('b0000000-0000-4000-8000-000000000005', 'Home cleaning (2 bedrooms)', 30000, 'fixed', 'GHS', 180),
+  ('b0000000-0000-4000-8000-000000000005', 'Deep cleaning', 55000, 'from', 'GHS', 300),
+  ('b0000000-0000-4000-8000-000000000006', 'Gel manicure', 12000, 'fixed', 'GHS', 45),
+  ('b0000000-0000-4000-8000-000000000006', 'Acrylic full set', 20000, 'fixed', 'GHS', 90),
+  ('b0000000-0000-4000-8000-000000000007', 'Swedish massage', 35000, 'fixed', 'GHS', 60),
+  ('b0000000-0000-4000-8000-000000000008', 'Maths lesson', 8000, 'fixed', 'GHS', 60);
+
+insert into public.staff_services (business_id, staff_id, service_id)
+select s.business_id, s.id, sv.id
+from public.staff s join public.services sv on sv.business_id = s.business_id
+where s.business_id::text between 'b0000000-0000-4000-8000-000000000004' and 'b0000000-0000-4000-8000-000000000008';
+
+insert into public.business_hours (business_id, weekday, during)
+select b.id, d, '[09:00,18:00)'::public.timerange
+from public.businesses b cross join generate_series(1, 6) d
+where b.id::text between 'b0000000-0000-4000-8000-000000000004' and 'b0000000-0000-4000-8000-000000000008';

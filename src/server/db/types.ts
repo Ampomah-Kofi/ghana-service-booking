@@ -438,6 +438,7 @@ export type Database = {
           published_at: string | null;
           rating_avg: number | null;
           rating_count: number;
+          search_document: unknown;
           slug: string;
           status: Database["public"]["Enums"]["business_status"];
           timezone: string;
@@ -462,6 +463,7 @@ export type Database = {
           published_at?: string | null;
           rating_avg?: number | null;
           rating_count?: number;
+          search_document?: unknown;
           slug: string;
           status?: Database["public"]["Enums"]["business_status"];
           timezone?: string;
@@ -486,6 +488,7 @@ export type Database = {
           published_at?: string | null;
           rating_avg?: number | null;
           rating_count?: number;
+          search_document?: unknown;
           slug?: string;
           status?: Database["public"]["Enums"]["business_status"];
           timezone?: string;
@@ -1143,9 +1146,60 @@ export type Database = {
         Args: { p_phone_e164: string; p_role?: Database["public"]["Enums"]["member_role"]; p_staff_id: string };
         Returns: string;
       };
+      match_search_terms: {
+        Args: { p_country_code: string; p_what: string; p_where: string };
+        Returns: {
+          area_id: string;
+          area_name: string;
+          category_id: string;
+          category_name: string;
+          category_slug: string;
+          city_id: string;
+          city_name: string;
+          region_id: string;
+          region_name: string;
+        }[];
+      };
       publish_business: { Args: { p_business_id: string }; Returns: undefined };
       remove_staff_member: { Args: { p_staff_id: string }; Returns: undefined };
       revoke_staff_invite: { Args: { p_staff_id: string }; Returns: undefined };
+      search_businesses: {
+        Args: {
+          p_area_id?: string;
+          p_category_id?: string;
+          p_city_id?: string;
+          p_lat?: number;
+          p_limit?: number;
+          p_lng?: number;
+          p_offset?: number;
+          p_radius_km?: number;
+          p_region_id?: string;
+          p_sort?: string;
+          p_text?: string;
+        };
+        Returns: {
+          area_name: string;
+          category_name: string;
+          category_slug: string;
+          city_name: string;
+          currency_code: string;
+          distance_m: number;
+          has_from_price: boolean;
+          id: string;
+          locality_text: string;
+          logo_path: string;
+          min_price_minor: number;
+          name: string;
+          next_available_at: string;
+          photo_path: string;
+          published_at: string;
+          rank: number;
+          rating_avg: number;
+          rating_count: number;
+          slug: string;
+          total_count: number;
+        }[];
+      };
       set_business_hours: { Args: { p_business_id: string; p_hours: Json }; Returns: undefined };
       set_business_slug: { Args: { p_business_id: string; p_slug: string }; Returns: string };
       set_primary_category: { Args: { p_business_id: string; p_category_id: string }; Returns: undefined };

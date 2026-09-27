@@ -24,19 +24,19 @@ end $$;
 
 -- ---------------------------------------------------------------- read: businesses
 select pg_temp.act_as(null);
-select set_eq($$ select slug from public.businesses $$, array['kwame-cuts', 'ama-braids'],
+select set_eq($$ select slug from public.businesses where slug in ('kwame-cuts', 'ama-braids', 'osu-glow-spa') $$, array['kwame-cuts', 'ama-braids'],
   'anon sees only published businesses');
 
 select pg_temp.act_as('a0000000-0000-4000-8000-000000000006');  -- Yaw (customer)
-select set_eq($$ select slug from public.businesses $$, array['kwame-cuts', 'ama-braids'],
+select set_eq($$ select slug from public.businesses where slug in ('kwame-cuts', 'ama-braids', 'osu-glow-spa') $$, array['kwame-cuts', 'ama-braids'],
   'customer sees only published businesses');
 
 select pg_temp.act_as('a0000000-0000-4000-8000-000000000001');  -- Kwame (owner A)
-select set_eq($$ select slug from public.businesses $$, array['kwame-cuts', 'ama-braids'],
+select set_eq($$ select slug from public.businesses where slug in ('kwame-cuts', 'ama-braids', 'osu-glow-spa') $$, array['kwame-cuts', 'ama-braids'],
   'owner of A cannot see another tenant''s draft business');
 
 select pg_temp.act_as('a0000000-0000-4000-8000-000000000005');  -- Akosua (manager of draft osu)
-select set_eq($$ select slug from public.businesses $$, array['kwame-cuts', 'ama-braids', 'osu-glow-spa'],
+select set_eq($$ select slug from public.businesses where slug in ('kwame-cuts', 'ama-braids', 'osu-glow-spa') $$, array['kwame-cuts', 'ama-braids', 'osu-glow-spa'],
   'manager sees their own draft business');
 
 -- Suspending hides a business from the public but not from its members.
@@ -44,11 +44,11 @@ select pg_temp.act_as(null);
 reset role;
 update public.businesses set status = 'suspended' where slug = 'ama-braids';
 select pg_temp.act_as(null);
-select set_eq($$ select slug from public.businesses $$, array['kwame-cuts'], 'suspended business hidden from anon');
+select set_eq($$ select slug from public.businesses where slug in ('kwame-cuts', 'ama-braids', 'osu-glow-spa') $$, array['kwame-cuts'], 'suspended business hidden from anon');
 select pg_temp.act_as('a0000000-0000-4000-8000-000000000001');
-select set_eq($$ select slug from public.businesses $$, array['kwame-cuts'], 'suspended business hidden from other owners');
+select set_eq($$ select slug from public.businesses where slug in ('kwame-cuts', 'ama-braids', 'osu-glow-spa') $$, array['kwame-cuts'], 'suspended business hidden from other owners');
 select pg_temp.act_as('a0000000-0000-4000-8000-000000000003');  -- Efua (staff of ama-braids)
-select set_eq($$ select slug from public.businesses $$, array['kwame-cuts', 'ama-braids'],
+select set_eq($$ select slug from public.businesses where slug in ('kwame-cuts', 'ama-braids', 'osu-glow-spa') $$, array['kwame-cuts', 'ama-braids'],
   'staff still see their suspended business');
 reset role;
 update public.businesses set status = 'published' where slug = 'ama-braids';

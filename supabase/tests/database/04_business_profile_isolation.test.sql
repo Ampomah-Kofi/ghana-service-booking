@@ -25,16 +25,16 @@ values ('b0000000-0000-4000-8000-000000000003', 'businesses/b0000000-0000-4000-8
 
 -- ---------------------------------------------------------------- public reads only published tenants
 select pg_temp.act_as(null);
-select set_eq($$ select business_id from public.business_locations $$,
+select set_eq($$ select business_id from public.business_locations where business_id in ('b0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000003') $$,
   array['b0000000-0000-4000-8000-000000000001'::uuid, 'b0000000-0000-4000-8000-000000000002'::uuid],
   'anon reads locations of published businesses only');
-select set_eq($$ select business_id from public.business_categories $$,
+select set_eq($$ select business_id from public.business_categories where business_id in ('b0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000003') $$,
   array['b0000000-0000-4000-8000-000000000001'::uuid, 'b0000000-0000-4000-8000-000000000002'::uuid],
   'anon reads categories of published businesses only');
 select is((select count(*) from public.staff where business_id = 'b0000000-0000-4000-8000-000000000003'), 0::bigint,
   'anon cannot see staff of a draft business');
 select is_empty($$ select id from public.business_photos $$, 'anon cannot see photos of a draft business');
-select is((select count(*) from public.booking_rules), 2::bigint, 'anon reads booking rules of published businesses only');
+select is((select count(*) from public.booking_rules where business_id in ('b0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000003')), 2::bigint, 'anon reads booking rules of published businesses only');
 
 -- ---------------------------------------------------------------- members read their draft business
 select pg_temp.act_as('a0000000-0000-4000-8000-000000000005');  -- Akosua, manager of draft osu

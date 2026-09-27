@@ -284,6 +284,7 @@ max_frequency = "5s"
 233200000004 = "123456"
 233200000005 = "123456"
 233200000006 = "123456"
+233200000007 = "123456"
 233200000009 = "123456"
 
 # Send SMS Hook (ADR-0004): Supabase Auth hands the OTP to our app, which sends it
