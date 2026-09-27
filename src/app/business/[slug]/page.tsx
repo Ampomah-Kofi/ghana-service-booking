@@ -8,6 +8,11 @@ import { formatPhoneInternational } from "@/lib/phone";
 import { publicEnv } from "@/lib/public-env";
 import { buildShareLinks, businessPageUrl, mapsUrl, shareMessage, telUrl, whatsappChatUrl } from "@/lib/share";
 import { formatPlace, getBusinessBySlug } from "@/server/businesses/queries";
+import { listServices } from "@/server/businesses/catalog";
+import { getBusinessHours } from "@/server/businesses/schedule";
+import { listStaff } from "@/server/businesses/team";
+import { describeWeek, formatDuration } from "@/lib/hours";
+import { formatMoney } from "@/lib/money";
 import { createUserClient } from "@/server/db/supabase-server";
 
 // RLS decides visibility: everyone sees published pages; the business's team also sees drafts (preview).
@@ -41,6 +46,18 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
   const { slug } = await params;
   const business = await loadBusiness(slug);
   if (!business) notFound();
+
+  const db = await createUserClient();
+  const [allServices, allStaff, hours] = await Promise.all([
+    listServices(db, business.id),
+    listStaff(db, business.id, { withInvites: false }),
+    getBusinessHours(db, business.id),
+  ]);
+  // Members previewing a draft also receive hidden items; show exactly what customers will see.
+  const services = allServices.filter((s) => s.isActive);
+  const team = allStaff.filter((s) => s.isActive);
+  const staffName = new Map(team.map((s) => [s.id, s.displayName]));
+  const week = describeWeek(hours);
 
   const env = publicEnv();
   const media = (path: string) => publicMediaUrl(env.NEXT_PUBLIC_SUPABASE_URL, path);
@@ -113,15 +130,70 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
         ) : null}
       </section>
 
-      <section className="mb-6 rounded-card bg-surface-elevated p-4 shadow-card" aria-labelledby="book-heading">
-        <h2 id="book-heading" className="text-title-2 font-semibold">
-          Services &amp; booking
+      <section className="mb-6" aria-labelledby="services-heading">
+        <h2 id="services-heading" className="mb-2 text-title-2 font-semibold">
+          Services
         </h2>
-        <p className="mt-1 text-body text-text-secondary">
+        {services.length === 0 ? (
+          <p className="rounded-card bg-surface-elevated p-4 text-body text-text-secondary shadow-card">
+            Services coming soon.
+          </p>
+        ) : (
+          <ul className="divide-y divide-separator overflow-hidden rounded-card bg-surface-elevated shadow-card">
+            {services.map((s) => (
+              <li key={s.id} className="flex items-start justify-between gap-4 px-4 py-3">
+                <div className="min-w-0">
+                  <p className="text-body font-medium">{s.name}</p>
+                  <p className="text-footnote text-text-secondary">
+                    {formatDuration(s.durationMinutes)}
+                    {business.kind === "team" && s.staffIds.length > 0
+                      ? ` · with ${s.staffIds
+                          .map((id) => staffName.get(id))
+                          .filter(Boolean)
+                          .join(", ")}`
+                      : ""}
+                  </p>
+                  {s.description ? <p className="mt-1 text-footnote text-text-secondary">{s.description}</p> : null}
+                </div>
+                <p className="shrink-0 text-body font-semibold tabular-nums">
+                  {s.priceType === "from" ? (
+                    <span className="text-footnote font-normal text-text-secondary">from </span>
+                  ) : null}
+                  {formatMoney({ amountMinor: s.priceMinor, currency: s.currencyCode }, business.currency)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-2 text-footnote text-text-secondary">
           Online booking is coming soon. For now, call or message{" "}
           {business.phone ? formatPhoneInternational(business.phone) : "on WhatsApp"} to book.
         </p>
       </section>
+
+      {business.kind === "team" && team.length > 1 ? (
+        <section className="mb-6" aria-labelledby="team-heading">
+          <h2 id="team-heading" className="mb-2 text-title-2 font-semibold">
+            Team
+          </h2>
+          <ul className="flex gap-4 overflow-x-auto pb-1">
+            {team.map((member) => (
+              <li key={member.id} className="flex w-20 shrink-0 flex-col items-center text-center">
+                <span
+                  aria-hidden="true"
+                  className="mb-1 flex size-14 items-center justify-center rounded-full bg-surface-elevated text-title-2 font-semibold text-text-secondary shadow-card"
+                >
+                  {member.displayName.charAt(0).toUpperCase()}
+                </span>
+                <span className="w-full truncate text-footnote font-medium">{member.displayName}</span>
+                {member.roleTitle ? (
+                  <span className="w-full truncate text-footnote text-text-secondary">{member.roleTitle}</span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {business.description ? (
         <section className="mb-6" aria-labelledby="about-heading">
@@ -153,6 +225,24 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
               Open in Maps
             </a>
           ) : null}
+        </section>
+      ) : null}
+
+      {hours.length > 0 ? (
+        <section className="mb-6" aria-labelledby="hours-heading">
+          <h2 id="hours-heading" className="mb-2 text-title-2 font-semibold">
+            Opening hours
+          </h2>
+          <dl className="divide-y divide-separator overflow-hidden rounded-card bg-surface-elevated shadow-card">
+            {week.map((day) => (
+              <div key={day.day} className="flex justify-between gap-4 px-4 py-2.5 text-body">
+                <dt>{day.label}</dt>
+                <dd className={`text-right tabular-nums ${day.ranges.length ? "" : "text-text-secondary"}`}>
+                  {day.ranges.length ? day.ranges.join(", ") : "Closed"}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </section>
       ) : null}
 

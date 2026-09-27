@@ -1,5 +1,6 @@
 "use client";
 
+import { valueOf } from "@/lib/form-values";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, FormMessage, SelectField, TextAreaField } from "@/components/ui/field";
@@ -86,7 +87,7 @@ export function LocationForm({ businessId, cities, values }: { businessId: strin
           id="localityText"
           name="localityText"
           label="Town name"
-          defaultValue={values.localityText}
+          defaultValue={valueOf(state.values, "localityText", values.localityText)}
           maxLength={80}
           error={state.fieldErrors?.localityText}
         />
@@ -98,7 +99,7 @@ export function LocationForm({ businessId, cities, values }: { businessId: strin
           id="areaId"
           name="areaId"
           label="Area or neighbourhood"
-          defaultValue={city.id === values.cityId ? values.areaId : ""}
+          defaultValue={valueOf(state.values, "areaId", city.id === values.cityId ? values.areaId : "")}
           hint="Optional, but it helps people nearby find you."
           error={state.fieldErrors?.areaId}
         >
@@ -115,7 +116,7 @@ export function LocationForm({ businessId, cities, values }: { businessId: strin
         id="addressLine"
         name="addressLine"
         label="Street address"
-        defaultValue={values.addressLine}
+        defaultValue={valueOf(state.values, "addressLine", values.addressLine)}
         maxLength={200}
         placeholder="e.g. Lagos Avenue, 1st floor"
         hint="Optional."
@@ -125,7 +126,7 @@ export function LocationForm({ businessId, cities, values }: { businessId: strin
         id="landmark"
         name="landmark"
         label="Nearest landmark"
-        defaultValue={values.landmark}
+        defaultValue={valueOf(state.values, "landmark", values.landmark)}
         maxLength={200}
         placeholder="e.g. Opposite the Shell filling station"
         hint="Helps customers find you. Strongly recommended."
@@ -136,7 +137,7 @@ export function LocationForm({ businessId, cities, values }: { businessId: strin
         name="directions"
         label="Directions"
         rows={3}
-        defaultValue={values.directions}
+        defaultValue={valueOf(state.values, "directions", values.directions)}
         maxLength={500}
         placeholder="e.g. Enter through the blue gate, we're upstairs."
         hint="Optional."

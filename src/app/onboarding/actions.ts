@@ -14,7 +14,7 @@ export async function createBusinessAction(_prev: FormState, formData: FormData)
     name: formData.get("name"),
     categoryId: formData.get("categoryId"),
   });
-  if (!parsed.success) return fieldErrorsFrom(parsed.error);
+  if (!parsed.success) return fieldErrorsFrom(parsed.error, formData);
 
   let businessId: string;
   try {
@@ -22,7 +22,7 @@ export async function createBusinessAction(_prev: FormState, formData: FormData)
     const created = await createBusiness(await createUserClient(), parsed.data, serverEnv().DEFAULT_COUNTRY_CODE);
     businessId = created.id;
   } catch (error) {
-    return formError(error);
+    return formError(error, formData);
   }
   redirect(`/dashboard/${businessId}/setup/about`);
 }

@@ -46,6 +46,20 @@ export default async function BusinessDashboardPage({ params }: PageProps<"/dash
       href: setup("contact"),
     },
     {
+      label: "Services",
+      detail: missing.includes("services") ? "Add at least one service someone performs" : "Added",
+      done: !missing.includes("services"),
+      required: true,
+      href: `/dashboard/${business.id}/services`,
+    },
+    {
+      label: "Opening hours",
+      detail: missing.includes("hours") ? "Set when you're open" : "Set",
+      done: !missing.includes("hours"),
+      required: true,
+      href: `/dashboard/${business.id}/hours`,
+    },
+    {
       label: "Description",
       detail: business.description ? "Added" : "Tell customers about you",
       done: business.description !== null,
@@ -80,7 +94,7 @@ export default async function BusinessDashboardPage({ params }: PageProps<"/dash
       </h1>
       <p className="mb-6 text-body text-text-secondary">
         {published
-          ? "Share your link so customers can find you. Services and booking arrive next."
+          ? "Share your link so customers can find you. Online booking arrives next."
           : business.status === "draft"
             ? "Finish the required items, then publish your page."
             : `This business is ${business.status}. Contact support to restore it.`}

@@ -4,6 +4,8 @@ export const SETUP_STEPS = [
   { slug: "about", title: "About" },
   { slug: "location", title: "Location" },
   { slug: "contact", title: "Contact" },
+  { slug: "services", title: "Services" },
+  { slug: "hours", title: "Hours" },
   { slug: "photos", title: "Photos" },
 ] as const;
 

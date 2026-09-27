@@ -22,6 +22,7 @@ export function EmailSignInForm({ next }: { next: string }) {
         label="Email"
         autoComplete="email"
         required
+        defaultValue={state.email}
         error={state.fieldErrors?.email}
       />
       <Field

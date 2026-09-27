@@ -1,5 +1,6 @@
 "use client";
 
+import { valueOf } from "@/lib/form-values";
 import { useActionState, useState } from "react";
 import { Field, FormMessage } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
@@ -23,7 +24,7 @@ export function ContactForm({ businessId, values }: { businessId: string; values
         inputMode="tel"
         autoComplete="tel"
         label="Phone number for customers"
-        defaultValue={values.phone}
+        defaultValue={valueOf(state.values, "phone", values.phone)}
         placeholder="024 123 4567"
         error={state.fieldErrors?.phone}
       />
@@ -44,7 +45,7 @@ export function ContactForm({ businessId, values }: { businessId: string; values
           type="tel"
           inputMode="tel"
           label="WhatsApp number"
-          defaultValue={values.whatsapp}
+          defaultValue={valueOf(state.values, "whatsapp", values.whatsapp)}
           placeholder="Optional"
           error={state.fieldErrors?.whatsapp}
         />
@@ -55,7 +56,7 @@ export function ContactForm({ businessId, values }: { businessId: string; values
         type="email"
         autoComplete="email"
         label="Email"
-        defaultValue={values.email}
+        defaultValue={valueOf(state.values, "email", values.email)}
         hint="Optional."
         error={state.fieldErrors?.email}
       />

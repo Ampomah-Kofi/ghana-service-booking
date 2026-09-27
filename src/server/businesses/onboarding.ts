@@ -11,7 +11,8 @@ import { toAppError } from "./errors";
  * SECURITY DEFINER functions) and invariants (constraints), so nothing here is trusted alone.
  */
 
-export type ReadinessItem = "category" | "location" | "contact";
+const READINESS_ITEMS = ["category", "location", "contact", "services", "hours"] as const;
+export type ReadinessItem = (typeof READINESS_ITEMS)[number];
 
 export async function createBusiness(
   db: Db,
@@ -104,7 +105,7 @@ export async function saveContact(
 export async function getPublishReadiness(db: Db, businessId: string): Promise<ReadinessItem[]> {
   const { data, error } = await db.rpc("business_publish_readiness", { p_business_id: businessId });
   if (error) throw toAppError(error);
-  return data.filter((item): item is ReadinessItem => ["category", "location", "contact"].includes(item));
+  return data.filter((item): item is ReadinessItem => (READINESS_ITEMS as readonly string[]).includes(item));
 }
 
 export async function publishBusiness(db: Db, businessId: string): Promise<void> {

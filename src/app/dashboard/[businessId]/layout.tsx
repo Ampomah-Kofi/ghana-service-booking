@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DashboardTabs } from "@/components/business/dashboard-tabs";
 import { managedBusinessOr404 } from "@/server/businesses/access";
 
 export default async function BusinessDashboardLayout({ children, params }: LayoutProps<"/dashboard/[businessId]">) {
@@ -15,6 +16,8 @@ export default async function BusinessDashboardLayout({ children, params }: Layo
           {business.status === "published" ? "View page" : "Preview"}
         </Link>
       </nav>
+      {/* Solo providers never see team management (SPEC §6). */}
+      <DashboardTabs businessId={business.id} showTeam={business.kind === "team"} />
       {children}
     </div>
   );

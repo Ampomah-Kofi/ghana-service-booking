@@ -6,7 +6,7 @@ import { z } from "zod";
 import { nextStepHref } from "@/components/ui/step-header";
 import { AppError } from "@/lib/errors";
 import { aboutSchema, contactSchema, locationSchema, slugSchema } from "@/schemas/business";
-import { fieldErrorsFrom, formError, type FormState } from "@/server/actions";
+import { fieldErrorsFrom, formError, formValues, type FormState } from "@/server/actions";
 import { requireManagedBusiness } from "@/server/businesses/access";
 import { addPortfolioPhoto, deletePortfolioPhoto, removeLogo, setLogo } from "@/server/businesses/media";
 import {
@@ -36,7 +36,7 @@ export async function saveAboutAction(_prev: FormState, formData: FormData): Pro
     categoryId: formData.get("categoryId"),
     description: formData.get("description") ?? "",
   });
-  if (!parsed.success) return fieldErrorsFrom(parsed.error);
+  if (!parsed.success) return fieldErrorsFrom(parsed.error, formData);
   let businessId: string;
   try {
     const { db, business } = await requireManagedBusiness(formData.get("businessId"));
@@ -44,14 +44,14 @@ export async function saveAboutAction(_prev: FormState, formData: FormData): Pro
     refresh(business.id, business.slug);
     businessId = business.id;
   } catch (error) {
-    return formError(error);
+    return formError(error, formData);
   }
   redirect(nextStepHref(businessId, "about"));
 }
 
 export async function saveSlugAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const parsed = z.object({ slug: slugSchema }).safeParse({ slug: formData.get("slug") });
-  if (!parsed.success) return fieldErrorsFrom(parsed.error);
+  if (!parsed.success) return fieldErrorsFrom(parsed.error, formData);
   try {
     const { db, business } = await requireManagedBusiness(formData.get("businessId"));
     const slug = await setBusinessSlug(db, business.id, parsed.data.slug);
@@ -59,9 +59,9 @@ export async function saveSlugAction(_prev: FormState, formData: FormData): Prom
     return { ok: true, notice: `Your page is now at /business/${slug}` };
   } catch (error) {
     if (error instanceof AppError && (error.code === "CONFLICT" || error.code === "VALIDATION")) {
-      return { fieldErrors: { slug: error.message } };
+      return { fieldErrors: { slug: error.message }, values: formValues(formData) };
     }
-    return formError(error);
+    return formError(error, formData);
   }
 }
 
@@ -76,7 +76,7 @@ export async function saveLocationAction(_prev: FormState, formData: FormData): 
     lat: formData.get("lat") || null,
     lng: formData.get("lng") || null,
   });
-  if (!parsed.success) return fieldErrorsFrom(parsed.error);
+  if (!parsed.success) return fieldErrorsFrom(parsed.error, formData);
   let businessId: string;
   try {
     const { db, business } = await requireManagedBusiness(formData.get("businessId"));
@@ -84,7 +84,7 @@ export async function saveLocationAction(_prev: FormState, formData: FormData): 
     refresh(business.id, business.slug);
     businessId = business.id;
   } catch (error) {
-    return formError(error);
+    return formError(error, formData);
   }
   redirect(nextStepHref(businessId, "location"));
 }
@@ -96,7 +96,7 @@ export async function saveContactAction(_prev: FormState, formData: FormData): P
     whatsapp: formData.get("whatsapp") ?? "",
     email: formData.get("email") ?? "",
   });
-  if (!parsed.success) return fieldErrorsFrom(parsed.error);
+  if (!parsed.success) return fieldErrorsFrom(parsed.error, formData);
   let businessId: string;
   try {
     const { db, business } = await requireManagedBusiness(formData.get("businessId"));
@@ -104,7 +104,7 @@ export async function saveContactAction(_prev: FormState, formData: FormData): P
     refresh(business.id, business.slug);
     businessId = business.id;
   } catch (error) {
-    return formError(error);
+    return formError(error, formData);
   }
   redirect(nextStepHref(businessId, "contact"));
 }
@@ -122,7 +122,7 @@ export async function uploadLogoAction(_prev: FormState, formData: FormData): Pr
     refresh(business.id, business.slug);
     return { ok: true, notice: "Logo updated." };
   } catch (error) {
-    return formError(error);
+    return formError(error, formData);
   }
 }
 
@@ -147,7 +147,7 @@ export async function addPhotoAction(_prev: FormState, formData: FormData): Prom
     refresh(business.id, business.slug);
     return { ok: true, notice: "Photo added." };
   } catch (error) {
-    return formError(error);
+    return formError(error, formData);
   }
 }
 
@@ -165,7 +165,7 @@ export async function publishAction(_prev: FormState, formData: FormData): Promi
     refresh(business.id, business.slug);
     return { ok: true, notice: "Your page is live. Share it with your customers!" };
   } catch (error) {
-    return formError(error);
+    return formError(error, formData);
   }
 }
 
@@ -176,6 +176,6 @@ export async function unpublishAction(_prev: FormState, formData: FormData): Pro
     refresh(business.id, business.slug);
     return { ok: true, notice: "Your page is hidden. Only your team can see it." };
   } catch (error) {
-    return formError(error);
+    return formError(error, formData);
   }
 }

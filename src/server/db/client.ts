@@ -7,3 +7,12 @@ import type { Database } from "./types";
  * integration tests (a signed-in test user). RLS applies in every case.
  */
 export type Db = SupabaseClient<Database>;
+
+/**
+ * `supabase gen types` types every function argument as non-null, although
+ * Postgres accepts NULL (e.g. "no staff member" = whole business). This makes
+ * that one deliberate gap explicit instead of scattering casts.
+ */
+export function nullableArg<T>(value: T | null): T {
+  return value as T;
+}

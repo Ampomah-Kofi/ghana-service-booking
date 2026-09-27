@@ -68,6 +68,7 @@ export type EmailFormState = {
   message?: string;
   notice?: string;
   fieldErrors?: Record<string, string>;
+  email?: string;
 };
 
 export async function emailSignInAction(_prev: EmailFormState, formData: FormData): Promise<EmailFormState> {
@@ -79,12 +80,12 @@ export async function emailSignInAction(_prev: EmailFormState, formData: FormDat
 
   if (intent === "sign-up") {
     const result = await signUpWithEmailPassword(input);
-    if (!result.ok) return { message: result.message, fieldErrors: result.fieldErrors };
-    return { notice: "Check your email for a link to confirm your account." };
+    if (!result.ok) return { message: result.message, fieldErrors: result.fieldErrors, email: input.email };
+    return { notice: "Check your email for a link to confirm your account.", email: input.email };
   }
 
   const result = await signInWithEmailPassword(input);
-  if (!result.ok) return { message: result.message, fieldErrors: result.fieldErrors };
+  if (!result.ok) return { message: result.message, fieldErrors: result.fieldErrors, email: input.email };
   redirect(safeReturnPath(formData.get("next")?.toString()));
 }
 

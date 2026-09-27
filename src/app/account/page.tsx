@@ -23,7 +23,11 @@ export default async function AccountPage() {
       <GroupedSection title="Profile">
         <GroupedRow label="Phone" value={user.phone ? formatPhoneInternational(user.phone) : "Not set"} />
         <GroupedRow label="Email" value={user.email ?? "Not set"} />
-        {admin ? <GroupedRow label="Access" value="Platform admin" /> : null}
+        {admin ? (
+          <Link href="/admin/categories" className="block hover:bg-fill">
+            <GroupedRow label="Access" value="Platform admin ›" />
+          </Link>
+        ) : null}
       </GroupedSection>
 
       <GroupedSection

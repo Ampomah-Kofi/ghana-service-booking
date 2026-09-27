@@ -39,3 +39,28 @@ export function formatMoney(money: Money, currency: CurrencyInfo, locale = "en-G
     .join("");
   return `${sign}${symbol}${number}`;
 }
+
+/**
+ * Parses what a person types into a price box ("50", "50.5", "1,200.00", "GH₵ 80")
+ * into integer minor units. Returns null for anything that isn't a clean amount.
+ */
+export function parseMoneyInput(input: string, minorUnit: number): number | null {
+  // Drop a leading currency label ("GH₵ ", "GHS"), spaces and thousands separators; anything else must be digits.
+  const cleaned = input
+    .trim()
+    .replace(/^[^\d-]*/, "")
+    .replace(/[\s,]/g, "");
+  if (!/^\d+(\.\d+)?$/.test(cleaned)) return null;
+  const [whole, fraction = ""] = cleaned.split(".");
+  if (fraction.length > minorUnit) return null;
+  const minor = Number(whole) * 10 ** minorUnit + Number(fraction.padEnd(minorUnit, "0") || "0");
+  return Number.isSafeInteger(minor) ? minor : null;
+}
+
+/** Minor units → plain editable text ("5000" pesewas → "50", "5050" → "50.50"). */
+export function minorToInput(amountMinor: number, minorUnit: number): string {
+  const factor = 10 ** minorUnit;
+  const whole = Math.trunc(amountMinor / factor);
+  const fraction = amountMinor % factor;
+  return fraction === 0 ? String(whole) : `${whole}.${String(fraction).padStart(minorUnit, "0")}`;
+}

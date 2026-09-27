@@ -40,12 +40,15 @@ export type BusinessView = {
   email: string | null;
   logoPath: string | null;
   category: { id: string; name: string; slug: string } | null;
+  currency: { code: string; symbol: string; minorUnit: number };
+  timezone: string;
   location: BusinessLocationView | null;
   photos: BusinessPhotoView[];
 };
 
 const businessSelect = `
-  id, slug, name, description, kind, status, published_at, phone_e164, whatsapp_e164, email, logo_path,
+  id, slug, name, description, kind, status, published_at, phone_e164, whatsapp_e164, email, logo_path, timezone,
+  currencies ( code, symbol, minor_unit ),
   business_categories ( is_primary, categories ( id, name, slug ) ),
   business_locations ( is_primary, city_id, area_id, locality_text, address_line, landmark, directions, lat, lng,
                        cities ( name, regions ( name ) ), areas ( name ) ),
@@ -85,6 +88,8 @@ async function loadBusiness(db: Db, column: "id" | "slug", value: string): Promi
     email: data.email,
     logoPath: data.logo_path,
     category: primaryCategory,
+    currency: { code: data.currencies.code, symbol: data.currencies.symbol, minorUnit: data.currencies.minor_unit },
+    timezone: data.timezone,
     location: loc
       ? {
           cityId: loc.city_id,

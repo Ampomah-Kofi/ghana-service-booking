@@ -84,6 +84,9 @@ export function SelectField({ id, label, error, hint, children, ...select }: Sel
         {label}
       </label>
       <select
+        // React applies defaultValue to <select> only on mount; remount when a refilled
+        // value arrives so the form reset after a failed submit keeps the choice.
+        key={select.defaultValue === undefined ? undefined : String(select.defaultValue)}
         id={id}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}

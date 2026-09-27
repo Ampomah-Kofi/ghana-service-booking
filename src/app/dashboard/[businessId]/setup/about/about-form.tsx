@@ -1,5 +1,6 @@
 "use client";
 
+import { valueOf } from "@/lib/form-values";
 import { useActionState } from "react";
 import { Field, FormMessage, SelectField, TextAreaField } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
@@ -24,14 +25,14 @@ export function AboutForm({ businessId, categories, values }: Props) {
         label="Business name"
         required
         maxLength={120}
-        defaultValue={values.name}
+        defaultValue={valueOf(state.values, "name", values.name)}
         error={state.fieldErrors?.name}
       />
       <SelectField
         id="categoryId"
         name="categoryId"
         label="Category"
-        defaultValue={values.categoryId}
+        defaultValue={valueOf(state.values, "categoryId", values.categoryId)}
         error={state.fieldErrors?.categoryId}
       >
         {categories.map((c) => (
@@ -44,7 +45,7 @@ export function AboutForm({ businessId, categories, values }: Props) {
         id="kind"
         name="kind"
         label="Who works here?"
-        defaultValue={values.kind}
+        defaultValue={valueOf(state.values, "kind", values.kind)}
         error={state.fieldErrors?.kind}
       >
         <option value="solo">Just me</option>
@@ -55,7 +56,7 @@ export function AboutForm({ businessId, categories, values }: Props) {
         name="description"
         label="Description"
         maxLength={2000}
-        defaultValue={values.description}
+        defaultValue={valueOf(state.values, "description", values.description)}
         placeholder="What you do, your style, and what makes you different."
         hint="Optional. Customers see this on your page."
         error={state.fieldErrors?.description}
@@ -87,7 +88,7 @@ export function SlugForm({
         id="slug"
         name="slug"
         label="Web address"
-        defaultValue={slug}
+        defaultValue={valueOf(state.values, "slug", slug)}
         disabled={locked}
         autoCapitalize="none"
         autoCorrect="off"

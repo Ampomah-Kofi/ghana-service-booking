@@ -1,5 +1,6 @@
 "use client";
 
+import { valueOf } from "@/lib/form-values";
 import { useActionState } from "react";
 import { Field, FormMessage, SelectField } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
@@ -23,7 +24,7 @@ export function CreateBusinessForm({ categories }: { categories: Category[] }) {
       <fieldset className="mb-5">
         <legend className="mb-2 text-callout font-medium">Who works at your business?</legend>
         <div className="grid gap-2 sm:grid-cols-2">
-          {kinds.map((kind, i) => (
+          {kinds.map((kind) => (
             <label
               key={kind.value}
               className="flex min-h-11 cursor-pointer items-start gap-3 rounded-control border border-separator p-3 has-[:checked]:border-accent has-[:checked]:bg-accent/5"
@@ -32,7 +33,7 @@ export function CreateBusinessForm({ categories }: { categories: Category[] }) {
                 type="radio"
                 name="kind"
                 value={kind.value}
-                defaultChecked={i === 0}
+                defaultChecked={valueOf(state.values, "kind", "solo") === kind.value}
                 className="mt-1 accent-accent"
               />
               <span>
@@ -61,7 +62,7 @@ export function CreateBusinessForm({ categories }: { categories: Category[] }) {
         name="categoryId"
         label="What do you do?"
         required
-        defaultValue=""
+        defaultValue={valueOf(state.values, "categoryId", "")}
         error={state.fieldErrors?.categoryId}
       >
         <option value="" disabled>
