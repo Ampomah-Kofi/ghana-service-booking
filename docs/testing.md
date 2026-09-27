@@ -16,6 +16,7 @@ CI (`.github/workflows/ci.yml`) runs all of these on every PR, plus a check that
 ## Database tests (pgTAP)
 
 - Each file runs in one transaction that is **rolled back**, so tests never leave data behind.
+- Files that count appointments start with `delete from public.appointments` inside their rolled-back transaction, so they pass with or without `pnpm db:demo` data or E2E leftovers.
 - They rely on the **seed fixtures** in `supabase/seed.sql` (fixed UUIDs: users `a0000000-…-00000000000N`, businesses `b0000000-…`). If you change the seed, update the tests.
 - Personas are simulated with `pg_temp.act_as(uuid | null)`, which sets `role` (`anon`/`authenticated`) and `request.jwt.claims`. That's exactly what PostgREST does per request, so `auth.uid()` and RLS behave as in production.
 
@@ -32,6 +33,7 @@ CI (`.github/workflows/ci.yml`) runs all of these on every PR, plus a check that
 | `09_admin_categories` | Only super admins; reason required; create/update audit-logged with before/after; moderators refused |
 | `10_search` | Query understanding (typos, plurals, missing spaces), the six SPEC §11 examples on seed data, service names searchable, drafts and suspended businesses never returned, live search-document refresh, page-size cap |
 | `11_appointments` | Booking rules in the database: sign-in required, overlap refused / touching allowed, closing time, minimum notice, advance window, cross-business and draft refusal, staff eligibility, **"any available" fallback**, time off vs bookings both ways, buffers, **RLS** (customer own, staff own, owner all, business B sees nothing, no direct writes), cancel window and history, **atomic reschedule**, staff with bookings can't be removed, public busy times hide drafts, the exclusion constraint for privileged writers, 10-per-hour limit |
+| `12_appointment_management` | Provider side: who may add (anon, customers, other businesses refused), phone bookings reuse clients by phone, overlap and outside-hours rules, anonymous walk-ins, staff limited to their own column and history, every status transition and time rule, final price, undo, early completion freeing the slot, moves with history, reassignment, client isolation and duplicate phones |
 | `03_business_isolation` | **Tenant isolation**: 6 personas × read/update/insert/delete on `businesses` and `business_members`; draft/suspended visibility; column protection; helper functions; slug/timezone constraints |
 
 **Rule (CLAUDE.md):** every new table ships with a test proving Business A cannot read or write Business B's rows. Adding a table without a policy makes `00_rls_coverage` fail.
@@ -53,6 +55,7 @@ CI (`.github/workflows/ci.yml`) runs all of these on every PR, plus a check that
 | `catalog-helpers.test.ts` | Price parsing (GH₵ input → pesewas, rejects `1e3`), week-hours validation, Postgres range parsing, service/time-off schemas, form refill helpers |
 | `search-query.test.ts` | "what in where" / "near me" parsing, last-place-word splitting, coordinate parsing |
 | `mock-sms-provider.test.ts` | Mock records and logs messages |
+| `calendar-layout.test.ts` | Minutes in the business timezone, the visible window, overlap lanes and minimum heights, Monday weeks, 6-week month grids, month arithmetic, the now line |
 | `availability.test.ts` | The scheduling engine: grid anchoring, split shifts, closed days, staff ∩ business hours, blocks, appointments with buffers, min notice / max advance, DST (skipped and repeated times), non-UTC zones, "any available" merge and fair order, part-of-day grouping |
 
 ## Integration and end-to-end tests
@@ -63,11 +66,13 @@ CI (`.github/workflows/ci.yml`) runs all of these on every PR, plus a check that
 - `tests/e2e/marketplace.spec.ts`: search from the home page → result → provider page; the "nothing in this town yet" notice; category town filters; **no sideways scrolling at 360 px** on every public page.
 - `tests/integration/booking.test.ts`: availability as anon; book, idempotent retry, slot disappears; privacy across customers and businesses; overlap and out-of-hours refused even when the app pre-check is bypassed; engine↔database parity on a touching slot; atomic reschedule and cancel; **concurrency: 20 customers racing for one slot → exactly 1 booking; 20 racing for "any available" with 3 people → exactly 3, on 3 different people; 10 raw RPC calls racing → exactly 1**.
 - `tests/e2e/booking.spec.ts`: at 360 px, a signed-out customer picks a service → "any available" → a time, signs in mid-flow and returns to the same choice, fixes a phone validation error, confirms, sees the booking, and cancels it; plus the public availability API and the 401 on booking without a token.
+- `tests/integration/manage.test.ts`: phone booking visible in the owner's calendar; overlap, outside-hours and outsider errors; staff see only their own column and no clients; move + history; a walk-in completed with its final price counted on Today; client search by name or phone, notes, isolation; **10 simultaneous walk-ins for one person → exactly 1**.
+- `tests/e2e/provider.spec.ts`: signs in with the **phone OTP** (seed test code); 3-tap walk-in; complete; Today shows it; day/week/month calendar never scrolls sideways at 360 px.
 - `tests/integration/catalog.test.ts`: services (order, hide, archive), hours, time off, booking rules, team members with own hours, a real phone-bound invite accepted by the right user (and refused for another), removal revoking access, admin refusal.
 
 ## Performance
 `scripts/perf/search_perf.sql` generates 5,000 businesses inside a rolled-back transaction and times 110 searches as `anon` (≈ 5 minutes, mostly seeding). Last run: p50 9.7 ms, p95 39.5 ms, max 41.3 ms. Not in CI (too slow); run it before changing search.
 
 ## Known gaps
-- The phone OTP sign-in path is not in E2E (needs the SMS hook plus the app running under the Auth container); it's covered by unit tests and a manual check.
+- Phone OTP sign-in is covered in E2E with the seed test code. The SMS hook path for other numbers is covered by unit tests and a manual check.
 - The engine↔SQL parity check is a set of targeted cases, not the randomised fixture run described in architecture §6.

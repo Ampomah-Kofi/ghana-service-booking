@@ -86,6 +86,7 @@ pnpm dev                                    # http://localhost:3000 · Studio ht
 - If image pulls fail with `403` from `public.ecr.aws`, run `export SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io` first.
 - `pnpm db:reset` re-applies all migrations and `supabase/seed.sql`. `pnpm gen:types` regenerates `src/server/db/types.ts` after a schema change (CI fails if you forget).
 - **Sign in locally:** the seed phones `+233 20 000 0001…0006` and `…0009` (admin) use the fixed code **123456** (`[auth.sms.test_otp]`). Any other number goes through the Send SMS Hook to `MockSmsProvider`, which prints the code in the `pnpm dev` terminal. This needs the dev server running, because the Auth container calls `host.docker.internal:3000`.
+- **Demo appointments:** `pnpm db:demo` (after `pnpm db:reset`) adds a week of bookings for `kwame-cuts` and `ama-braids`, relative to today, so Today and the calendar have something to show. It's separate from `seed.sql` so tests stay deterministic.
 - **Seed data:** GHS; Ghana and its 16 regions; Accra, Tema, Kumasi, Takoradi, Cape Coast, Tamale plus 39 neighbourhoods; the 17 SPEC categories; demo tenants `kwame-cuts` (solo, published), `ama-braids` (team, published), `osu-glow-spa` (team, draft) with owner/manager/staff/customer/admin users (see the header of `supabase/seed.sql`). Staging uses the same seed; production gets reference data only.
 - `supabase/drafts/0000_initial_schema.draft.sql` is the Phase 0 design for tables not migrated yet. It is never applied.
 

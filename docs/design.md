@@ -91,6 +91,13 @@ Always a text label, never colour alone.
 - Blocked time uses a diagonal hatch.
 - A floating "+" opens: New appointment / Walk-in / Block time.
 
+**As built (Phase 6)**
+- Provider tabs: a fixed bottom bar on phones; a segmented bar at the top from `md`. Staff see Today and Calendar only.
+- Day view: a column per person, 72 px per hour, dimmed non-working time, hatched time off, a red now line. Tapping an empty half hour opens "New appointment" prefilled.
+- Week view: an agenda list on phones, a 7-day timeline from `md`. Month view: a 6-week grid with up to 3 status dots per day.
+- The floating "+" is a `<details>` menu (works without JavaScript), sitting above the bottom bar.
+- The appointment page is a card with a status-tone top bar, one primary action, secondary actions, destructive cancel behind a summary, and a history timeline.
+
 **States copy**
 - Empty: one sentence plus one action ("No appointments today. Add a walk-in").
 - Error: plain cause plus "Try again".

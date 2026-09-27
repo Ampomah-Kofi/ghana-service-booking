@@ -94,7 +94,7 @@ Legend: **R** read · **C** create · **U** update · **D** delete/deactivate ·
 | Staff working hours | R pub | R pub | R | CRUD | CRUD | R |
 | Blocked times | busy only (fn) | busy only (fn) | R; C own (fn) | CRUD (fn) | CRUD (fn) | — |
 | Availability (computed) | R | R | R | R | R | R |
-| Appointments | — | C (fn); R own; cancel/reschedule own within policy (fn) | R own; status arrived/completed/no-show own (fn); C walk-in for self (fn) | R; C manual/walk-in; all status changes (fn) | same as manager | R metadata; PII only via support-access fn (audited) |
+| Appointments | — | C (fn); R own; cancel/reschedule own within policy (fn) | R own; C phone booking/walk-in for self (fn); status changes on own (fn) | R; C manual/walk-in; all status changes; move/reassign (fn) | same as manager | R metadata; PII only via support-access fn (audited) |
 | Appointment history | — | R own | R own | R | R | R |
 | Business clients (CRM) | — | — | — | CRUD | CRUD | via support fn |
 | Payments | — | R own; initiate for own appt (fn) | — | R; record cash (fn) | R; record cash; refund (fn) | R; dispute notes (fn) |
@@ -193,6 +193,23 @@ The TS function **lists** slots; the SQL function **accepts** bookings. `book_ap
 
 ### Next-available cache
 *Not built yet (needs the Phase 8 job runner); cards omit it.* `businesses.next_available_at` powers result cards. It is recomputed by the dispatcher job when a booking, block or hours change for that business (debounced), and every 30 minutes otherwise. Cards say "Next: Today 3:15 PM". It is *advisory*: the booking page always computes live.
+
+### Provider side (as built, Phase 6)
+- **Functions:** `create_manual_appointment` (phone bookings and walk-ins), `set_appointment_status`, `move_appointment` (move and/or reassign; managers), `save_business_client`. Staff act only on their own column (`private.can_act_on_staff`); owners and managers on everyone's.
+- **Manual bookings** skip minimum notice and the advance window. `p_allow_outside_hours` skips working hours and time off *on purpose*. Overlaps are always refused by the exclusion constraint. Walk-ins start now as `arrived`; an anonymous walk-in creates no client record.
+- **Status rules:**
+  - pending → confirmed/arrived/cancelled/no_show
+  - confirmed → arrived/completed/cancelled/no_show
+  - arrived → completed/confirmed/cancelled
+  - completed → arrived and no_show → confirmed as a 7-day undo
+  - cancelled is final
+  - Arrived is allowed from 1 hour before the start; completed and no-show only once it has started.
+  - `final_price_minor` is recorded with completed.
+  - **Completing early sets `ends_at` to now**, so the rest of the slot is free for the next client.
+- **Moves** update in place, lock both staff members in id order, and write a history row ("Moved from Tue 29 Sep 09:00 (Ama)").
+- **Calendar data** (`src/server/bookings/calendar.ts`): one range query for appointments, one for time off, plus staff and hours. Layout maths (positions, overlap lanes, week/month grids, the now line) is pure and unit-tested in `src/lib/calendar-layout.ts`.
+- **Clients:** `business_client_summaries` is a `security_invoker` view (visits, no-shows, upcoming, last visit, spent), so RLS limits it to owners and managers.
+- **Low bandwidth:** the calendar is server-rendered. Dense links (half-hour slots, blocks, month cells, booking times) use `prefetch={false}`, so a phone doesn't download dozens of prefetches.
 
 ## 7. Double-booking prevention (summary of ADR-0003)
 
