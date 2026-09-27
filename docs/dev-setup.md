@@ -48,6 +48,8 @@
 
 ## 2. Environment variables
 
+> **Current, authoritative list: [`env.md`](./env.md).** The table below was the Phase 0 plan and includes variables for later phases.
+
 Rule: `NEXT_PUBLIC_*` is shipped to browsers, so **never** put a secret there. Server-only values are read through a Zod-validated `src/server/env.ts` that imports `server-only` and fails fast at boot.
 
 | Name | Purpose | Scope | Example (local) |
@@ -71,21 +73,21 @@ Rule: `NEXT_PUBLIC_*` is shipped to browsers, so **never** put a secret there. S
 
 ## 3. Local development
 
-**Prerequisites:** Node 22 LTS, pnpm (via Corepack), Docker Desktop (or OrbStack/Colima), Supabase CLI.
+**Prerequisites:** Node 22 LTS, pnpm 10 (via Corepack), Docker (Docker Desktop, OrbStack or Colima). The Supabase CLI is a dev dependency (`pnpm exec supabase`), so there's nothing to install globally.
 
 ```bash
 pnpm install
-supabase start          # Postgres, Auth, Storage, Studio in Docker; prints URLs + keys
-cp .env.example .env.local   # paste keys from `supabase status`
-supabase db reset       # applies migrations + seed.sql
-pnpm gen:types          # supabase gen types typescript --local > src/server/db/types.ts
-pnpm dev                # http://localhost:3000 ; Studio http://127.0.0.1:54323
+cp .env.example .env.local                  # fill keys from `pnpm exec supabase status`
+cp supabase/.env.example supabase/.env      # same SEND_SMS_HOOK_SECRET as .env.local
+pnpm db:start                               # Postgres, Auth, Storage, Studio in Docker; applies migrations + seed
+pnpm dev                                    # http://localhost:3000 · Studio http://127.0.0.1:54323
 ```
 
-- **OTP locally:** `supabase/config.toml` `[auth.sms.test_otp]` maps seed phones to fixed codes (e.g. `+233200000001 = "123456"`). Everything else goes to `MockSmsProvider`, which prints the code to the terminal.
-- **Seed data:** currencies (GHS), country GH, regions/cities/areas (Accra, Kumasi, Tema, Takoradi, Cape Coast, Tamale + key neighbourhoods), the 17 SPEC categories, and **demo tenants**: `kwame-cuts` (solo barber), `ama-braids` (3 staff), `osu-glow-spa` (team with manager), plus demo customers. Staging uses the same seed. Production gets reference data only.
-- **Jobs locally:** `pnpm jobs:dev` runs the dispatcher every 60 s (instead of pg_cron calling a localhost URL).
-- **Mocks:** `/dev/mock-pay/[paymentId]` (approve/decline/timeout), `/dev/outbox` (all messages "sent").
+- If image pulls fail with `403` from `public.ecr.aws`, run `export SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io` first.
+- `pnpm db:reset` re-applies all migrations and `supabase/seed.sql`. `pnpm gen:types` regenerates `src/server/db/types.ts` after a schema change (CI fails if you forget).
+- **Sign in locally:** the seed phones `+233 20 000 0001…0006` and `…0009` (admin) use the fixed code **123456** (`[auth.sms.test_otp]`). Any other number goes through the Send SMS Hook to `MockSmsProvider`, which prints the code in the `pnpm dev` terminal. This needs the dev server running, because the Auth container calls `host.docker.internal:3000`.
+- **Seed data:** GHS; Ghana and its 16 regions; Accra, Tema, Kumasi, Takoradi, Cape Coast, Tamale plus 39 neighbourhoods; the 17 SPEC categories; demo tenants `kwame-cuts` (solo, published), `ama-braids` (team, published), `osu-glow-spa` (team, draft) with owner/manager/staff/customer/admin users (see the header of `supabase/seed.sql`). Staging uses the same seed; production gets reference data only.
+- `supabase/drafts/0000_initial_schema.draft.sql` is the Phase 0 design for tables not migrated yet. It is never applied.
 
 ## 4. Environments & deployment
 

@@ -1,7 +1,14 @@
 # Data Model
 
-> Phase 0 draft. SQL: [`supabase/migrations/_draft_0000_initial_schema.sql`](../supabase/migrations/_draft_0000_initial_schema.sql) (not applied; becomes real migrations in Phase 1).
+> SQL: real migrations live in [`supabase/migrations/`](../supabase/migrations). Tables not yet migrated are still in the Phase 0 draft [`supabase/drafts/0000_initial_schema.draft.sql`](../supabase/drafts/0000_initial_schema.draft.sql), and each phase moves its tables from the draft into migrations.
 > Conventions: money = `*_minor int` + `currency_code char(3)` · time = `timestamptz` UTC, wall-clock only in `*_hours` · weekday = ISO (1 = Mon) · every tenant table has `business_id` + RLS.
+
+## Migration status
+
+| Phase | Migrated tables |
+|---|---|
+| 1 | currencies, countries, regions, cities, areas, categories, profiles, platform_admins, consents, businesses, business_members |
+| later | all other tables below, still in the draft |
 
 ## 1. ER diagram
 
