@@ -117,7 +117,9 @@ test("solo provider onboards and publishes a shareable page", async ({ page, req
   await expect(visitor.getByRole("img", { name: `Work by ${name}` })).toHaveCount(1);
   await expect(visitor.getByText("Gel manicure")).toBeVisible();
   await expect(visitor.getByText("GH₵ 80.50")).toBeVisible();
-  await expect(visitor.getByRole("definition").filter({ hasText: "09:00–12:00, 13:00–18:00" })).toBeVisible();
+  await expect(
+    visitor.getByRole("definition").filter({ hasText: "9:00 am – 12:00 pm, 1:00 pm – 6:00 pm" }),
+  ).toBeVisible();
   await expect(visitor.getByText("Saturday").locator("..").getByText("Closed")).toBeVisible();
   await anon.close();
 

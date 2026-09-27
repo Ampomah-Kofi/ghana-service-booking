@@ -3,9 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { cache } from "react";
+import { BookingBar, StepIndicator, type BookingSummary } from "@/components/booking/booking-bar";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 import { formatDuration } from "@/lib/hours";
-import { formatMoney } from "@/lib/money";
-import { dayPill, formatDayLong, formatLocalDate, formatTime } from "@/lib/datetime";
+import { formatMoney, formatPrice } from "@/lib/money";
+import { dayPill, formatDateShort, formatLocalDate, formatLocalDateShort, formatTime } from "@/lib/datetime";
 import { addDays, groupByPartOfDay } from "@/lib/availability";
 import { localDateSchema } from "@/schemas/booking";
 import { getCurrentUser } from "@/server/auth/session";
@@ -42,6 +44,10 @@ function bookHref(slug: string, query: Query): string {
   return `/business/${slug}/book${search ? `?${search}` : ""}`;
 }
 
+/**
+ * The booking flow (SPEC §5, docs/design.md §3a): one decision per screen, server-rendered
+ * links (works before JavaScript loads), a step indicator and a bottom summary bar.
+ */
 export default async function BookPage({ params, searchParams }: PageProps<"/business/[slug]/book">) {
   const { slug } = await params;
   const sp = await searchParams;
@@ -83,8 +89,9 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
 
   // ── Step 1: service ─────────────────────────────────────────────────────────
   if (!service) {
+    const stepsIfTeam = business.kind === "team" ? 4 : 3;
     return (
-      <Shell business={business} title="Choose a service">
+      <Shell business={business} title="Choose a service" step={{ step: 1, of: stepsIfTeam }}>
         {query.service ? (
           <Panel>That service isn&apos;t available online any more. Please choose another.</Panel>
         ) : null}
@@ -96,24 +103,24 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
             </Link>
           </Panel>
         ) : (
-          <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
+          <ul className="divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
             {setup.services.map((s) => (
               <li key={s.id}>
                 <Link
                   href={bookHref(slug, { service: s.id })}
-                  className="flex min-h-11 items-center justify-between gap-4 px-4 py-3 hover:bg-fill"
+                  className="flex min-h-14 items-center gap-3 px-4 py-3 hover:bg-fill active:bg-fill"
                 >
-                  <span className="min-w-0">
+                  <span className="min-w-0 flex-1">
                     <span className="block text-body font-medium">{s.name}</span>
                     <span className="block text-small text-ink-muted">{formatDuration(s.durationMinutes)}</span>
+                    {s.depositMinor ? (
+                      <span className="block text-small text-warning">{money(s.depositMinor)} deposit to book</span>
+                    ) : null}
                   </span>
-                  <span className="shrink-0 text-body font-semibold tabular-nums">
-                    {s.priceType === "from" ? <span className="text-small font-normal">from </span> : null}
-                    {money(s.priceMinor)}{" "}
-                    <span aria-hidden="true" className="text-ink-muted">
-                      ›
-                    </span>
+                  <span className="shrink-0 text-heading font-semibold tabular-nums">
+                    {formatPrice(s.priceMinor, s.priceType, business.currency)}
                   </span>
+                  <ChevronRightIcon className="shrink-0 text-ink-muted" />
                 </Link>
               </li>
             ))}
@@ -124,47 +131,47 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
   }
 
   const eligible = staffForService(setup, service.id);
+  const choosesStaff = eligible.length > 1;
+  const totalSteps = choosesStaff ? 4 : 3;
   const chosen = eligible.find((s) => s.id === query.staff) ?? null;
   const staffChoice = chosen ? chosen.id : "any";
   const withWhom = chosen?.displayName ?? (eligible.length === 1 ? eligible[0].displayName : "Any available");
-  const summary = (
-    <p className="mb-5 inline-flex max-w-full flex-wrap items-center gap-x-1.5 rounded-full bg-card px-4 py-2 text-small border border-border">
-      <span className="font-semibold">{service.name}</span>
-      <span aria-hidden="true">·</span>
-      <span className="tabular-nums">
-        {service.priceType === "from" ? "from " : ""}
-        {money(service.priceMinor)}
-      </span>
-      <span aria-hidden="true">·</span>
-      <span>{formatDuration(service.durationMinutes)}</span>
-      {business.kind === "team" ? (
-        <>
-          <span aria-hidden="true">·</span>
-          <span>{withWhom}</span>
-        </>
-      ) : null}
-    </p>
-  );
+  const price = formatPrice(service.priceMinor, service.priceType, business.currency);
+  const serviceLine = [service.name, business.kind === "team" && query.staff ? withWhom : null]
+    .filter(Boolean)
+    .join(" · ");
+  const summary = (when?: string): BookingSummary => ({
+    title: serviceLine,
+    detail: [when, price, formatDuration(service.durationMinutes)].filter(Boolean).join(" · "),
+  });
   const base: Query = { service: reschedule ? undefined : service.id, reschedule: reschedule?.id };
+  const serviceStepHref = reschedule ? "/bookings" : bookHref(slug, {});
 
   // ── Step 2: who (team businesses only; solo providers never see this) ──────
-  if (eligible.length > 1 && !query.staff) {
+  if (choosesStaff && !query.staff) {
+    const people = [
+      { id: "any", displayName: "Any available professional", roleTitle: "We'll match you with whoever is free" },
+      ...eligible,
+    ];
     return (
-      <Shell business={business} title="Choose a professional" back={reschedule ? "/bookings" : bookHref(slug, {})}>
-        {summary}
-        <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
-          {[
-            { id: "any", displayName: "Any available professional", roleTitle: "We'll match you with whoever is free" },
-            ...eligible,
-          ].map((s) => (
+      <Shell
+        business={business}
+        title="Choose a professional"
+        back={serviceStepHref}
+        step={{ step: 2, of: totalSteps }}
+      >
+        <ul className="divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
+          {people.map((s) => (
             <li key={s.id}>
               <Link
                 href={bookHref(slug, { ...base, staff: s.id })}
-                className="flex min-h-11 items-center gap-3 px-4 py-3 hover:bg-fill"
+                className="flex min-h-14 items-center gap-3 px-4 py-3 hover:bg-fill active:bg-fill"
               >
                 <span
                   aria-hidden="true"
-                  className="flex size-10 shrink-0 items-center justify-center rounded-full bg-fill text-body font-semibold text-ink-muted"
+                  className={`flex size-11 shrink-0 items-center justify-center rounded-full text-heading font-semibold ${
+                    s.id === "any" ? "bg-primary-soft text-primary" : "bg-fill text-ink-muted"
+                  }`}
                 >
                   {s.id === "any" ? "✦" : s.displayName.charAt(0).toUpperCase()}
                 </span>
@@ -172,66 +179,85 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
                   <span className="block text-body font-medium">{s.displayName}</span>
                   {s.roleTitle ? <span className="block text-small text-ink-muted">{s.roleTitle}</span> : null}
                 </span>
-                <span aria-hidden="true" className="text-ink-muted">
-                  ›
-                </span>
+                <ChevronRightIcon className="shrink-0 text-ink-muted" />
               </Link>
             </li>
           ))}
         </ul>
+        <BookingBar summary={summary()} />
       </Shell>
     );
   }
 
-  const withStaff: Query = { ...base, staff: chosen ? chosen.id : eligible.length > 1 ? "any" : undefined };
+  const withStaff: Query = { ...base, staff: chosen ? chosen.id : choosesStaff ? "any" : undefined };
   const today = todayIn(setup.timezone);
   const lastDate = lastBookableDate(setup);
-  const timeStepBack = eligible.length > 1 ? bookHref(slug, base) : reschedule ? "/bookings" : bookHref(slug, {});
+  const timeStepBack = choosesStaff ? bookHref(slug, base) : serviceStepHref;
 
-  // ── Step 4: confirm ─────────────────────────────────────────────────────────
+  // ── Last step: confirm ──────────────────────────────────────────────────────
   const startsAt = query.time ? new Date(query.time) : null;
   if (startsAt && !Number.isNaN(startsAt.getTime())) {
     const candidates = await candidatesFor(db, setup, { serviceId: service.id, staffId: chosen?.id ?? null, startsAt });
     const timeHref = bookHref(slug, { ...withStaff, date: query.date, from: query.from });
+    const step = { step: totalSteps, of: totalSteps };
     if (candidates.length === 0) {
       return (
-        <Shell business={business} title="That time is no longer free" back={timeHref}>
-          {summary}
+        <Shell business={business} title="That time is no longer free" back={timeHref} step={step}>
           <Panel>Someone may have just booked it. Please choose another time.</Panel>
           <BackLink href={timeHref}>Choose another time</BackLink>
         </Shell>
       );
     }
-    const when = `${formatDayLong(startsAt, setup.timezone)} at ${formatTime(startsAt, setup.timezone)}`;
-    const place = formatPlace(business.location);
+    const when = `${formatDateShort(startsAt, setup.timezone)} · ${formatTime(startsAt, setup.timezone)}`;
+    const loc = business.location;
+    const place = [formatPlace(loc), loc?.landmark ? `near ${loc.landmark}` : null].filter(Boolean).join(" · ");
+    const policy =
+      setup.rules.cancellationWindowHours > 0
+        ? `Free to cancel or change online up to ${setup.rules.cancellationWindowHours} hours before.`
+        : "Free to cancel or change online any time before it starts.";
     const details = (
-      <dl className="mb-5 divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
+      <dl className="mb-5 divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
+        <Row label="Where">
+          <span className="block font-medium">{business.name}</span>
+          {place ? <span className="block text-small text-ink-muted">{place}</span> : null}
+        </Row>
         <Row label="When">{when}</Row>
         <Row label="Service">
           {service.name} · {formatDuration(service.durationMinutes)}
         </Row>
         {business.kind === "team" ? <Row label="With">{withWhom}</Row> : null}
-        <Row label="Price">
-          {service.priceType === "from" ? "from " : ""}
-          {money(service.priceMinor)}
-          {service.priceType === "from" ? " (final price at the appointment)" : ""}
+        <Row label="Total">
+          <span className="font-semibold tabular-nums">{price}</span>
+          {service.priceType === "from" ? (
+            <span className="block text-small text-ink-muted">Final price confirmed at the appointment</span>
+          ) : null}
         </Row>
         {service.depositMinor ? (
-          <Row label="Deposit">{money(service.depositMinor)}, the business will tell you how to pay it</Row>
+          <Row label="Deposit">
+            <span className="tabular-nums">{money(service.depositMinor)}</span>
+            <span className="block text-small text-ink-muted">The business will tell you how to pay it</span>
+          </Row>
         ) : null}
-        {place ? <Row label="Where">{place}</Row> : null}
+        <Row label="Policy">
+          <span className="text-small">{policy}</span>
+        </Row>
       </dl>
     );
 
     if (reschedule) {
       return (
-        <Shell business={business} title="Move your booking?" back={timeHref}>
+        <Shell business={business} title="Move your booking?" back={timeHref} step={step}>
           <p className="mb-4 text-body text-ink-muted">
-            From {formatDayLong(reschedule.startsAt, setup.timezone)} at{" "}
+            From {formatDateShort(reschedule.startsAt, setup.timezone)} ·{" "}
             {formatTime(reschedule.startsAt, setup.timezone)}
           </p>
           {details}
-          <ConfirmRescheduleForm appointmentId={reschedule.id} staff={staffChoice} startsAt={startsAt.toISOString()} />
+          <ConfirmRescheduleForm
+            appointmentId={reschedule.id}
+            staff={staffChoice}
+            startsAt={startsAt.toISOString()}
+            summary={summary(when)}
+          />
         </Shell>
       );
     }
@@ -239,24 +265,26 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
     if (!user) {
       const next = bookHref(slug, { ...withStaff, date: query.date, time: startsAt.toISOString() });
       return (
-        <Shell business={business} title="Almost done" back={timeHref}>
+        <Shell business={business} title="Almost done" back={timeHref} step={step}>
           {details}
           <Panel>
             Sign in with your phone number to confirm. It takes a minute, and you can manage the booking later.
           </Panel>
-          <Link
-            href={`/sign-in?next=${encodeURIComponent(next)}`}
-            className="flex min-h-11 w-full items-center justify-center rounded-control bg-primary px-4 text-body font-semibold text-on-primary"
-          >
-            Sign in to book
-          </Link>
+          <BookingBar summary={summary(when)}>
+            <Link
+              href={`/sign-in?next=${encodeURIComponent(next)}`}
+              className="flex min-h-12 w-full items-center justify-center rounded-control bg-primary px-4 text-body font-semibold text-on-primary hover:bg-primary-hover"
+            >
+              Sign in to book
+            </Link>
+          </BookingBar>
         </Shell>
       );
     }
 
     const profile = await getMyProfile();
     return (
-      <Shell business={business} title="Your details" back={timeHref}>
+      <Shell business={business} title="Your details" back={timeHref} step={step}>
         {details}
         <BookingDetailsForm
           slug={slug}
@@ -267,20 +295,18 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
             idempotencyKey: crypto.randomUUID(),
           }}
           defaults={{ customerName: profile?.fullName ?? "", customerPhone: profile?.phoneE164 ?? user.phone ?? "" }}
+          summary={summary(when)}
         />
         <p className="mt-3 text-center text-small text-ink-muted">
           {setup.rules.autoConfirm
             ? "Your booking is confirmed straight away."
-            : `${business.name} will confirm your booking.`}{" "}
-          {setup.rules.cancellationWindowHours > 0
-            ? `You can cancel or move it online up to ${setup.rules.cancellationWindowHours} hours before.`
-            : "You can cancel or move it online any time before it starts."}
+            : `${business.name} will confirm your booking.`}
         </p>
       </Shell>
     );
   }
 
-  // ── Step 3: date and time ───────────────────────────────────────────────────
+  // ── Date and time ───────────────────────────────────────────────────────────
   const fromParsed = query.from && localDateSchema.safeParse(query.from).success ? query.from : today;
   const from = fromParsed < today ? today : fromParsed > lastDate ? lastDate : fromParsed;
   const days = (
@@ -292,36 +318,45 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
     })
   ).filter((d) => d.date <= lastDate);
   const selected = days.find((d) => d.date === query.date) ?? days.find((d) => d.slots.length > 0) ?? days[0];
+  const nextOpen = selected ? days.find((d) => d.date > selected.date && d.slots.length > 0) : undefined;
   const earlier = from > today ? (addDays(from, -DAYS_PER_PAGE) < today ? today : addDays(from, -DAYS_PER_PAGE)) : null;
   const later = addDays(from, DAYS_PER_PAGE) <= lastDate ? addDays(from, DAYS_PER_PAGE) : null;
+  const fromParam = from === today ? undefined : from;
 
   return (
-    <Shell business={business} title={reschedule ? "Choose a new time" : "Choose a time"} back={timeStepBack}>
-      {summary}
-      <nav aria-label="Dates" className="mb-5">
-        <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2">
+    <Shell
+      business={business}
+      title={reschedule ? "Choose a new time" : "Choose a time"}
+      back={timeStepBack}
+      step={{ step: totalSteps - 1, of: totalSteps }}
+    >
+      <nav aria-label="Dates" className="mb-4">
+        <ul className="-mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none]">
           {days.map((d) => {
             const pill = dayPill(d.date);
             const isSelected = d.date === selected?.date;
             const open = d.slots.length > 0;
-            const label = `${formatLocalDate(d.date)}${open ? `, ${d.slots.length} times` : ", fully booked or closed"}`;
+            const label = `${formatLocalDate(d.date)}${open ? `, ${d.slots.length} times` : ", no times"}`;
             return (
-              <li key={d.date} className="shrink-0">
+              <li key={d.date} className="shrink-0 snap-start">
                 <Link
-                  href={bookHref(slug, { ...withStaff, from: from === today ? undefined : from, date: d.date })}
+                  href={bookHref(slug, { ...withStaff, from: fromParam, date: d.date })}
                   aria-current={isSelected ? "date" : undefined}
                   aria-label={label}
-                  className={`flex w-14 flex-col items-center rounded-card py-2 text-center ${
+                  className={`flex w-14 flex-col items-center rounded-card border py-2 text-center transition-colors ${
                     isSelected
-                      ? "bg-primary text-on-primary"
+                      ? "border-primary bg-primary text-on-primary"
                       : open
-                        ? "bg-card border border-border"
-                        : "bg-fill text-ink-muted line-through decoration-1"
+                        ? "border-border bg-card hover:bg-fill"
+                        : "border-transparent text-ink-muted"
                   }`}
                 >
-                  <span className="text-small">{d.date === today ? "Today" : pill.weekday}</span>
+                  <span className="text-caption">{d.date === today ? "Today" : pill.weekday}</span>
                   <span className="text-title font-semibold tabular-nums">{pill.day}</span>
-                  <span className="text-small">{pill.month}</span>
+                  <span
+                    aria-hidden="true"
+                    className={`mt-0.5 size-1.5 rounded-full ${open && !isSelected ? "bg-primary" : "bg-transparent"}`}
+                  />
                 </Link>
               </li>
             );
@@ -331,9 +366,9 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
           {earlier ? (
             <Link
               href={bookHref(slug, { ...withStaff, from: earlier === today ? undefined : earlier })}
-              className="min-h-11 content-center font-medium text-primary"
+              className="inline-flex min-h-11 items-center gap-1 font-medium text-primary"
             >
-              ‹ Earlier
+              <ChevronLeftIcon /> Earlier
             </Link>
           ) : (
             <span />
@@ -341,9 +376,9 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
           {later ? (
             <Link
               href={bookHref(slug, { ...withStaff, from: later })}
-              className="min-h-11 content-center font-medium text-primary"
+              className="inline-flex min-h-11 items-center gap-1 font-medium text-primary"
             >
-              Later dates ›
+              Later dates <ChevronRightIcon />
             </Link>
           ) : null}
         </div>
@@ -355,25 +390,37 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
             {formatLocalDate(selected.date)}
           </h2>
           {selected.slots.length === 0 ? (
-            <Panel>
-              No free times on this day.{" "}
-              {days.some((d) => d.slots.length > 0) ? "Try another day above." : "Try later dates."}
-            </Panel>
+            <div className="rounded-card border border-border bg-card p-4">
+              <p className="text-body">
+                No times on {dayPill(selected.date).weekday}.
+                {nextOpen
+                  ? ` Next available: ${formatLocalDateShort(nextOpen.date)}, ${formatTime(nextOpen.slots[0].start, setup.timezone)}.`
+                  : " Try later dates."}
+              </p>
+              {nextOpen ? (
+                <Link
+                  href={bookHref(slug, { ...withStaff, from: fromParam, date: nextOpen.date })}
+                  className="mt-3 flex min-h-12 items-center justify-center rounded-control border border-border bg-card font-semibold text-primary hover:bg-fill"
+                >
+                  Show {formatLocalDateShort(nextOpen.date)}
+                </Link>
+              ) : null}
+            </div>
           ) : (
             groupByPartOfDay(selected.slots, setup.timezone).map(([part, slots]) => (
               <div key={part} className="mb-5">
-                <h3 className="mb-2 text-heading font-semibold text-ink">{part}</h3>
-                <ul className="grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2">
+                <h3 className="mb-2 text-small font-medium text-ink-muted">{part}</h3>
+                <ul className="grid grid-cols-3 gap-2">
                   {slots.map((slot) => (
                     <li key={slot.start.toISOString()}>
                       <Link
                         href={bookHref(slug, {
                           ...withStaff,
-                          from: from === today ? undefined : from,
+                          from: fromParam,
                           date: selected.date,
                           time: slot.start.toISOString(),
                         })}
-                        className="flex min-h-11 items-center justify-center rounded-full bg-card text-body font-medium tabular-nums text-primary border border-border hover:bg-fill"
+                        className="flex min-h-12 items-center justify-center rounded-control border border-border bg-card text-body font-medium tabular-nums text-primary transition-colors hover:border-primary hover:bg-primary-soft active:bg-primary active:text-on-primary"
                       >
                         {formatTime(slot.start, setup.timezone)}
                       </Link>
@@ -385,7 +432,8 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
           )}
         </section>
       ) : null}
-      <p className="text-small text-ink-muted">Times are shown in {business.name}&apos;s local time.</p>
+      <p className="text-small text-ink-muted">Times are in {business.name}&apos;s local time.</p>
+      <BookingBar summary={summary()} />
     </Shell>
   );
 }
@@ -394,23 +442,29 @@ function Shell({
   business,
   title,
   back,
+  step,
   children,
 }: {
   business: BusinessView;
   title: string;
   back?: string;
+  step?: { step: number; of: number };
   children: ReactNode;
 }) {
   return (
-    <div>
-      <div className="mb-3 flex items-center justify-between text-small">
-        <Link href={back ?? `/business/${business.slug}`} className="min-h-11 content-center font-medium text-primary">
-          ‹ Back
+    <div className="mx-auto max-w-xl">
+      <div className="mb-2 flex items-center justify-between gap-3 text-small">
+        <Link
+          href={back ?? `/business/${business.slug}`}
+          className="-ml-1 inline-flex min-h-11 items-center gap-0.5 font-medium text-primary"
+        >
+          <ChevronLeftIcon /> Back
         </Link>
         <Link href={`/business/${business.slug}`} className="min-h-11 content-center truncate text-ink-muted">
           {business.name}
         </Link>
       </div>
+      {step ? <StepIndicator step={step.step} of={step.of} /> : null}
       <h1 className="mb-4 text-display font-bold tracking-tight">{title}</h1>
       {children}
     </div>
@@ -418,12 +472,12 @@ function Shell({
 }
 
 function Panel({ children }: { children: ReactNode }) {
-  return <p className="mb-4 rounded-card bg-card p-4 text-body text-ink-muted border border-border">{children}</p>;
+  return <p className="mb-4 rounded-card border border-border bg-card p-4 text-body text-ink-muted">{children}</p>;
 }
 
 function BackLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Link href={href} className="flex min-h-11 items-center justify-center font-medium text-primary">
+    <Link href={href} className="flex min-h-12 items-center justify-center font-medium text-primary">
       {children}
     </Link>
   );
@@ -432,8 +486,8 @@ function BackLink({ href, children }: { href: string; children: ReactNode }) {
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex gap-4 px-4 py-3 text-body">
-      <dt className="w-20 shrink-0 text-ink-muted">{label}</dt>
-      <dd className="min-w-0">{children}</dd>
+      <dt className="w-20 shrink-0 text-small leading-6 text-ink-muted">{label}</dt>
+      <dd className="min-w-0 flex-1">{children}</dd>
     </div>
   );
 }
