@@ -120,6 +120,7 @@ export type Database = {
           customer_user_id: string | null;
           deposit_minor: number | null;
           ends_at: string;
+          final_price_minor: number | null;
           id: string;
           idempotency_key: string | null;
           occupied: unknown;
@@ -152,6 +153,7 @@ export type Database = {
           customer_user_id?: string | null;
           deposit_minor?: number | null;
           ends_at: string;
+          final_price_minor?: number | null;
           id?: string;
           idempotency_key?: string | null;
           occupied: unknown;
@@ -184,6 +186,7 @@ export type Database = {
           customer_user_id?: string | null;
           deposit_minor?: number | null;
           ends_at?: string;
+          final_price_minor?: number | null;
           id?: string;
           idempotency_key?: string | null;
           occupied?: unknown;
@@ -200,6 +203,13 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "appointments_business_id_client_id_fkey";
+            columns: ["business_id", "client_id"];
+            isOneToOne: false;
+            referencedRelation: "business_client_summaries";
+            referencedColumns: ["business_id", "id"];
+          },
           {
             foreignKeyName: "appointments_business_id_client_id_fkey";
             columns: ["business_id", "client_id"];
@@ -1358,7 +1368,38 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      business_client_summaries: {
+        Row: {
+          business_id: string | null;
+          created_at: string | null;
+          full_name: string | null;
+          id: string | null;
+          last_visit_at: string | null;
+          no_shows: number | null;
+          notes: string | null;
+          phone_e164: string | null;
+          spent_minor: number | null;
+          upcoming: number | null;
+          user_id: string | null;
+          visits: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_clients_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "business_clients_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Functions: {
       accept_staff_invite: { Args: { p_token: string }; Returns: string };
@@ -1412,6 +1453,21 @@ export type Database = {
           slug: string;
         }[];
       };
+      create_manual_appointment: {
+        Args: {
+          p_allow_outside_hours?: boolean;
+          p_business_id: string;
+          p_client_id?: string;
+          p_client_name?: string;
+          p_client_phone?: string;
+          p_note?: string;
+          p_service_id: string;
+          p_staff_id: string;
+          p_starts_at: string;
+          p_walk_in?: boolean;
+        };
+        Returns: string;
+      };
       get_busy_intervals: {
         Args: { p_business_id: string; p_from: string; p_to: string };
         Returns: {
@@ -1449,6 +1505,10 @@ export type Database = {
           region_name: string;
         }[];
       };
+      move_appointment: {
+        Args: { p_allow_outside_hours?: boolean; p_appointment_id: string; p_staff_id: string; p_starts_at: string };
+        Returns: undefined;
+      };
       publish_business: { Args: { p_business_id: string }; Returns: undefined };
       remove_staff_member: { Args: { p_staff_id: string }; Returns: undefined };
       reschedule_my_appointment: {
@@ -1456,6 +1516,10 @@ export type Database = {
         Returns: string;
       };
       revoke_staff_invite: { Args: { p_staff_id: string }; Returns: undefined };
+      save_business_client: {
+        Args: { p_business_id: string; p_client_id: string; p_name: string; p_notes: string; p_phone: string };
+        Returns: string;
+      };
       search_businesses: {
         Args: {
           p_area_id?: string;
@@ -1492,6 +1556,15 @@ export type Database = {
           slug: string;
           total_count: number;
         }[];
+      };
+      set_appointment_status: {
+        Args: {
+          p_appointment_id: string;
+          p_final_price_minor?: number;
+          p_reason?: string;
+          p_status: Database["public"]["Enums"]["appointment_status"];
+        };
+        Returns: undefined;
       };
       set_business_hours: { Args: { p_business_id: string; p_hours: Json }; Returns: undefined };
       set_business_slug: { Args: { p_business_id: string; p_slug: string }; Returns: string };
