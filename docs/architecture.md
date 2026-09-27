@@ -132,7 +132,7 @@ Legend: **R** read · **C** create · **U** update · **D** delete/deactivate ·
 | Email + password | Supabase email auth, optional for providers who want it. Email confirmation on; passwords hashed by Supabase (bcrypt). We never see plaintext |
 | Google / Apple (later) | Supabase OAuth providers; `profiles` keyed on `auth.users.id`, so linking identities adds no schema change. Apple is required on iOS if we offer other social logins in a native app |
 | "Guest" booking | **Assumption:** guests verify their phone with OTP but skip creating a profile/password. OTP creates a lightweight auth user (see open question in the Phase 0 summary). This keeps the booking RPC `authenticated`-only and cuts spam/no-shows |
-| Sessions (web) | `@supabase/ssr` httpOnly, `Secure`, `SameSite=Lax` cookies; refreshed in middleware |
+| Sessions (web) | `@supabase/ssr` httpOnly, `Secure`, `SameSite=Lax` cookies; refreshed in `src/proxy.ts` (Next 16's renamed middleware) |
 | Sessions (mobile) | Supabase SDK stores access and refresh tokens in secure storage; API gets `Bearer` access token (1h expiry, refresh rotation) |
 | Profile bootstrap | `on auth.users insert` trigger creates the `profiles` row |
 | OTP abuse | Supabase OTP rate limits (per phone and per IP) plus our hook refusing more than N SMS per phone per hour (table-backed counter). Short OTP expiry; Cloudflare Turnstile on the phone form if abuse appears |
@@ -309,9 +309,9 @@ interface NotificationChannelProvider {
 | Authorization | RLS on every table, definer functions for invariants, server-side checks in services; UI hiding is cosmetic only |
 | Input validation | Zod at every boundary; DB `check` constraints as the last line |
 | Injection | PostgREST/RPC parameterisation; no string-built SQL; `search_path = ''` in definer functions |
-| XSS | React escaping; no `dangerouslySetInnerHTML` for user content; strict CSP (nonce-based) set in middleware |
+| XSS | React escaping; no `dangerouslySetInnerHTML` for user content; strict CSP (nonce-based) set in `src/proxy.ts` |
 | CSRF | Server Actions have built-in origin checks; route handlers that use cookies check `Origin`; the Bearer API is not cookie-authenticated |
-| Rate limiting | OTP: Supabase limits + hook counter. Booking: in-DB per-user limit (can't be bypassed via PostgREST). Search/API: per-IP limiter in middleware (Postgres-backed; Upstash only if it becomes hot) |
+| Rate limiting | OTP: Supabase limits + hook counter. Booking: in-DB per-user limit (can't be bypassed via PostgREST). Search/API: per-IP limiter in `src/proxy.ts` (Postgres-backed; Upstash only if it becomes hot) |
 | Secrets | Vercel encrypted env vars, per environment; secret key server-only (§4.7); webhooks verified by HMAC; secret scanning on the repo |
 | Sessions | httpOnly + Secure cookies, short-lived JWT, refresh rotation, sign-out-everywhere |
 | Audit | `admin_actions` (append-only), `appointment_status_history`, `payment_events` |

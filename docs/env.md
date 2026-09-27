@@ -1,0 +1,36 @@
+# Environment Variables
+
+Validated at startup: server values in [`src/server/env.ts`](../src/server/env.ts), browser values in [`src/lib/public-env.ts`](../src/lib/public-env.ts).
+Rule: **`NEXT_PUBLIC_*` is shipped to every browser. Never put a secret there.** CI (`pnpm check:secrets`) fails if a secret appears in the client bundle.
+
+## App (`.env.local` locally; Vercel project settings per environment)
+
+| Name | Scope | Required | Purpose | Local value |
+|---|---|---|---|---|
+| `APP_ENV` | server | yes | `local` \| `test` \| `staging` \| `production`. Gates mocks and dev-only routes | `local` |
+| `NEXT_PUBLIC_SITE_URL` | public | yes | Absolute URLs (email links, share links, QR codes) | `http://localhost:3000` |
+| `NEXT_PUBLIC_SUPABASE_URL` | public | yes | Supabase API URL | `http://127.0.0.1:54321` |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | public | yes | Publishable ("anon") key. Safe in browsers because RLS applies | from `pnpm exec supabase status` |
+| `SUPABASE_SECRET_KEY` | **server** | yes | Secret ("service_role") key. **Bypasses RLS.** Only `src/server/privileged/*` may read it (lint-enforced) | from `pnpm exec supabase status` |
+| `SEND_SMS_HOOK_SECRET` | **server** | yes | Verifies Supabase Auth → `/api/internal/auth/send-sms` calls (Standard Webhooks, `v1,whsec_<base64>`). Must equal the value in `supabase/.env` | `echo "v1,whsec_$(openssl rand -base64 32)"` |
+| `SMS_PROVIDER` | server | yes | SMS channel provider. Only `mock` exists until Phase 8. **`mock` is refused when `APP_ENV=production`** | `mock` |
+| `DEFAULT_COUNTRY_CODE` | server | yes | Default region for parsing phones typed without `+`. Country data itself lives in the DB | `GH` |
+
+## Supabase CLI (`supabase/.env`, local only)
+
+| Name | Purpose |
+|---|---|
+| `SEND_SMS_HOOK_SECRET` | Substituted into `supabase/config.toml` `[auth.hook.send_sms].secrets` |
+| `SUPABASE_INTERNAL_IMAGE_REGISTRY` | *(shell env, optional)* Set to `docker.io` if your network blocks `public.ecr.aws` (the default image registry) |
+
+## Hosted Supabase (dashboard settings, not env vars)
+Configured per project (staging, production) in the Supabase dashboard. Record changes in the release notes:
+- **Auth → Hooks → Send SMS:** HTTPS hook to `https://<site>/api/internal/auth/send-sms`, with a secret that matches `SEND_SMS_HOOK_SECRET` in Vercel.
+- **Auth → Providers → Phone:** enabled. **No test OTPs on hosted projects.**
+- **Auth → SMS OTP expiry:** 300 seconds, OTP length 6.
+- **Auth → Rate limits:** SMS sent per hour, reviewed against SMS spend.
+- **Auth → URL configuration:** Site URL = `NEXT_PUBLIC_SITE_URL`, redirect allow-list includes `<site>/auth/callback`.
+
+## Rotation
+1. `SEND_SMS_HOOK_SECRET`: Supabase hooks accept several space-separated secrets. Add the new one in Supabase and deploy the app with the new value, then remove the old one.
+2. `SUPABASE_SECRET_KEY`: create a new secret key in the Supabase dashboard, update Vercel, redeploy, then revoke the old key.

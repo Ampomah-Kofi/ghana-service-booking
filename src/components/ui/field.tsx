@@ -1,0 +1,50 @@
+import type { InputHTMLAttributes } from "react";
+
+type FieldProps = InputHTMLAttributes<HTMLInputElement> & {
+  id: string;
+  label: string;
+  error?: string;
+  hint?: string;
+};
+
+/** Labelled input with inline validation message (docs/design.md §3). */
+export function Field({ id, label, error, hint, className = "", ...input }: FieldProps) {
+  const describedBy = error ? `${id}-error` : hint ? `${id}-hint` : undefined;
+  return (
+    <div className="mb-4">
+      <label htmlFor={id} className="mb-1.5 block text-callout font-medium">
+        {label}
+      </label>
+      <input
+        id={id}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={describedBy}
+        className={`block min-h-11 w-full rounded-control border bg-surface-elevated px-3 text-body outline-none transition-colors placeholder:text-text-secondary focus:border-accent ${
+          error ? "border-danger" : "border-separator"
+        } ${className}`}
+        {...input}
+      />
+      {error ? (
+        <p id={`${id}-error`} className="mt-1.5 text-footnote text-danger" role="alert">
+          {error}
+        </p>
+      ) : hint ? (
+        <p id={`${id}-hint`} className="mt-1.5 text-footnote text-text-secondary">
+          {hint}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+export function FormMessage({ message, tone }: { message?: string; tone: "error" | "notice" }) {
+  if (!message) return null;
+  return (
+    <p
+      role={tone === "error" ? "alert" : "status"}
+      className={`mb-4 rounded-control px-3 py-2 text-callout ${tone === "error" ? "bg-danger/10 text-danger" : "bg-success/10 text-success"}`}
+    >
+      {message}
+    </p>
+  );
+}
