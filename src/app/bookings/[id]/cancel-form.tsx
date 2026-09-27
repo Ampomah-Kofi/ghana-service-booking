@@ -13,7 +13,6 @@ export function CancelBookingForm({ appointmentId }: { appointmentId: string }) 
   const [state, formAction] = useActionState<FormState, FormData>(cancelBookingAction, {});
   const [asking, setAsking] = useState(false);
 
-  if (state.ok) return <FormMessage tone="notice" message={state.notice} />;
   if (!asking) {
     return (
       <Button

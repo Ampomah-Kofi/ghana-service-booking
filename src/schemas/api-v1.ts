@@ -99,3 +99,78 @@ export const businessProfile = z.object({
     hours: z.array(z.object({ weekday: z.number().int().min(1).max(7), opens: z.string(), closes: z.string() })),
   }),
 });
+
+// ── Phase 5: availability and appointments ──────────────────────────────────
+
+export const availabilityQuery = z.object({
+  service_id: z.uuid(),
+  staff_id: z
+    .union([z.uuid(), z.literal("any")])
+    .optional()
+    .default("any"),
+  from: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional()
+    .describe("First local date (YYYY-MM-DD) in the business's timezone. Default: today there."),
+  days: z.coerce.number().int().min(1).max(14).optional().default(7),
+});
+
+export const availabilityResponse = z.object({
+  data: z.array(
+    z.object({
+      date: z.string().describe("Local date in the business's timezone"),
+      slots: z.array(
+        z.object({
+          starts_at: z.iso.datetime({ offset: true }),
+          staff_ids: z.array(z.uuid()).describe('Who is free at this time, in the order "any available" tries them'),
+        }),
+      ),
+    }),
+  ),
+  meta: z.object({ timezone: z.string(), last_bookable_date: z.string() }),
+});
+
+export const appointment = z.object({
+  id: z.uuid(),
+  status: z.enum(["pending", "confirmed", "arrived", "completed", "cancelled", "no_show"]),
+  starts_at: z.iso.datetime({ offset: true }),
+  ends_at: z.iso.datetime({ offset: true }),
+  business: z.object({
+    id: z.uuid(),
+    name: z.string().nullable(),
+    slug: z.string().nullable(),
+    timezone: z.string().nullable(),
+  }),
+  service: z.object({ id: z.uuid(), name: z.string() }),
+  staff: z.object({ id: z.uuid(), display_name: z.string().nullable() }),
+  price: money.extend({ type: z.enum(["fixed", "from"]) }),
+  deposit: money.nullable(),
+  payment_status: z.enum(["pending", "paid", "partially_paid", "failed", "refunded"]).nullable(),
+  customer: z.object({ name: z.string(), phone: z.string().nullable() }),
+  note: z.string().nullable(),
+  cancellation_reason: z.string().nullable(),
+  can_change: z.boolean().describe("Whether the customer may still cancel or reschedule online"),
+});
+
+export const appointmentResponse = z.object({ data: appointment });
+export const myAppointmentsResponse = z.object({
+  data: z.object({ upcoming: z.array(appointment), past: z.array(appointment) }),
+});
+
+export const createAppointmentBody = z.object({
+  business_id: z.uuid(),
+  service_id: z.uuid(),
+  staff_id: z.union([z.uuid(), z.literal("any")]).default("any"),
+  starts_at: z.iso.datetime({ offset: true }),
+  customer_name: z.string().trim().min(1).max(120),
+  customer_phone: z.string().trim().max(32).optional().describe("Defaults to the phone number on the account"),
+  note: z.string().trim().max(500).optional(),
+});
+
+export const cancelAppointmentBody = z.object({ reason: z.string().trim().max(200).optional() });
+
+export const rescheduleAppointmentBody = z.object({
+  staff_id: z.union([z.uuid(), z.literal("any")]).default("any"),
+  starts_at: z.iso.datetime({ offset: true }),
+});

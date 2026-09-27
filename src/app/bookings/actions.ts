@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { cancelSchema } from "@/schemas/booking";
 import { fieldErrorsFrom, formError, type FormState } from "@/server/actions";
 import { requireUser } from "@/server/auth/session";
@@ -20,6 +21,5 @@ export async function cancelBookingAction(_prev: FormState, formData: FormData):
     return formError(error, formData);
   }
   revalidatePath("/bookings");
-  revalidatePath(`/bookings/${parsed.data.appointmentId}`);
-  return { ok: true, notice: "Your booking is cancelled." };
+  redirect(`/bookings/${parsed.data.appointmentId}?cancelled=1`);
 }

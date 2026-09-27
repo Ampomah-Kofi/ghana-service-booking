@@ -4,7 +4,7 @@ import type { Database } from "@/server/db/types";
 import { toAppError } from "@/server/businesses/errors";
 import { AppError } from "@/lib/errors";
 import type { CurrencyInfo } from "@/lib/money";
-import { candidatesFor, getBookingSetup, type BookingSetup } from "@/server/scheduling/availability";
+import { candidatesFor, getBookingSetup, staffForService, type BookingSetup } from "@/server/scheduling/availability";
 
 export type AppointmentStatus = Database["public"]["Enums"]["appointment_status"];
 type PaymentStatus = Database["public"]["Enums"]["payment_status"];
@@ -158,21 +158,11 @@ export async function bookAppointment(
   setup?: BookingSetup,
 ): Promise<string> {
   const loaded = setup ?? (await getBookingSetup(db, business));
-  const candidates = await candidatesFor(db, loaded, {
-    serviceId: input.serviceId,
-    staffId: input.staffId,
-    startsAt: input.startsAt,
-  });
-  // A retried request (same key) must return the first booking even though its slot is now taken.
-  if (candidates.length === 0) {
-    const existing = await findByIdempotencyKey(db, input.idempotencyKey);
-    if (existing) return existing;
-    throw new AppError("CONFLICT", "That time was just taken. Please choose another.");
-  }
+  const staffIds = await staffToTry(db, loaded, input.serviceId, input.staffId, input.startsAt);
   const { data, error } = await db.rpc("book_appointment", {
     p_business_id: business.id,
     p_service_id: input.serviceId,
-    p_staff_ids: candidates,
+    p_staff_ids: staffIds,
     p_starts_at: input.startsAt.toISOString(),
     p_customer_name: input.customerName,
     p_customer_phone: nullableArg(input.customerPhone),
@@ -183,18 +173,23 @@ export async function bookAppointment(
   return data;
 }
 
-async function findByIdempotencyKey(db: Db, key: string): Promise<string | null> {
-  const { data: claims } = await db.auth.getClaims();
-  const userId = claims?.claims.sub;
-  if (!userId) return null;
-  const { data, error } = await db
-    .from("appointments")
-    .select("id")
-    .eq("created_by", userId)
-    .eq("idempotency_key", key)
-    .maybeSingle();
-  if (error) throw toAppError(error);
-  return data?.id ?? null;
+/**
+ * Fairest-first order from the engine. When the engine sees no free person we still
+ * ask the database (with everyone eligible): it answers a retried idempotency key
+ * with the original booking, and otherwise refuses with a clear conflict.
+ */
+async function staffToTry(
+  db: Db,
+  setup: BookingSetup,
+  serviceId: string,
+  staffId: string | null,
+  startsAt: Date,
+): Promise<string[]> {
+  const ordered = await candidatesFor(db, setup, { serviceId, staffId, startsAt });
+  if (ordered.length > 0) return ordered;
+  const eligible = staffForService(setup, serviceId, staffId).map((s) => s.id);
+  if (eligible.length === 0) throw new AppError("NOT_FOUND", "That service can't be booked online.");
+  return eligible;
 }
 
 export async function rescheduleMyAppointment(
@@ -204,15 +199,10 @@ export async function rescheduleMyAppointment(
 ): Promise<string> {
   if (!appointment.business.timezone) throw new AppError("CONFLICT", "This business isn't taking bookings now.");
   const setup = await getBookingSetup(db, { id: appointment.business.id, timezone: appointment.business.timezone });
-  const candidates = await candidatesFor(db, setup, {
-    serviceId: appointment.serviceId,
-    staffId: params.staffId,
-    startsAt: params.startsAt,
-  });
-  if (candidates.length === 0) throw new AppError("CONFLICT", "That time was just taken. Please choose another.");
+  const staffIds = await staffToTry(db, setup, appointment.serviceId, params.staffId, params.startsAt);
   const { data, error } = await db.rpc("reschedule_my_appointment", {
     p_appointment_id: appointment.id,
-    p_staff_ids: candidates,
+    p_staff_ids: staffIds,
     p_starts_at: params.startsAt.toISOString(),
   });
   if (error) throw toAppError(error);

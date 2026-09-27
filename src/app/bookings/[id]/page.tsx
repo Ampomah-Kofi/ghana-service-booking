@@ -42,6 +42,8 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
         />
       ) : sp.rescheduled === "1" ? (
         <FormMessage tone="notice" message="Your booking has been moved." />
+      ) : sp.cancelled === "1" ? (
+        <FormMessage tone="notice" message="Your booking is cancelled." />
       ) : null}
 
       <div className="mb-2">

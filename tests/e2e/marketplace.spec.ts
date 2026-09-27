@@ -43,6 +43,7 @@ test("public pages never scroll sideways on a small phone (360px)", async ({ pag
     "/search?q=Braids+in+Accra",
     "/categories/nails",
     "/business/ama-braids",
+    "/business/ama-braids/book",
     "/sign-in",
   ]) {
     await page.goto(url);

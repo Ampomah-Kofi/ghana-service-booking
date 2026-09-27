@@ -22,6 +22,17 @@ export function apiClient(request: Request): Db {
   });
 }
 
+/** For endpoints that need a signed-in caller: verifies the Bearer token (JWT signature and expiry). */
+export async function apiUser(request: Request): Promise<{ db: Db; userId: string }> {
+  const auth = request.headers.get("authorization");
+  const token = auth?.startsWith("Bearer ") ? auth.slice(7).trim() : "";
+  if (!token) throw new AppError("UNAUTHENTICATED", "Sign in to continue.");
+  const db = apiClient(request);
+  const { data, error } = await db.auth.getClaims(token);
+  if (error || !data) throw new AppError("UNAUTHENTICATED", "Your session has expired. Sign in again.");
+  return { db, userId: data.claims.sub };
+}
+
 /** Public, identical-for-everyone responses may be cached briefly by CDNs; personalised ones never. */
 export function json<T>(body: T, { status = 200, cacheSeconds = 0, personalised = false } = {}): Response {
   const cache =
@@ -47,7 +58,7 @@ export function validationError(error: ZodError): Response {
     {
       error: {
         code: "VALIDATION",
-        message: "Some query parameters are invalid.",
+        message: "Some parameters are invalid.",
         details: error.issues.map((i) => ({ field: i.path.join("."), message: i.message })),
       },
     },
