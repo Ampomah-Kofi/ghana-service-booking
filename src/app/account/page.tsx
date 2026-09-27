@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { GroupedRow, GroupedSection } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatPhoneInternational } from "@/lib/phone";
@@ -27,18 +28,25 @@ export default async function AccountPage() {
 
       <GroupedSection
         title="Your businesses"
-        footer={memberships.length === 0 ? "Business onboarding is coming soon." : undefined}
+        footer={
+          <Link href="/onboarding" className="font-medium text-accent">
+            {memberships.length === 0 ? "List your business for free" : "List another business"}
+          </Link>
+        }
       >
         {memberships.length === 0 ? (
           <p className="px-4 py-3 text-body text-text-secondary">You don&apos;t manage any businesses yet.</p>
         ) : (
-          memberships.map((m) => (
-            <GroupedRow
-              key={m.businessId}
-              label={m.business.name}
-              value={`${roleLabel[m.role]}${m.business.status === "published" ? "" : ` · ${m.business.status}`}`}
-            />
-          ))
+          memberships.map((m) => {
+            const value = `${roleLabel[m.role]}${m.business.status === "published" ? "" : ` · ${m.business.status}`}`;
+            return m.role === "staff" ? (
+              <GroupedRow key={m.businessId} label={m.business.name} value={value} />
+            ) : (
+              <Link key={m.businessId} href={`/dashboard/${m.businessId}`} className="block hover:bg-fill">
+                <GroupedRow label={m.business.name} value={`${value} ›`} />
+              </Link>
+            );
+          })
         )}
       </GroupedSection>
 

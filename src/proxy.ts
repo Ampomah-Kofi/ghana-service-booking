@@ -8,7 +8,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * This is NOT the authorization layer: pages and actions check access
  * themselves (src/server/auth), and the database enforces RLS.
  */
-const PROTECTED_PREFIXES = ["/account"];
+const PROTECTED_PREFIXES = ["/account", "/onboarding", "/dashboard"];
 
 function isProtected(pathname: string): boolean {
   return PROTECTED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { BRAND } from "@/lib/brand";
 import { listActiveCategories } from "@/server/catalog/categories";
+import { createUserClient } from "@/server/db/supabase-server";
 
 export default async function HomePage() {
-  const categories = await listActiveCategories();
+  const categories = await listActiveCategories(await createUserClient());
 
   return (
     <>
@@ -38,8 +39,8 @@ export default async function HomePage() {
 
       <p className="mt-10 text-callout text-text-secondary">
         Are you a professional?{" "}
-        <Link href="/sign-in" className="font-medium text-accent">
-          Sign in to get started
+        <Link href="/onboarding" className="font-medium text-accent">
+          List your business for free
         </Link>
       </p>
     </>
