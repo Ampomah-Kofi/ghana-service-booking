@@ -3,6 +3,50 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      admin_actions: {
+        Row: {
+          action: string;
+          admin_user_id: string;
+          after: Json | null;
+          before: Json | null;
+          created_at: string;
+          id: number;
+          reason: string;
+          target_id: string;
+          target_table: string;
+        };
+        Insert: {
+          action: string;
+          admin_user_id: string;
+          after?: Json | null;
+          before?: Json | null;
+          created_at?: string;
+          id?: never;
+          reason: string;
+          target_id: string;
+          target_table: string;
+        };
+        Update: {
+          action?: string;
+          admin_user_id?: string;
+          after?: Json | null;
+          before?: Json | null;
+          created_at?: string;
+          id?: never;
+          reason?: string;
+          target_id?: string;
+          target_table?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "admin_actions_admin_user_id_fkey";
+            columns: ["admin_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       areas: {
         Row: {
           centroid: unknown;
@@ -31,6 +75,58 @@ export type Database = {
             columns: ["city_id"];
             isOneToOne: false;
             referencedRelation: "cities";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      blocked_times: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          created_by: string | null;
+          during: unknown;
+          id: string;
+          reason: string | null;
+          staff_id: string | null;
+        };
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          during: unknown;
+          id?: string;
+          reason?: string | null;
+          staff_id?: string | null;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          during?: unknown;
+          id?: string;
+          reason?: string | null;
+          staff_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "blocked_times_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "blocked_times_business_id_staff_id_fkey";
+            columns: ["business_id", "staff_id"];
+            isOneToOne: false;
+            referencedRelation: "staff";
+            referencedColumns: ["business_id", "id"];
+          },
+          {
+            foreignKeyName: "blocked_times_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -117,6 +213,35 @@ export type Database = {
             columns: ["category_id"];
             isOneToOne: false;
             referencedRelation: "categories";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      business_hours: {
+        Row: {
+          business_id: string;
+          during: unknown;
+          id: string;
+          weekday: number;
+        };
+        Insert: {
+          business_id: string;
+          during: unknown;
+          id?: string;
+          weekday: number;
+        };
+        Update: {
+          business_id?: string;
+          during?: unknown;
+          id?: string;
+          weekday?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_hours_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
             referencedColumns: ["id"];
           },
         ];
@@ -688,6 +813,82 @@ export type Database = {
           },
         ];
       };
+      services: {
+        Row: {
+          business_id: string;
+          category_id: string | null;
+          created_at: string;
+          currency_code: string;
+          deleted_at: string | null;
+          deposit_minor: number | null;
+          description: string | null;
+          duration_minutes: number;
+          id: string;
+          is_active: boolean;
+          name: string;
+          price_minor: number;
+          price_type: Database["public"]["Enums"]["price_type"];
+          sort_order: number;
+          updated_at: string;
+        };
+        Insert: {
+          business_id: string;
+          category_id?: string | null;
+          created_at?: string;
+          currency_code: string;
+          deleted_at?: string | null;
+          deposit_minor?: number | null;
+          description?: string | null;
+          duration_minutes: number;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+          price_minor: number;
+          price_type?: Database["public"]["Enums"]["price_type"];
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Update: {
+          business_id?: string;
+          category_id?: string | null;
+          created_at?: string;
+          currency_code?: string;
+          deleted_at?: string | null;
+          deposit_minor?: number | null;
+          description?: string | null;
+          duration_minutes?: number;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+          price_minor?: number;
+          price_type?: Database["public"]["Enums"]["price_type"];
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "services_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "services_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "categories";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "services_currency_code_fkey";
+            columns: ["currency_code"];
+            isOneToOne: false;
+            referencedRelation: "currencies";
+            referencedColumns: ["code"];
+          },
+        ];
+      };
       staff: {
         Row: {
           accepts_online_bookings: boolean;
@@ -754,12 +955,168 @@ export type Database = {
           },
         ];
       };
+      staff_invites: {
+        Row: {
+          accepted_at: string | null;
+          accepted_by: string | null;
+          business_id: string;
+          created_at: string;
+          expires_at: string;
+          id: string;
+          invited_by: string | null;
+          phone_e164: string;
+          revoked_at: string | null;
+          role: Database["public"]["Enums"]["member_role"];
+          staff_id: string;
+          token_hash: string;
+        };
+        Insert: {
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          business_id: string;
+          created_at?: string;
+          expires_at?: string;
+          id?: string;
+          invited_by?: string | null;
+          phone_e164: string;
+          revoked_at?: string | null;
+          role?: Database["public"]["Enums"]["member_role"];
+          staff_id: string;
+          token_hash: string;
+        };
+        Update: {
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          business_id?: string;
+          created_at?: string;
+          expires_at?: string;
+          id?: string;
+          invited_by?: string | null;
+          phone_e164?: string;
+          revoked_at?: string | null;
+          role?: Database["public"]["Enums"]["member_role"];
+          staff_id?: string;
+          token_hash?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "staff_invites_accepted_by_fkey";
+            columns: ["accepted_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "staff_invites_business_id_staff_id_fkey";
+            columns: ["business_id", "staff_id"];
+            isOneToOne: false;
+            referencedRelation: "staff";
+            referencedColumns: ["business_id", "id"];
+          },
+          {
+            foreignKeyName: "staff_invites_invited_by_fkey";
+            columns: ["invited_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      staff_services: {
+        Row: {
+          business_id: string;
+          service_id: string;
+          staff_id: string;
+        };
+        Insert: {
+          business_id: string;
+          service_id: string;
+          staff_id: string;
+        };
+        Update: {
+          business_id?: string;
+          service_id?: string;
+          staff_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "staff_services_business_id_service_id_fkey";
+            columns: ["business_id", "service_id"];
+            isOneToOne: false;
+            referencedRelation: "services";
+            referencedColumns: ["business_id", "id"];
+          },
+          {
+            foreignKeyName: "staff_services_business_id_staff_id_fkey";
+            columns: ["business_id", "staff_id"];
+            isOneToOne: false;
+            referencedRelation: "staff";
+            referencedColumns: ["business_id", "id"];
+          },
+        ];
+      };
+      staff_working_hours: {
+        Row: {
+          business_id: string;
+          during: unknown;
+          id: string;
+          staff_id: string;
+          weekday: number;
+        };
+        Insert: {
+          business_id: string;
+          during: unknown;
+          id?: string;
+          staff_id: string;
+          weekday: number;
+        };
+        Update: {
+          business_id?: string;
+          during?: unknown;
+          id?: string;
+          staff_id?: string;
+          weekday?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "staff_working_hours_business_id_staff_id_fkey";
+            columns: ["business_id", "staff_id"];
+            isOneToOne: false;
+            referencedRelation: "staff";
+            referencedColumns: ["business_id", "id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
+      accept_staff_invite: { Args: { p_token: string }; Returns: string };
+      admin_save_category: {
+        Args: {
+          p_description: string;
+          p_id: string;
+          p_is_active: boolean;
+          p_keywords: string[];
+          p_name: string;
+          p_reason: string;
+          p_slug: string;
+          p_sort_order: number;
+        };
+        Returns: string;
+      };
       business_publish_readiness: { Args: { p_business_id: string }; Returns: string[] };
+      create_blocked_time: {
+        Args: {
+          p_business_id: string;
+          p_ends_local: string;
+          p_reason: string;
+          p_staff_id: string;
+          p_starts_local: string;
+        };
+        Returns: string;
+      };
       create_business: {
         Args: {
           p_category_id: string;
@@ -772,9 +1129,33 @@ export type Database = {
           slug: string;
         }[];
       };
+      get_staff_invite: {
+        Args: { p_token: string };
+        Returns: {
+          business_name: string;
+          phone_hint: string;
+          role: Database["public"]["Enums"]["member_role"];
+          staff_name: string;
+          status: string;
+        }[];
+      };
+      invite_staff: {
+        Args: { p_phone_e164: string; p_role?: Database["public"]["Enums"]["member_role"]; p_staff_id: string };
+        Returns: string;
+      };
       publish_business: { Args: { p_business_id: string }; Returns: undefined };
+      remove_staff_member: { Args: { p_staff_id: string }; Returns: undefined };
+      revoke_staff_invite: { Args: { p_staff_id: string }; Returns: undefined };
+      set_business_hours: { Args: { p_business_id: string; p_hours: Json }; Returns: undefined };
       set_business_slug: { Args: { p_business_id: string; p_slug: string }; Returns: string };
       set_primary_category: { Args: { p_business_id: string; p_category_id: string }; Returns: undefined };
+      set_service_staff: { Args: { p_service_id: string; p_staff_ids: string[] }; Returns: undefined };
+      set_staff_hours: {
+        Args: { p_hours: Json; p_staff_id: string; p_uses_business_hours: boolean };
+        Returns: undefined;
+      };
+      set_staff_services: { Args: { p_service_ids: string[]; p_staff_id: string }; Returns: undefined };
+      timemultirange: { Args: Record<PropertyKey, never>; Returns: unknown };
       unpublish_business: { Args: { p_business_id: string }; Returns: undefined };
     };
     Enums: {
@@ -782,6 +1163,7 @@ export type Database = {
       business_kind: "solo" | "team";
       business_status: "draft" | "published" | "suspended" | "deactivated";
       member_role: "owner" | "manager" | "staff";
+      price_type: "fixed" | "from";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -893,6 +1275,7 @@ export const Constants = {
       business_kind: ["solo", "team"],
       business_status: ["draft", "published", "suspended", "deactivated"],
       member_role: ["owner", "manager", "staff"],
+      price_type: ["fixed", "from"],
     },
   },
 } as const;

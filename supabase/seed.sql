@@ -181,3 +181,47 @@ insert into public.staff (business_id, user_id, display_name, role_title, sort_o
   ('b0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000002', 'Ama', 'Lead braider', 0),
   ('b0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000003', 'Efua', 'Braider', 1),
   ('b0000000-0000-4000-8000-000000000003', 'a0000000-0000-4000-8000-000000000004', 'Kojo', 'Massage therapist', 0);
+
+-- Services, team and hours (Phase 3)
+insert into public.staff (business_id, user_id, display_name, role_title, sort_order) values
+  ('b0000000-0000-4000-8000-000000000003', null, 'Abena', 'Beauty therapist', 1);
+
+insert into public.services (business_id, name, description, price_minor, price_type, currency_code, duration_minutes, sort_order)
+values
+  ('b0000000-0000-4000-8000-000000000001', 'Low cut', 'Clippers all over, clean line-up.', 5000, 'fixed', 'GHS', 30, 0),
+  ('b0000000-0000-4000-8000-000000000001', 'Skin fade', 'Fade to the skin with a sharp line-up.', 8000, 'fixed', 'GHS', 45, 1),
+  ('b0000000-0000-4000-8000-000000000001', 'Beard trim', null, 3000, 'fixed', 'GHS', 20, 2),
+  ('b0000000-0000-4000-8000-000000000002', 'Knotless braids (medium)', 'Hair extensions included.', 35000, 'from', 'GHS', 240, 0),
+  ('b0000000-0000-4000-8000-000000000002', 'Twists', null, 25000, 'from', 'GHS', 180, 1),
+  ('b0000000-0000-4000-8000-000000000002', 'Loc retwist', null, 15000, 'fixed', 'GHS', 120, 2),
+  ('b0000000-0000-4000-8000-000000000003', 'Deep tissue massage', null, 30000, 'fixed', 'GHS', 60, 0),
+  ('b0000000-0000-4000-8000-000000000003', 'Facial', null, 25000, 'fixed', 'GHS', 60, 1),
+  ('b0000000-0000-4000-8000-000000000003', 'Manicure', null, 10000, 'fixed', 'GHS', 45, 2);
+
+-- Who does what: owners do everything in their business; Efua does braids and twists; Abena does facials and manicures.
+insert into public.staff_services (business_id, staff_id, service_id)
+select s.business_id, s.id, sv.id
+from public.staff s join public.services sv on sv.business_id = s.business_id
+where s.business_id in ('b0000000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000002')
+  and (s.display_name <> 'Efua' or sv.name in ('Knotless braids (medium)', 'Twists'))
+union all
+select s.business_id, s.id, sv.id
+from public.staff s join public.services sv on sv.business_id = s.business_id
+where s.business_id = 'b0000000-0000-4000-8000-000000000003'
+  and ((s.display_name = 'Kojo' and sv.name = 'Deep tissue massage') or (s.display_name = 'Abena' and sv.name <> 'Deep tissue massage'));
+
+-- Kwame: Mon–Sat 08:00–20:00. Ama Braids: Tue–Sun with a lunch break. Osu Glow: Mon–Sat 10:00–19:00.
+insert into public.business_hours (business_id, weekday, during)
+select 'b0000000-0000-4000-8000-000000000001'::uuid, d, '[08:00,20:00)'::public.timerange from generate_series(1, 6) d
+union all
+select 'b0000000-0000-4000-8000-000000000002'::uuid, d, r::public.timerange
+from generate_series(2, 7) d cross join (values ('[09:00,13:00)'), ('[14:00,19:00)')) as t(r)
+union all
+select 'b0000000-0000-4000-8000-000000000003'::uuid, d, '[10:00,19:00)'::public.timerange from generate_series(1, 6) d;
+
+-- Efua works shorter days (Tue–Sat 10:00–16:00).
+update public.staff set uses_business_hours = false where display_name = 'Efua';
+insert into public.staff_working_hours (business_id, staff_id, weekday, during)
+select s.business_id, s.id, d, '[10:00,16:00)'::public.timerange
+from public.staff s cross join generate_series(2, 6) d
+where s.display_name = 'Efua';

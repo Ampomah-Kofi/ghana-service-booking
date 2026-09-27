@@ -2,7 +2,7 @@
 -- business_publish_readiness, publish_business, unpublish_business.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(33);
+select plan(34);
 
 create function pg_temp.act_as(p_user uuid) returns void language plpgsql as $$
 begin
@@ -59,14 +59,22 @@ select throws_ok($$ select * from public.create_business('Sixth', 'solo', (selec
   'BZ429', null, 'at most 5 businesses per account');
 
 -- ---------------------------------------------------------------- readiness + publish
-select is(public.business_publish_readiness((select id from t where key = 'yaw1')), array['location', 'contact'],
-  'readiness lists what is missing');
+select is(public.business_publish_readiness((select id from t where key = 'yaw1')), array['location', 'contact', 'services'],
+  'readiness lists what is missing (hours are created by default)');
 select throws_ok($$ select public.publish_business((select id from t where key = 'yaw1')) $$,
   'BZ422', null, 'cannot publish before ready');
 
 update public.businesses set phone_e164 = '+233241234567' where id = (select id from t where key = 'yaw1');
 insert into public.business_locations (business_id, country_code, locality_text) values ((select id from t where key = 'yaw1'), 'GH', 'Nkawkaw');
-select is(public.business_publish_readiness((select id from t where key = 'yaw1')), '{}'::text[], 'ready once location and contact exist');
+with x as (
+  insert into public.services (business_id, name, price_minor, currency_code, duration_minutes)
+  values ((select id from t where key = 'yaw1'), 'Gel manicure', 8000, 'GHS', 45) returning id)
+insert into t select 'svc', id, null from x;
+select is(public.business_publish_readiness((select id from t where key = 'yaw1')), array['services'],
+  'a service nobody performs does not count');
+select public.set_service_staff((select id from t where key = 'svc'),
+  array(select s.id from public.staff s where s.business_id = (select id from t where key = 'yaw1')));
+select is(public.business_publish_readiness((select id from t where key = 'yaw1')), '{}'::text[], 'ready once location, contact and a performed service exist');
 
 select lives_ok($$ select public.set_business_slug((select id from t where key = 'yaw1'), 'yaw-nails') $$, 'slug editable before first publish');
 select throws_ok($$ select public.set_business_slug((select id from t where key = 'yaw1'), 'kwame-cuts') $$,
