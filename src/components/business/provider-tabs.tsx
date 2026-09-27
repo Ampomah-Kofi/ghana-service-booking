@@ -24,7 +24,12 @@ export function ProviderTabs({ businessId, canManage }: { businessId: string; ca
     },
     ...(canManage
       ? [
-          { href: `${base}/clients`, label: "Clients", icon: UsersIcon, match: (p: string) => p.startsWith(`${base}/clients`) },
+          {
+            href: `${base}/clients`,
+            label: "Clients",
+            icon: UsersIcon,
+            match: (p: string) => p.startsWith(`${base}/clients`),
+          },
           {
             href: `${base}/more`,
             label: "More",

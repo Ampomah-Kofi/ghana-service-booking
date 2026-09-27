@@ -340,6 +340,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
             return (
               <li key={d.date} className="shrink-0 snap-start">
                 <Link
+                  prefetch={false}
                   href={bookHref(slug, { ...withStaff, from: fromParam, date: d.date })}
                   aria-current={isSelected ? "date" : undefined}
                   aria-label={label}
@@ -414,6 +415,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
                   {slots.map((slot) => (
                     <li key={slot.start.toISOString()}>
                       <Link
+                        prefetch={false}
                         href={bookHref(slug, {
                           ...withStaff,
                           from: fromParam,

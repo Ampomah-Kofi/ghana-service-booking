@@ -286,3 +286,4 @@ insert into public.business_hours (business_id, weekday, during)
 select b.id, d, '[09:00,18:00)'::public.timerange
 from public.businesses b cross join generate_series(1, 6) d
 where b.id::text between 'b0000000-0000-4000-8000-000000000004' and 'b0000000-0000-4000-8000-000000000008';
+

@@ -13,6 +13,8 @@ export type CalendarRange = {
   timezone: string;
   /** Columns: managers see the whole active team (or one person when filtered); staff see themselves. */
   staff: CalendarStaff[];
+  /** Everyone the viewer could filter by (before the staff filter). */
+  team: CalendarStaff[];
   /** Working minutes per staff per date: `${staffId}|${date}` → ranges. */
   working: Map<string, { from: number; to: number }[]>;
   appointments: AppointmentView[];
@@ -47,11 +49,16 @@ export async function getCalendarRange(
     listBlockedTimesBetween(db, business.id, start, end),
   ]);
 
-  const visible = team
-    .filter((s) =>
-      member.canManage ? s.isActive || appointments.some((a) => a.staffId === s.id) : s.id === member.ownStaffId,
-    )
-    .filter((s) => staffId === null || s.id === staffId);
+  const allowed = team.filter((s) =>
+    member.canManage ? s.isActive || appointments.some((a) => a.staffId === s.id) : s.id === member.ownStaffId,
+  );
+  const visible = allowed.filter((s) => staffId === null || s.id === staffId);
+  const toView = (s: StaffView): CalendarStaff => ({
+    id: s.id,
+    displayName: s.displayName,
+    roleTitle: s.roleTitle,
+    isActive: s.isActive,
+  });
   const visibleIds = new Set(visible.map((s) => s.id));
 
   const working = new Map<string, { from: number; to: number }[]>();
@@ -69,7 +76,8 @@ export async function getCalendarRange(
   return {
     dates,
     timezone: tz,
-    staff: visible.map((s) => ({ id: s.id, displayName: s.displayName, roleTitle: s.roleTitle, isActive: s.isActive })),
+    staff: visible.map(toView),
+    team: allowed.map(toView),
     working,
     appointments: appointments.filter((a) => visibleIds.has(a.staffId)),
     blocks: blocks.filter((b) => b.staffId === null || visibleIds.has(b.staffId)),

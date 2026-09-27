@@ -7,7 +7,8 @@ const parts = (instant: Date, timezone: string, options: Intl.DateTimeFormatOpti
   Object.fromEntries(
     new Intl.DateTimeFormat("en-GB", { timeZone: timezone, ...options })
       .formatToParts(instant)
-      .map((p) => [p.type, p.value]),
+      // ICU writes "Sept" for en-GB; the design uses three-letter months ("Sep").
+      .map((p) => [p.type, p.type === "month" && p.value === "Sept" ? "Sep" : p.value]),
   ) as Record<string, string>;
 
 /** "9:30 am" */

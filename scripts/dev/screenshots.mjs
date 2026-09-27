@@ -20,7 +20,7 @@ for (const v of variants) {
   });
   const page = await context.newPage();
   for (const path of paths) {
-    await page.goto(base + path, { waitUntil: "networkidle" });
+    await page.goto(base + path, { waitUntil: "load" });
     const file = `${outDir}/${path.replace(/[^a-z0-9]+/gi, "_").replace(/^_|_$/g, "") || "home"}-${v.name}.png`;
     await page.screenshot({ path: file, fullPage: true });
     console.log(file);

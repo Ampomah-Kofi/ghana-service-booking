@@ -42,7 +42,11 @@ export async function statusAction(businessId: string, _prev: FormState, formDat
   }
 }
 
-export async function addAppointmentAction(businessId: string, _prev: FormState, formData: FormData): Promise<FormState> {
+export async function addAppointmentAction(
+  businessId: string,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
   const parsed = manualAppointmentSchema(serverEnv().DEFAULT_COUNTRY_CODE).safeParse({
     walkIn: formData.get("walkIn") ?? "0",
     serviceId: formData.get("serviceId") ?? "",
@@ -64,15 +68,17 @@ export async function addAppointmentAction(businessId: string, _prev: FormState,
     const startsAt =
       input.walkIn || !input.date || !input.time
         ? new Date(Math.floor(Date.now() / 60_000) * 60_000)
-        : localToInstant(input.date, Number(input.time.slice(0, 2)) * 60 + Number(input.time.slice(3)), business.timezone);
+        : localToInstant(
+            input.date,
+            Number(input.time.slice(0, 2)) * 60 + Number(input.time.slice(3)),
+            business.timezone,
+          );
     if (Number.isNaN(startsAt.getTime())) throw new AppError("VALIDATION", "Choose a valid date and time.");
     id = await addManualAppointment(db, business.id, {
       serviceId: input.serviceId,
       staffId: input.staffId,
       startsAt,
-      client: input.clientId
-        ? { id: input.clientId }
-        : { name: input.clientName ?? "", phone: input.clientPhone },
+      client: input.clientId ? { id: input.clientId } : { name: input.clientName ?? "", phone: input.clientPhone },
       note: input.note,
       walkIn: input.walkIn,
       // A walk-in is happening now, so working hours don't apply; overlaps are still refused.

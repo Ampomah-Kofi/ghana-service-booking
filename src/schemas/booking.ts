@@ -96,7 +96,10 @@ export function manualAppointmentSchema(defaultCountry: CountryCode) {
         .transform((value) => (value ? value : null))
         .pipe(phoneInputSchema(defaultCountry).nullable()),
       note: optionalText(500),
-      allowOutsideHours: z.string().nullish().transform((v) => v === "on"),
+      allowOutsideHours: z
+        .string()
+        .nullish()
+        .transform((v) => v === "on"),
     })
     .superRefine((v, ctx) => {
       if (!v.walkIn && !v.date) ctx.addIssue({ code: "custom", path: ["date"], message: "Choose a date." });
@@ -111,7 +114,10 @@ export const moveSchema = z.object({
   staffId: z.uuid("Choose who will do it."),
   date: localDateSchema,
   time: localTime,
-  allowOutsideHours: z.string().nullish().transform((v) => v === "on"),
+  allowOutsideHours: z
+    .string()
+    .nullish()
+    .transform((v) => v === "on"),
 });
 
 export function clientSchema(defaultCountry: CountryCode) {

@@ -18,7 +18,8 @@
     "gen:types": "supabase gen types typescript --local --schema public > src/server/db/types.ts && prettier --write src/server/db/types.ts",
     "check:secrets": "node scripts/check-client-bundle.mjs",
     "test:e2e": "playwright test",
-    "test:integration": "vitest run --config vitest.integration.config.mts"
+    "test:integration": "vitest run --config vitest.integration.config.mts",
+    "db:demo": "docker exec -i supabase_db_ghana-service-booking psql -U postgres -d postgres -v ON_ERROR_STOP=1 -q < supabase/demo/appointments.sql"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
