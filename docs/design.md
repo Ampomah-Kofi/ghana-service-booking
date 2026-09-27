@@ -44,6 +44,59 @@
 - **States:** every screen designs loading (skeleton), empty (friendly line + one action), error (what happened + retry), and validation (inline, under the field).
 - **Accessibility:** 44×44 px minimum tap targets, visible focus rings, semantic HTML, labels on every input, WCAG 2.2 AA.
 
+## 3a. Practical rules (added Phase 6)
+Picked from the product owner's reference design notes. They sit on top of the look above; colours, fonts and depth are unchanged.
+
+**Formats**
+- Time: 12-hour with lowercase am/pm (`9:30 am`), always in the business's timezone. Dates: `Tue, 14 Oct`. Durations: `45 min`, `1 hr 30 min`.
+- Money: `GH₵ 150` (no `.00` on whole amounts), starting prices as `From GH₵ 80`, tabular numerals, semibold.
+- Phone: `+233 24 123 4567`. Addresses: area first, then landmark (`East Legon · near A&C Mall`), with a Directions link.
+
+**Status**
+| Status | Tone | Label |
+|---|---|---|
+| pending | warning | Pending |
+| confirmed | accent | Confirmed |
+| arrived | info (blue) | Arrived |
+| completed | secondary text | Completed |
+| cancelled | secondary text, time struck through | Cancelled |
+| no_show | danger | No-show |
+
+Always a text label, never colour alone.
+
+**Buttons and inputs**
+- Labels are verb + object ("Book appointment", "Add walk-in"), never "Submit".
+- Primary buttons are 48 px tall. While loading they keep their width, show "Booking…" and are disabled (no double submit).
+- Inputs are never below 16 px text (no zoom on focus). The label always sits above the field.
+- Error messages say how to fix it ("Enter a Ghana number like 024 123 4567").
+- Destructive actions confirm with a summary of what will happen, not "Are you sure?".
+
+**Booking flow**
+- Slim step indicator ("Step 2 of 4") plus a bottom summary bar (service · time · price) that holds the main button.
+- Times are shown in a 3-column grid. Unavailable times are not shown at all.
+- An empty day says "No times on Tue. Next available: Thu 10:00 am", with a button to jump there.
+- The confirm screen restates: provider, service, staff, date/time, address + landmark, total, deposit and cancellation policy.
+
+**Provider cards**
+- No reviews yet shows "New", never "0.0".
+- Next available shows as "Today 2:30 pm" (accent) or "Next: Thu".
+
+**Provider calendar**
+- Day view by default on phones; week view from tablet width.
+- Appointment block: a 4 px left bar in the status tone, then customer name, service and time. Walk-ins get a "Walk-in" badge.
+- Blocked time uses a diagonal hatch.
+- A floating "+" opens: New appointment / Walk-in / Block time.
+
+**States copy**
+- Empty: one sentence plus one action ("No appointments today. Add a walk-in").
+- Error: plain cause plus "Try again".
+- Offline: banner "You're offline. Showing saved info."
+
+**Budget**
+- ≤ 150 KB gzipped JS on first load for public pages; LCP image ≤ 100 KB.
+- Public pages work before JavaScript loads.
+- Icons are individual inline SVGs, never whole icon libraries.
+
 ## 4. What we will not do
 - Ship custom web fonts on public pages (bandwidth).
 - Use glassmorphism everywhere. Blur is limited to the two bars.
