@@ -219,6 +219,9 @@ begin
   begin
     update public.appointments
        set status = p_status,
+           -- Finished early: record the real end so the rest of the slot is free for the next client.
+           ends_at = case when p_status = 'completed' and now() < ends_at
+                          then greatest(starts_at + interval '1 minute', date_trunc('minute', now())) else ends_at end,
            final_price_minor = case when p_status = 'completed' then coalesce(p_final_price_minor, final_price_minor)
                                     when v_from = 'completed' then null else final_price_minor end,
            cancelled_at = case when p_status = 'cancelled' then now() else cancelled_at end,

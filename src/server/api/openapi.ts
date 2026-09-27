@@ -5,14 +5,18 @@ import {
   appointmentResponse,
   availabilityQuery,
   availabilityResponse,
+  businessAppointmentsQuery,
+  businessAppointmentsResponse,
   businessProfile,
   cancelAppointmentBody,
   categoriesResponse,
   createAppointmentBody,
+  createManualAppointmentBody,
   myAppointmentsResponse,
   rescheduleAppointmentBody,
   searchQuery,
   searchResponse,
+  statusChangeBody,
 } from "@/schemas/api-v1";
 
 const schema = (s: z.ZodType) => z.toJSONSchema(s, { target: "openapi-3.0", io: "output", unrepresentable: "any" });
@@ -56,6 +60,7 @@ export function buildOpenApiDocument(serverUrl: string) {
         Availability: schema(availabilityResponse),
         Appointment: schema(appointmentResponse),
         MyAppointments: schema(myAppointmentsResponse),
+        BusinessAppointments: schema(businessAppointmentsResponse),
       },
     },
     paths: {
@@ -175,6 +180,54 @@ export function buildOpenApiDocument(serverUrl: string) {
             "401": errorResponse("Not signed in"),
             "404": errorResponse("Not your booking"),
             "409": errorResponse("New time taken, or too late to change online"),
+          },
+        },
+      },
+      "/businesses/{slug}/appointments": {
+        get: {
+          summary: "A business's appointments (members)",
+          description: "Owners and managers see everyone's appointments; staff see only their own.",
+          security: [{ bearer: [] }],
+          parameters: [
+            { name: "slug", in: "path", required: true, schema: { type: "string" } },
+            ...queryParameters(businessAppointmentsQuery).map((p) => ({ ...p, required: p.name === "from" })),
+          ],
+          responses: {
+            "200": { description: "Appointments, soonest first", content: json("BusinessAppointments") },
+            "401": errorResponse("Not signed in"),
+            "404": errorResponse("Not a member of this business"),
+          },
+        },
+        post: {
+          summary: "Add a phone booking or a walk-in (members)",
+          description:
+            "Staff can add only for themselves. Walk-ins start now as `arrived`. `allow_outside_hours` skips the working-hours check; overlaps are always refused.",
+          security: [{ bearer: [] }],
+          parameters: [{ name: "slug", in: "path", required: true, schema: { type: "string" } }],
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: body(createManualAppointmentBody) } },
+          },
+          responses: {
+            "201": { description: "Added", content: json("Appointment") },
+            "403": errorResponse("Not allowed for this team member"),
+            "409": errorResponse("Overlaps another booking, or outside hours without the override"),
+            "422": errorResponse("Invalid input"),
+          },
+        },
+      },
+      "/appointments/{id}/status": {
+        post: {
+          summary: "Change an appointment's status (business side)",
+          description:
+            "pending → confirmed/arrived/cancelled/no_show; confirmed → arrived/completed/cancelled/no_show; arrived → completed/confirmed/cancelled; completed → arrived and no_show → confirmed within 7 days (undo). Arrived from 1 hour before; completed/no_show only once started. `final_price_minor` only with completed.",
+          security: [{ bearer: [] }],
+          parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+          requestBody: { required: true, content: { "application/json": { schema: body(statusChangeBody) } } },
+          responses: {
+            "200": { description: "Updated", content: json("Appointment") },
+            "404": errorResponse("Not found or not yours"),
+            "409": errorResponse("That change isn't allowed now"),
           },
         },
       },

@@ -24,6 +24,8 @@ select (select id from public.services where business_id = 'b0000000-0000-4000-8
        (select id from public.staff where display_name = 'Efua') as efua_staff,
        (select id from public.staff where display_name = 'Abena') as abena_staff;
 grant select on ids to anon, authenticated;
+-- Deterministic on any local database: demo/E2E appointments are removed in this rolled-back transaction.
+delete from public.appointments;
 create temp table t (key text primary key, val text);
 grant all on t to anon, authenticated;
 

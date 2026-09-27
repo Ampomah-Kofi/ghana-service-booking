@@ -56,5 +56,5 @@ export function StepHeader({
 export function nextStepHref(businessId: string, step: SetupStep): string {
   const index = SETUP_STEPS.findIndex((s) => s.slug === step);
   const next = SETUP_STEPS[index + 1];
-  return next ? `/dashboard/${businessId}/setup/${next.slug}` : `/dashboard/${businessId}?setup=done`;
+  return next ? `/dashboard/${businessId}/setup/${next.slug}` : `/dashboard/${businessId}/more?setup=done`;
 }

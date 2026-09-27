@@ -93,10 +93,11 @@ test("solo provider onboards and publishes a shareable page", async ({ page, req
   await expect(page.getByText("1 of 12")).toBeVisible();
   await page.getByRole("link", { name: "Finish and preview" }).click();
 
-  // Dashboard: publish
-  await expect(page.getByRole("heading", { name: "Almost there" })).toBeVisible();
+  // More: the checklist and publish
+  await expect(page.getByRole("heading", { level: 1, name: "More" })).toBeVisible();
+  await expect(page.getByText("Finish the required items, then publish your page.")).toBeVisible();
   await page.getByRole("button", { name: "Publish my page" }).click();
-  await expect(page.getByRole("heading", { name: "Your page is live" })).toBeVisible();
+  await expect(page.getByText("Your page is live. Customers can book you online.")).toBeVisible();
   await expect(page.getByRole("img", { name: /QR code for/ })).toBeVisible();
   const pageUrl = await page.locator("[title^='http']").first().getAttribute("title");
   expect(pageUrl).toMatch(/\/business\/adwoa-nails-/);
@@ -130,7 +131,7 @@ test("solo provider onboards and publishes a shareable page", async ({ page, req
 
   // Unpublish hides it from the public again
   await page.getByRole("button", { name: "Hide my page" }).click();
-  await expect(page.getByRole("heading", { name: "Almost there" })).toBeVisible();
+  await expect(page.getByText("Finish the required items, then publish your page.")).toBeVisible();
   const hidden = await request.get(slugPath, { headers: { cookie: "" } });
   expect(hidden.status()).toBe(404);
 });

@@ -60,8 +60,16 @@ export function NewAppointmentForm({
                   value={s.id}
                   checked={serviceId === s.id}
                   onChange={() => setServiceId(s.id)}
-                  className="size-5 accent-primary"
+                  className="peer sr-only"
                 />
+                <span
+                  aria-hidden="true"
+                  className={`flex size-5 shrink-0 items-center justify-center rounded-full border-2 peer-focus-visible:ring-2 peer-focus-visible:ring-primary ${
+                    serviceId === s.id ? "border-primary" : "border-ink-muted"
+                  }`}
+                >
+                  {serviceId === s.id ? <span className="size-2.5 rounded-full bg-primary" /> : null}
+                </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-body font-medium">{s.name}</span>
                   <span className="block text-small text-ink-muted">{s.detail}</span>

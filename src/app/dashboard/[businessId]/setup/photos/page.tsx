@@ -103,7 +103,7 @@ export default async function PhotosStepPage({ params }: PageProps<"/dashboard/[
       </section>
 
       <Link
-        href={`/dashboard/${business.id}?setup=done`}
+        href={`/dashboard/${business.id}/more?setup=done`}
         className="flex min-h-11 w-full items-center justify-center rounded-control bg-primary px-4 text-body font-semibold text-on-primary hover:bg-primary-hover"
       >
         Finish and preview

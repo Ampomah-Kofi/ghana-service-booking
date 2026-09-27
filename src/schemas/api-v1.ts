@@ -134,6 +134,7 @@ export const availabilityResponse = z.object({
 export const appointment = z.object({
   id: z.uuid(),
   status: z.enum(["pending", "confirmed", "arrived", "completed", "cancelled", "no_show"]),
+  source: z.enum(["online", "manual", "walk_in"]),
   starts_at: z.iso.datetime({ offset: true }),
   ends_at: z.iso.datetime({ offset: true }),
   business: z.object({
@@ -146,6 +147,7 @@ export const appointment = z.object({
   staff: z.object({ id: z.uuid(), display_name: z.string().nullable() }),
   price: money.extend({ type: z.enum(["fixed", "from"]) }),
   deposit: money.nullable(),
+  final_price: money.nullable().describe("What was actually charged, recorded when completing"),
   payment_status: z.enum(["pending", "paid", "partially_paid", "failed", "refunded"]).nullable(),
   customer: z.object({ name: z.string(), phone: z.string().nullable() }),
   note: z.string().nullable(),
@@ -173,4 +175,39 @@ export const cancelAppointmentBody = z.object({ reason: z.string().trim().max(20
 export const rescheduleAppointmentBody = z.object({
   staff_id: z.union([z.uuid(), z.literal("any")]).default("any"),
   starts_at: z.iso.datetime({ offset: true }),
+});
+
+// ── Phase 6: provider endpoints ─────────────────────────────────────────────
+
+export const businessAppointmentsQuery = z.object({
+  from: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .describe("First local date (YYYY-MM-DD) in the business's timezone"),
+  days: z.coerce.number().int().min(1).max(31).optional().default(1),
+  include_cancelled: z.enum(["true", "false"]).optional().default("false"),
+});
+
+export const businessAppointmentsResponse = z.object({
+  data: z.array(appointment),
+  meta: z.object({ timezone: z.string(), can_manage: z.boolean(), own_staff_id: z.uuid().nullable() }),
+});
+
+export const createManualAppointmentBody = z.object({
+  service_id: z.uuid(),
+  staff_id: z.uuid(),
+  walk_in: z.boolean().default(false),
+  starts_at: z.iso.datetime({ offset: true }).optional().describe("Required unless walk_in (which starts now)"),
+  client_id: z.uuid().optional(),
+  client: z
+    .object({ name: z.string().trim().max(120).optional(), phone: z.string().trim().max(32).optional() })
+    .optional(),
+  note: z.string().trim().max(500).optional(),
+  allow_outside_hours: z.boolean().default(false),
+});
+
+export const statusChangeBody = z.object({
+  status: z.enum(["confirmed", "arrived", "completed", "cancelled", "no_show"]),
+  reason: z.string().trim().max(200).optional(),
+  final_price_minor: z.number().int().min(0).optional(),
 });

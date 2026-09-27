@@ -29,6 +29,9 @@ select
   (select id from public.services where business_id = 'b0000000-0000-4000-8000-000000000003' and name = 'Facial') as facial,
   -- The Monday 8–14 days from now: inside the default 60-day window, outside every cancellation window.
   (current_date + (8 - extract(isodow from current_date)::int) + 7) as mon;
+-- Deterministic on any local database: demo data (pnpm db:demo) or E2E leftovers are removed
+-- inside this transaction, which is rolled back at the end.
+delete from public.appointments;
 create temp table t (key text primary key, id uuid);
 grant select on ids to anon, authenticated;
 grant all on t to anon, authenticated;
