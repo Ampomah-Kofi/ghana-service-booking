@@ -60,6 +60,9 @@ jobs:
       - name: Database tests (pgTAP, incl. RLS isolation)
         run: pnpm test:db
 
+      - name: Integration tests (services against local Supabase)
+        run: pnpm test:integration
+
       - name: Generated DB types are up to date
         run: |
           pnpm gen:types
@@ -70,3 +73,17 @@ jobs:
 
       - name: No secrets in client bundle
         run: pnpm check:secrets
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: End-to-end tests (Playwright, mobile viewport)
+        run: pnpm test:e2e
+
+      - name: Upload Playwright traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: test-results/
+          retention-days: 7
