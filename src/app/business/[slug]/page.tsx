@@ -57,6 +57,12 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
   const services = allServices.filter((s) => s.isActive);
   const team = allStaff.filter((s) => s.isActive);
   const staffName = new Map(team.map((s) => [s.id, s.displayName]));
+  // Bookable online = published, and someone who takes online bookings performs it.
+  const onlineStaff = new Set(team.filter((s) => s.acceptsOnlineBookings).map((s) => s.id));
+  const bookable = (serviceIds: string[]) =>
+    business.status === "published" && serviceIds.some((id) => onlineStaff.has(id));
+  const canBook = services.some((s) => bookable(s.staffIds));
+  const bookHref = (serviceId?: string) => `/business/${business.slug}/book${serviceId ? `?service=${serviceId}` : ""}`;
   const week = describeWeek(hours);
 
   const env = publicEnv();
@@ -155,20 +161,32 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
                   </p>
                   {s.description ? <p className="mt-1 text-footnote text-text-secondary">{s.description}</p> : null}
                 </div>
-                <p className="shrink-0 text-body font-semibold tabular-nums">
-                  {s.priceType === "from" ? (
-                    <span className="text-footnote font-normal text-text-secondary">from </span>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <p className="text-body font-semibold tabular-nums">
+                    {s.priceType === "from" ? (
+                      <span className="text-footnote font-normal text-text-secondary">from </span>
+                    ) : null}
+                    {formatMoney({ amountMinor: s.priceMinor, currency: s.currencyCode }, business.currency)}
+                  </p>
+                  {bookable(s.staffIds) ? (
+                    <Link
+                      href={bookHref(s.id)}
+                      aria-label={`Book ${s.name}`}
+                      className="inline-flex min-h-11 items-center rounded-full bg-fill px-4 text-callout font-semibold text-accent"
+                    >
+                      Book
+                    </Link>
                   ) : null}
-                  {formatMoney({ amountMinor: s.priceMinor, currency: s.currencyCode }, business.currency)}
-                </p>
+                </div>
               </li>
             ))}
           </ul>
         )}
-        <p className="mt-2 text-footnote text-text-secondary">
-          Online booking is coming soon. For now, call or message{" "}
-          {business.phone ? formatPhoneInternational(business.phone) : "on WhatsApp"} to book.
-        </p>
+        {services.length > 0 && !canBook ? (
+          <p className="mt-2 text-footnote text-text-secondary">
+            To book, call or message {business.phone ? formatPhoneInternational(business.phone) : "on WhatsApp"}.
+          </p>
+        ) : null}
       </section>
 
       {business.kind === "team" && team.length > 1 ? (
@@ -283,6 +301,17 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
             links={buildShareLinks(business.name, pageUrl)}
           />
         </section>
+      ) : null}
+
+      {canBook ? (
+        <div className="sticky bottom-0 -mx-4 border-t border-separator bg-surface-grouped/85 px-4 py-3 backdrop-blur supports-[not(backdrop-filter:blur(1px))]:bg-surface-grouped">
+          <Link
+            href={bookHref()}
+            className="flex min-h-11 w-full items-center justify-center rounded-control bg-accent px-4 text-body font-semibold text-on-accent"
+          >
+            Book an appointment
+          </Link>
+        </div>
       ) : null}
     </article>
   );

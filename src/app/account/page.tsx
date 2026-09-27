@@ -30,6 +30,12 @@ export default async function AccountPage() {
         ) : null}
       </GroupedSection>
 
+      <GroupedSection title="Bookings">
+        <Link href="/bookings" className="block hover:bg-fill">
+          <GroupedRow label="Your bookings" value="›" />
+        </Link>
+      </GroupedSection>
+
       <GroupedSection
         title="Your businesses"
         footer={

@@ -10,6 +10,8 @@ import { managedBusinessOr404 } from "@/server/businesses/access";
 import { getPublishReadiness } from "@/server/businesses/onboarding";
 import { formatPlace } from "@/server/businesses/queries";
 import { qrDataUrl } from "@/server/businesses/qr";
+import { AppointmentRow } from "@/components/bookings/appointment-row";
+import { listBusinessUpcoming } from "@/server/bookings/appointments";
 import { PublishButton, UnpublishButton } from "./publish-controls";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -85,7 +87,10 @@ export default async function BusinessDashboardPage({ params }: PageProps<"/dash
   const siteUrl = publicEnv().NEXT_PUBLIC_SITE_URL;
   const pageUrl = businessPageUrl(siteUrl, business.slug);
   const published = business.status === "published";
-  const qr = published ? await qrDataUrl(pageUrl) : null;
+  const [qr, upcoming] = await Promise.all([
+    published ? qrDataUrl(pageUrl) : null,
+    listBusinessUpcoming(db, business.id, { limit: 10 }),
+  ]);
 
   return (
     <>
@@ -94,11 +99,37 @@ export default async function BusinessDashboardPage({ params }: PageProps<"/dash
       </h1>
       <p className="mb-6 text-body text-text-secondary">
         {published
-          ? "Share your link so customers can find you. Online booking arrives next."
+          ? "Customers can book you online. Share your link to get more bookings."
           : business.status === "draft"
             ? "Finish the required items, then publish your page."
             : `This business is ${business.status}. Contact support to restore it.`}
       </p>
+
+      {published || upcoming.length > 0 ? (
+        <GroupedSection
+          title="Upcoming bookings"
+          footer={
+            upcoming.length === 10 ? "Showing the next 10. The full calendar arrives in the next update." : undefined
+          }
+        >
+          {upcoming.length === 0 ? (
+            <p className="px-4 py-3 text-body text-text-secondary">
+              No bookings yet. Share your page to get your first.
+            </p>
+          ) : (
+            <ul className="divide-y divide-separator">
+              {upcoming.map((a) => (
+                <AppointmentRow
+                  key={a.id}
+                  appointment={a}
+                  who={a.customerName}
+                  detail={a.customerPhone ? formatPhoneInternational(a.customerPhone) : undefined}
+                />
+              ))}
+            </ul>
+          )}
+        </GroupedSection>
+      ) : null}
 
       <GroupedSection title="Your page">
         {checklist.map((item) => (

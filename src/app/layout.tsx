@@ -26,9 +26,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Link href="/" className="text-title-2 font-semibold tracking-tight">
               {BRAND.name}
             </Link>
-            <Link href="/account" className="text-callout font-medium text-accent">
-              Account
-            </Link>
+            <div className="flex items-center gap-5">
+              <Link href="/bookings" className="text-callout font-medium text-accent">
+                Bookings
+              </Link>
+              <Link href="/account" className="text-callout font-medium text-accent">
+                Account
+              </Link>
+            </div>
           </nav>
         </header>
         <main className="mx-auto w-full max-w-2xl flex-1 px-4 pb-16 pt-6">{children}</main>

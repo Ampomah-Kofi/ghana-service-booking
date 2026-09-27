@@ -68,6 +68,8 @@ export async function cleanup(userIds: string[]): Promise<void> {
         if (files?.length)
           await admin.storage.from("public-media").remove(files.map((f) => `businesses/${b.id}/${folder}/${f.name}`));
       }
+      // Appointments are never deleted by the app (history); tests remove them explicitly.
+      await admin.from("appointments").delete().eq("business_id", b.id);
       await admin.from("businesses").delete().eq("id", b.id);
     }
     await admin.auth.admin.deleteUser(id);

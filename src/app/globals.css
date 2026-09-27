@@ -17,6 +17,7 @@
   --on-accent: #ffffff;
   --danger: #c4312b;
   --success: #1f7a3a;
+  --warning: #8a5300;
   --focus-ring: rgb(10 122 90 / 0.45);
 }
 
@@ -34,6 +35,7 @@
     --on-accent: #00140d;
     --danger: #ff6961;
     --success: #4cd07d;
+    --warning: #ffb340;
     --focus-ring: rgb(48 196 141 / 0.5);
   }
 }
@@ -53,6 +55,7 @@
   --color-on-accent: var(--on-accent);
   --color-danger: var(--danger);
   --color-success: var(--success);
+  --color-warning: var(--warning);
 
   /* Type scale (px): 34 / 28 / 22 / 17 body / 15 / 13 */
   --text-large-title: 2.125rem;
