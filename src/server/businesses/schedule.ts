@@ -38,6 +38,27 @@ function parseTstzRange(value: string): { start: string; end: string } | null {
     : { start: start.toISOString(), end: end.toISOString() };
 }
 
+/** Time off overlapping [from, to), for the calendar (members only; reasons stay private to the team). */
+export async function listBlockedTimesBetween(
+  db: Db,
+  businessId: string,
+  from: Date,
+  to: Date,
+): Promise<BlockedTimeView[]> {
+  const { data, error } = await db
+    .from("blocked_times")
+    .select("id, staff_id, during, reason")
+    .eq("business_id", businessId)
+    .overlaps("during", `[${from.toISOString()},${to.toISOString()})`);
+  if (error) throw toAppError(error);
+  return data.flatMap((row) => {
+    const range = typeof row.during === "string" ? parseTstzRange(row.during) : null;
+    return range
+      ? [{ id: row.id, staffId: row.staff_id, startsAt: range.start, endsAt: range.end, reason: row.reason }]
+      : [];
+  });
+}
+
 export async function listUpcomingBlockedTimes(db: Db, businessId: string): Promise<BlockedTimeView[]> {
   const { data, error } = await db
     .from("blocked_times")

@@ -34,3 +34,44 @@ export async function managedBusinessOr404(businessId: string): Promise<ManagedB
     throw error;
   }
 }
+
+export type MemberBusiness = ManagedBusiness & {
+  /** Owners and managers see and manage everyone; staff only their own column. */
+  canManage: boolean;
+  /** The caller's own staff row in this business, if they take appointments. */
+  ownStaffId: string | null;
+};
+
+/** For the calendar and Today: any member of the business (owner, manager or staff). */
+export async function requireBusinessMember(businessId: unknown): Promise<MemberBusiness> {
+  const id = z.uuid().safeParse(businessId);
+  if (!id.success) throw new AppError("NOT_FOUND", "Business not found.");
+  const role = await getBusinessRole(id.data);
+  if (!role) throw new AppError("FORBIDDEN", "You don't have access to this business.");
+  const db = await createUserClient();
+  const [business, own] = await Promise.all([
+    getBusinessById(db, id.data),
+    db.auth.getClaims().then(async ({ data }) => {
+      if (!data) return null;
+      const result = await db
+        .from("staff")
+        .select("id")
+        .eq("business_id", id.data)
+        .eq("user_id", data.claims.sub)
+        .is("deleted_at", null)
+        .maybeSingle();
+      return result.data?.id ?? null;
+    }),
+  ]);
+  if (!business) throw new AppError("NOT_FOUND", "Business not found.");
+  return { db, business, role, canManage: MANAGER_ROLES.includes(role), ownStaffId: own };
+}
+
+export async function memberBusinessOr404(businessId: string): Promise<MemberBusiness> {
+  try {
+    return await requireBusinessMember(businessId);
+  } catch (error) {
+    if (error instanceof AppError && error.code !== "INTERNAL") notFound();
+    throw error;
+  }
+}

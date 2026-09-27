@@ -24,6 +24,9 @@ export type AppointmentView = {
   depositMinor: number | null;
   paymentStatus: PaymentStatus | null;
   customerUserId: string | null;
+  clientId: string | null;
+  finalPriceMinor: number | null;
+  createdAt: string;
   customerName: string;
   customerPhone: string | null;
   note: string | null;
@@ -43,7 +46,7 @@ export type AppointmentView = {
 // booking if the business later unpublishes, just without those details.
 const appointmentSelect = `
   id, status, source, starts_at, ends_at, service_id, service_name, staff_id, price_minor, price_type,
-  currency_code, deposit_minor, payment_status, customer_user_id, customer_name, customer_phone_e164, customer_note,
+  currency_code, deposit_minor, payment_status, customer_user_id, client_id, final_price_minor, created_at, customer_name, customer_phone_e164, customer_note,
   cancellation_reason, business_id,
   currencies ( code, symbol, minor_unit ),
   staff ( display_name ),
@@ -65,6 +68,9 @@ type AppointmentRow = {
   deposit_minor: number | null;
   payment_status: PaymentStatus | null;
   customer_user_id: string | null;
+  client_id: string | null;
+  final_price_minor: number | null;
+  created_at: string;
   customer_name: string;
   customer_phone_e164: string | null;
   customer_note: string | null;
@@ -105,6 +111,9 @@ function toView(row: AppointmentRow): AppointmentView {
     depositMinor: row.deposit_minor,
     paymentStatus: row.payment_status,
     customerUserId: row.customer_user_id,
+    clientId: row.client_id,
+    finalPriceMinor: row.final_price_minor,
+    createdAt: row.created_at,
     customerName: row.customer_name,
     customerPhone: row.customer_phone_e164,
     note: row.customer_note,
@@ -263,6 +272,67 @@ export async function listBusinessUpcoming(
     .gt("ends_at", now.toISOString())
     .order("starts_at")
     .limit(limit);
+  if (error) throw toAppError(error);
+  return data.map(toView);
+}
+
+/**
+ * A business's appointments overlapping [from, to), soonest first. RLS decides the rows:
+ * managers get everyone's, staff only their own.
+ */
+export async function listBusinessAppointments(
+  db: Db,
+  businessId: string,
+  { from, to, includeCancelled = false }: { from: Date; to: Date; includeCancelled?: boolean },
+): Promise<AppointmentView[]> {
+  let query = db
+    .from("appointments")
+    .select(appointmentSelect)
+    .eq("business_id", businessId)
+    .lt("starts_at", to.toISOString())
+    .gt("ends_at", from.toISOString())
+    .order("starts_at")
+    .limit(2000);
+  if (!includeCancelled) query = query.neq("status", "cancelled");
+  const { data, error } = await query;
+  if (error) throw toAppError(error);
+  return data.map(toView);
+}
+
+export type StatusChange = {
+  id: number;
+  fromStatus: AppointmentStatus | null;
+  toStatus: AppointmentStatus;
+  reason: string | null;
+  at: string;
+};
+
+/** Status history, oldest first (managers, the staff member, or the customer can read it). */
+export async function getAppointmentHistory(db: Db, appointmentId: string): Promise<StatusChange[]> {
+  const { data, error } = await db
+    .from("appointment_status_history")
+    .select("id, from_status, to_status, reason, created_at")
+    .eq("appointment_id", appointmentId)
+    .order("id");
+  if (error) throw toAppError(error);
+  return data.map((h) => ({
+    id: h.id,
+    fromStatus: h.from_status,
+    toStatus: h.to_status,
+    reason: h.reason,
+    at: h.created_at,
+  }));
+}
+
+/** One client's appointments at a business, latest first (managers). */
+export async function listClientAppointments(db: Db, businessId: string, clientId: string): Promise<AppointmentView[]> {
+  const { data, error } = await db
+    .from("appointments")
+    .select(appointmentSelect)
+    .eq("business_id", businessId)
+    .eq("client_id", clientId)
+    .order("starts_at", { ascending: false })
+    .limit(100);
   if (error) throw toAppError(error);
   return data.map(toView);
 }
