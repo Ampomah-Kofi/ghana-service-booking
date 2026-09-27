@@ -47,6 +47,224 @@ export type Database = {
           },
         ];
       };
+      appointment_status_history: {
+        Row: {
+          appointment_id: string;
+          business_id: string;
+          changed_by: string | null;
+          created_at: string;
+          from_status: Database["public"]["Enums"]["appointment_status"] | null;
+          id: number;
+          reason: string | null;
+          to_status: Database["public"]["Enums"]["appointment_status"];
+        };
+        Insert: {
+          appointment_id: string;
+          business_id: string;
+          changed_by?: string | null;
+          created_at?: string;
+          from_status?: Database["public"]["Enums"]["appointment_status"] | null;
+          id?: never;
+          reason?: string | null;
+          to_status: Database["public"]["Enums"]["appointment_status"];
+        };
+        Update: {
+          appointment_id?: string;
+          business_id?: string;
+          changed_by?: string | null;
+          created_at?: string;
+          from_status?: Database["public"]["Enums"]["appointment_status"] | null;
+          id?: never;
+          reason?: string | null;
+          to_status?: Database["public"]["Enums"]["appointment_status"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "appointment_status_history_appointment_id_fkey";
+            columns: ["appointment_id"];
+            isOneToOne: false;
+            referencedRelation: "appointments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "appointment_status_history_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "appointment_status_history_changed_by_fkey";
+            columns: ["changed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      appointments: {
+        Row: {
+          buffer_after_minutes: number;
+          buffer_before_minutes: number;
+          business_id: string;
+          cancellation_reason: string | null;
+          cancelled_at: string | null;
+          cancelled_by: string | null;
+          client_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          currency_code: string;
+          customer_name: string;
+          customer_note: string | null;
+          customer_phone_e164: string | null;
+          customer_user_id: string | null;
+          deposit_minor: number | null;
+          ends_at: string;
+          id: string;
+          idempotency_key: string | null;
+          occupied: unknown;
+          payment_status: Database["public"]["Enums"]["payment_status"] | null;
+          price_minor: number;
+          price_type: Database["public"]["Enums"]["price_type"];
+          rescheduled_from_id: string | null;
+          service_id: string;
+          service_name: string;
+          source: Database["public"]["Enums"]["appointment_source"];
+          staff_id: string;
+          starts_at: string;
+          status: Database["public"]["Enums"]["appointment_status"];
+          updated_at: string;
+        };
+        Insert: {
+          buffer_after_minutes?: number;
+          buffer_before_minutes?: number;
+          business_id: string;
+          cancellation_reason?: string | null;
+          cancelled_at?: string | null;
+          cancelled_by?: string | null;
+          client_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          currency_code: string;
+          customer_name: string;
+          customer_note?: string | null;
+          customer_phone_e164?: string | null;
+          customer_user_id?: string | null;
+          deposit_minor?: number | null;
+          ends_at: string;
+          id?: string;
+          idempotency_key?: string | null;
+          occupied: unknown;
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null;
+          price_minor: number;
+          price_type: Database["public"]["Enums"]["price_type"];
+          rescheduled_from_id?: string | null;
+          service_id: string;
+          service_name: string;
+          source: Database["public"]["Enums"]["appointment_source"];
+          staff_id: string;
+          starts_at: string;
+          status?: Database["public"]["Enums"]["appointment_status"];
+          updated_at?: string;
+        };
+        Update: {
+          buffer_after_minutes?: number;
+          buffer_before_minutes?: number;
+          business_id?: string;
+          cancellation_reason?: string | null;
+          cancelled_at?: string | null;
+          cancelled_by?: string | null;
+          client_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          currency_code?: string;
+          customer_name?: string;
+          customer_note?: string | null;
+          customer_phone_e164?: string | null;
+          customer_user_id?: string | null;
+          deposit_minor?: number | null;
+          ends_at?: string;
+          id?: string;
+          idempotency_key?: string | null;
+          occupied?: unknown;
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null;
+          price_minor?: number;
+          price_type?: Database["public"]["Enums"]["price_type"];
+          rescheduled_from_id?: string | null;
+          service_id?: string;
+          service_name?: string;
+          source?: Database["public"]["Enums"]["appointment_source"];
+          staff_id?: string;
+          starts_at?: string;
+          status?: Database["public"]["Enums"]["appointment_status"];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "appointments_business_id_client_id_fkey";
+            columns: ["business_id", "client_id"];
+            isOneToOne: false;
+            referencedRelation: "business_clients";
+            referencedColumns: ["business_id", "id"];
+          },
+          {
+            foreignKeyName: "appointments_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "appointments_business_id_service_id_fkey";
+            columns: ["business_id", "service_id"];
+            isOneToOne: false;
+            referencedRelation: "services";
+            referencedColumns: ["business_id", "id"];
+          },
+          {
+            foreignKeyName: "appointments_business_id_staff_id_fkey";
+            columns: ["business_id", "staff_id"];
+            isOneToOne: false;
+            referencedRelation: "staff";
+            referencedColumns: ["business_id", "id"];
+          },
+          {
+            foreignKeyName: "appointments_cancelled_by_fkey";
+            columns: ["cancelled_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "appointments_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "appointments_currency_code_fkey";
+            columns: ["currency_code"];
+            isOneToOne: false;
+            referencedRelation: "currencies";
+            referencedColumns: ["code"];
+          },
+          {
+            foreignKeyName: "appointments_customer_user_id_fkey";
+            columns: ["customer_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "appointments_rescheduled_from_id_fkey";
+            columns: ["rescheduled_from_id"];
+            isOneToOne: false;
+            referencedRelation: "appointments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       areas: {
         Row: {
           centroid: unknown;
@@ -213,6 +431,54 @@ export type Database = {
             columns: ["category_id"];
             isOneToOne: false;
             referencedRelation: "categories";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      business_clients: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          full_name: string;
+          id: string;
+          notes: string | null;
+          phone_e164: string | null;
+          updated_at: string;
+          user_id: string | null;
+        };
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          full_name: string;
+          id?: string;
+          notes?: string | null;
+          phone_e164?: string | null;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          full_name?: string;
+          id?: string;
+          notes?: string | null;
+          phone_e164?: string | null;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_clients_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "business_clients_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -1109,7 +1375,21 @@ export type Database = {
         };
         Returns: string;
       };
+      book_appointment: {
+        Args: {
+          p_business_id: string;
+          p_customer_name: string;
+          p_customer_phone?: string;
+          p_idempotency_key?: string;
+          p_note?: string;
+          p_service_id: string;
+          p_staff_ids: string[];
+          p_starts_at: string;
+        };
+        Returns: string;
+      };
       business_publish_readiness: { Args: { p_business_id: string }; Returns: string[] };
+      cancel_my_appointment: { Args: { p_appointment_id: string; p_reason?: string }; Returns: undefined };
       create_blocked_time: {
         Args: {
           p_business_id: string;
@@ -1130,6 +1410,15 @@ export type Database = {
         Returns: {
           id: string;
           slug: string;
+        }[];
+      };
+      get_busy_intervals: {
+        Args: { p_business_id: string; p_from: string; p_to: string };
+        Returns: {
+          ends_at: string;
+          kind: string;
+          staff_id: string;
+          starts_at: string;
         }[];
       };
       get_staff_invite: {
@@ -1162,6 +1451,10 @@ export type Database = {
       };
       publish_business: { Args: { p_business_id: string }; Returns: undefined };
       remove_staff_member: { Args: { p_staff_id: string }; Returns: undefined };
+      reschedule_my_appointment: {
+        Args: { p_appointment_id: string; p_staff_ids: string[]; p_starts_at: string };
+        Returns: string;
+      };
       revoke_staff_invite: { Args: { p_staff_id: string }; Returns: undefined };
       search_businesses: {
         Args: {
@@ -1214,9 +1507,12 @@ export type Database = {
     };
     Enums: {
       admin_role: "super_admin" | "moderator" | "support";
+      appointment_source: "online" | "manual" | "walk_in";
+      appointment_status: "pending" | "confirmed" | "arrived" | "completed" | "cancelled" | "no_show";
       business_kind: "solo" | "team";
       business_status: "draft" | "published" | "suspended" | "deactivated";
       member_role: "owner" | "manager" | "staff";
+      payment_status: "pending" | "paid" | "partially_paid" | "failed" | "refunded";
       price_type: "fixed" | "from";
     };
     CompositeTypes: {
@@ -1326,9 +1622,12 @@ export const Constants = {
   public: {
     Enums: {
       admin_role: ["super_admin", "moderator", "support"],
+      appointment_source: ["online", "manual", "walk_in"],
+      appointment_status: ["pending", "confirmed", "arrived", "completed", "cancelled", "no_show"],
       business_kind: ["solo", "team"],
       business_status: ["draft", "published", "suspended", "deactivated"],
       member_role: ["owner", "manager", "staff"],
+      payment_status: ["pending", "paid", "partially_paid", "failed", "refunded"],
       price_type: ["fixed", "from"],
     },
   },
