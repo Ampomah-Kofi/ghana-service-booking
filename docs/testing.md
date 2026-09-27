@@ -4,6 +4,8 @@
 |---|---|---|
 | `pnpm test` | Vitest unit tests (`tests/unit/**`) | nothing |
 | `pnpm test:db` | pgTAP tests (`supabase/tests/database/*.test.sql`) via `supabase test db` | local Supabase running (`pnpm db:start`) |
+| `pnpm test:integration` | Vitest against the local stack: `src/server` services with a real signed-in user, so RLS applies (`tests/integration/**`) | local Supabase + `.env.local` |
+| `pnpm test:e2e` | Playwright, Pixel 7 viewport, against `pnpm start` (build first) (`tests/e2e/**`) | local Supabase, a build, a Chromium (`pnpm exec playwright install chromium`, or set `PLAYWRIGHT_CHROMIUM_EXECUTABLE`) |
 | `pnpm typecheck` | `next typegen` + `tsc --noEmit` | nothing |
 | `pnpm lint` | ESLint, zero warnings allowed (includes the privileged-import ban) | nothing |
 | `pnpm format:check` | Prettier on code files | nothing |
@@ -22,6 +24,9 @@ CI (`.github/workflows/ci.yml`) runs all of these on every PR, plus a check that
 | `00_rls_coverage` | Meta-rules: RLS on every `public` table; every table has a policy (or is allowlisted); every `SECURITY DEFINER` function pins `search_path`; column-level update grants |
 | `01_reference_data` | Public read, no client writes, inactive categories hidden |
 | `02_identity` | Profile bootstrap trigger and phone sync; self-only profiles; protected columns; append-only consents; admin list visibility |
+| `04_business_profile_isolation` | Public vs member reads, cross-tenant writes and column protection on categories, locations, booking rules, staff, photos; location hierarchy, photo-path and 12-photo constraints |
+| `05_onboarding_functions` | `create_business` (atomic, slugs, reserved words, non-ASCII names, 5-business limit), readiness, publish/unpublish, slug lock after publish, authorization, suspended businesses |
+| `06_storage_policies` | Uploads only into your own `businesses/{id}/{logo|photos|staff}/` folder; no staff, anon or cross-tenant writes/deletes |
 | `03_business_isolation` | **Tenant isolation**: 6 personas × read/update/insert/delete on `businesses` and `business_members`; draft/suspended visibility; column protection; helper functions; slug/timezone constraints |
 
 **Rule (CLAUDE.md):** every new table ships with a test proving Business A cannot read or write Business B's rows. Adding a table without a policy makes `00_rls_coverage` fail.
@@ -37,11 +42,16 @@ CI (`.github/workflows/ci.yml`) runs all of these on every PR, plus a check that
 | `standard-webhooks.test.ts` | Valid/rotated/tampered/foreign-key/stale/missing-header signatures |
 | `env.test.ts` | Server env validation, including the **mock-in-production refusal** |
 | `safe-return-path.test.ts` | Open-redirect protection for `?next=` |
+| `business-schemas.test.ts` | Create/slug/location/contact schemas (city vs unlisted town, coordinate pairs, WhatsApp-same-as-phone) |
+| `business-errors.test.ts` | SQLSTATE → AppError mapping (no internal leaks); JPEG/WebP magic-byte sniffing (SVG/PNG rejected) |
+| `share.test.ts` | Share, WhatsApp, tel, maps and media URLs |
 | `mock-sms-provider.test.ts` | Mock records and logs messages |
 
-## Manual / browser checks
-Playwright E2E arrives in Phase 5 (booking). Until then, critical flows are checked by hand with the checklist in each phase summary. The Phase 1 run used headless Chromium: sign-in → wrong code → right code → account → sign-out, in light and dark mode.
+## Integration and end-to-end tests
+- Both create a **fresh email/password user per run** through the admin API (secret key; the helpers refuse to run against a non-local Supabase) and delete it, with its businesses and files, afterwards.
+- `tests/e2e/onboarding.spec.ts`: sign in → create business → 4 setup steps (including validation errors) → photo resized in the browser and uploaded → publish → public page as a signed-out visitor → QR download → unpublish returns 404.
+- `tests/integration/businesses.test.ts`: the same use-cases at the service layer, plus cross-tenant attempts and file-type sniffing.
 
 ## Known gaps
-- No integration tests yet for `src/server` services against a live stack (Phase 2 adds them with the first multi-step service).
+- The phone OTP sign-in path is not in E2E (needs the SMS hook plus the app running under the Auth container); it's covered by unit tests and a manual check.
 - Concurrency tests arrive with booking (Phase 5).

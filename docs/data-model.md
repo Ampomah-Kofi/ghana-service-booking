@@ -8,6 +8,7 @@
 | Phase | Migrated tables |
 |---|---|
 | 1 | currencies, countries, regions, cities, areas, categories, profiles, platform_admins, consents, businesses, business_members |
+| 2 | business_categories, business_locations (+ `locality_text` for unlisted towns, plain `lat`/`lng` with a generated `geo`), booking_rules, staff (basic), business_photos (`path_small`/`path_large`); storage buckets + policies |
 | later | all other tables below, still in the draft |
 
 ## 1. ER diagram
