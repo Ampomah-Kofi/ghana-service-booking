@@ -69,7 +69,7 @@ test("solo provider onboards and publishes a shareable page", async ({ page, req
   await page.getByLabel("Deposit (GH₵)").fill("");
   await page.getByRole("button", { name: "Add service" }).click();
   await expect(page.getByText("Step 4 of 6")).toBeVisible();
-  await expect(page.getByText("GH₵80.50 · 45 min")).toBeVisible();
+  await expect(page.getByText("GH₵ 80.50 · 45 min")).toBeVisible();
   await page.getByRole("link", { name: "Continue" }).click();
 
   // Step 5: Hours (Mon–Sat 9–6 prefilled): close Saturday, add a lunch break on Monday
@@ -116,7 +116,7 @@ test("solo provider onboards and publishes a shareable page", async ({ page, req
   );
   await expect(visitor.getByRole("img", { name: `Work by ${name}` })).toHaveCount(1);
   await expect(visitor.getByText("Gel manicure")).toBeVisible();
-  await expect(visitor.getByText("GH₵80.50")).toBeVisible();
+  await expect(visitor.getByText("GH₵ 80.50")).toBeVisible();
   await expect(visitor.getByRole("definition").filter({ hasText: "09:00–12:00, 13:00–18:00" })).toBeVisible();
   await expect(visitor.getByText("Saturday").locator("..").getByText("Closed")).toBeVisible();
   await anon.close();
