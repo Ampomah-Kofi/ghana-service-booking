@@ -37,6 +37,8 @@
 - **Navigation:** mobile bottom tab bar (Explore · Bookings · Favorites · Account); providers get (Today · Calendar · Clients · More). Large collapsing titles on list screens.
 - **Booking flow:** full-screen steps on mobile with a persistent summary pill ("Low cut · GH₵50 · 30 min"). Time slots are a grid of pill buttons, grouped Morning / Afternoon / Evening. Date picker is a horizontal day strip, not a month grid.
 - **Lists:** inset grouped lists (iOS Settings style) for settings and onboarding forms.
+- **Switches:** every on/off setting is an iOS-style switch (`<input type="checkbox" role="switch">`, styled globally in `globals.css`); plain checkboxes only for picking several items (e.g. which staff do a service).
+- **Forms keep what you typed:** after a failed submit the fields are refilled from the server's reply (React 19 resets forms after every action).
 - **Sheets over modals:** confirmations and pickers open as bottom sheets on mobile and centred dialogs on desktop.
 - **Provider page:** large cover photo, name, rating, "Book" as a sticky bottom button, then services as a clean price list.
 - **States:** every screen designs loading (skeleton), empty (friendly line + one action), error (what happened + retry), and validation (inline, under the field).

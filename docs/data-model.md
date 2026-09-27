@@ -9,7 +9,8 @@
 |---|---|
 | 1 | currencies, countries, regions, cities, areas, categories, profiles, platform_admins, consents, businesses, business_members |
 | 2 | business_categories, business_locations (+ `locality_text` for unlisted towns, plain `lat`/`lng` with a generated `geo`), booking_rules, staff (basic), business_photos (`path_small`/`path_large`); storage buckets + policies |
-| later | all other tables below, still in the draft |
+| 3 | services, staff_services, business_hours, staff_working_hours (`timerange` + GiST no-overlap), blocked_times, **staff_invites** (new: hashed one-time token, phone-bound), admin_actions |
+| later | appointments, payments, reviews, favorites, notifications and the rest, still in the draft |
 
 ## 1. ER diagram
 
