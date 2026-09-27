@@ -41,6 +41,23 @@ export async function signedInUser(fullName: string): Promise<SignedInUser> {
   return { id: created.data.user.id, db };
 }
 
+/** A fresh user with a verified phone (for staff invites), signed in with phone + password. */
+export async function signedInPhoneUser(fullName: string): Promise<SignedInUser & { phone: string }> {
+  const phone = `+23324${String(Math.floor(Math.random() * 1e7)).padStart(7, "0")}`;
+  const password = `pw-${randomUUID()}`;
+  const created = await adminClient().auth.admin.createUser({
+    phone,
+    password,
+    phone_confirm: true,
+    user_metadata: { full_name: fullName },
+  });
+  if (created.error || !created.data.user) throw created.error ?? new Error("createUser failed");
+  const db = anonClient();
+  const signIn = await db.auth.signInWithPassword({ phone, password });
+  if (signIn.error) throw signIn.error;
+  return { id: created.data.user.id, db, phone };
+}
+
 export async function cleanup(userIds: string[]): Promise<void> {
   const admin = adminClient();
   for (const id of userIds) {

@@ -35,12 +35,12 @@ test("solo provider onboards and publishes a shareable page", async ({ page, req
   await page.getByRole("button", { name: "Continue" }).click();
 
   // Step 1: About
-  await expect(page.getByText("Step 1 of 4")).toBeVisible();
+  await expect(page.getByText("Step 1 of 6")).toBeVisible();
   await page.getByLabel("Description").fill("Gel, acrylics and pedicures. Home visits in Accra.");
   await page.getByRole("button", { name: "Save and continue" }).click();
 
   // Step 2: Location (validation first)
-  await expect(page.getByText("Step 2 of 4")).toBeVisible();
+  await expect(page.getByText("Step 2 of 6")).toBeVisible();
   await page.getByRole("button", { name: "Save and continue" }).click();
   await expect(page.getByText("Choose a town or city.")).toBeVisible();
   await page.getByLabel("Town or city").selectOption({ label: "Accra" });
@@ -49,15 +49,40 @@ test("solo provider onboards and publishes a shareable page", async ({ page, req
   await page.getByRole("button", { name: "Save and continue" }).click();
 
   // Step 3: Contact
-  await expect(page.getByText("Step 3 of 4")).toBeVisible();
+  await expect(page.getByText("Step 3 of 6")).toBeVisible();
   await page.getByLabel("Phone number for customers").fill("024 123");
   await page.getByRole("button", { name: "Save and continue" }).click();
   await expect(page.getByText("Enter a valid phone number, e.g. 024 123 4567.")).toBeVisible();
   await page.getByLabel("Phone number for customers").fill("024 123 4567");
   await page.getByRole("button", { name: "Save and continue" }).click();
 
-  // Step 4: Photos (resized in the browser, then uploaded)
-  await expect(page.getByText("Step 4 of 4")).toBeVisible();
+  // Step 4: Services (required to publish)
+  await expect(page.getByText("Step 4 of 6")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Continue" })).toHaveAttribute("aria-disabled", "true");
+  await page.getByRole("link", { name: "Add your first service" }).click();
+  await page.getByLabel("Service name").fill("Gel manicure");
+  await page.getByLabel("Price", { exact: true }).fill("80.5");
+  await page.getByLabel("How long it takes").selectOption({ label: "45 min" });
+  await page.getByLabel("Deposit (GH₵)").fill("100");
+  await page.getByRole("button", { name: "Add service" }).click();
+  await expect(page.getByText("The deposit can't be more than the price.")).toBeVisible();
+  await page.getByLabel("Deposit (GH₵)").fill("");
+  await page.getByRole("button", { name: "Add service" }).click();
+  await expect(page.getByText("Step 4 of 6")).toBeVisible();
+  await expect(page.getByText("GH₵80.50 · 45 min")).toBeVisible();
+  await page.getByRole("link", { name: "Continue" }).click();
+
+  // Step 5: Hours (Mon–Sat 9–6 prefilled): close Saturday, add a lunch break on Monday
+  await expect(page.getByText("Step 5 of 6")).toBeVisible();
+  await page.getByRole("switch", { name: "Saturday" }).uncheck();
+  await page.getByRole("button", { name: "Add a break" }).first().click();
+  await page.getByLabel("Monday closes").first().fill("12:00");
+  await page.getByLabel("Monday reopens").fill("13:00");
+  await page.getByLabel("Monday closes").nth(1).fill("18:00");
+  await page.getByRole("button", { name: "Save and continue" }).click();
+
+  // Step 6: Photos (resized in the browser, then uploaded)
+  await expect(page.getByText("Step 6 of 6")).toBeVisible();
   const photo = await QRCode.toBuffer("test photo", { width: 1600 });
   await page.getByText("Add photo").locator("..").locator("input[type=file]").setInputFiles({
     name: "work.png",
@@ -90,6 +115,10 @@ test("solo provider onboards and publishes a shareable page", async ({ page, req
     "https://wa.me/233241234567",
   );
   await expect(visitor.getByRole("img", { name: `Work by ${name}` })).toHaveCount(1);
+  await expect(visitor.getByText("Gel manicure")).toBeVisible();
+  await expect(visitor.getByText("GH₵80.50")).toBeVisible();
+  await expect(visitor.getByRole("definition").filter({ hasText: "09:00–12:00, 13:00–18:00" })).toBeVisible();
+  await expect(visitor.getByText("Saturday").locator("..").getByText("Closed")).toBeVisible();
   await anon.close();
 
   // QR download

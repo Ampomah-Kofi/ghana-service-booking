@@ -13,6 +13,8 @@ import {
 } from "@/server/businesses/onboarding";
 import { getBusinessById, getBusinessBySlug } from "@/server/businesses/queries";
 import { listActiveCategories } from "@/server/catalog/categories";
+import { createService } from "@/server/businesses/catalog";
+import { listStaff } from "@/server/businesses/team";
 import { listCitiesWithAreas } from "@/server/catalog/locations";
 import { anonClient, cleanup, fakeJpeg, fakeWebp, signedInUser, type SignedInUser } from "./support";
 
@@ -55,7 +57,7 @@ describe("business onboarding services (local Supabase, RLS on)", () => {
 
     const business = await getBusinessById(owner.db, businessId);
     expect(business).toMatchObject({ status: "draft", kind: "solo", category: { slug: "nails" } });
-    expect(await getPublishReadiness(owner.db, businessId)).toEqual(["location", "contact"]);
+    expect(await getPublishReadiness(owner.db, businessId)).toEqual(["location", "contact", "services"]);
   });
 
   it("keeps drafts private", async () => {
@@ -66,7 +68,7 @@ describe("business onboarding services (local Supabase, RLS on)", () => {
   it("refuses to publish until ready", async () => {
     await expect(publishBusiness(owner.db, businessId)).rejects.toMatchObject({
       code: "VALIDATION",
-      detail: "location,contact",
+      detail: "location,contact,services",
     });
   });
 
@@ -88,6 +90,21 @@ describe("business onboarding services (local Supabase, RLS on)", () => {
       categoryId: nails.id,
       description: "Gel and acrylics.",
     });
+    const staffIds = (await listStaff(owner.db, businessId, { withInvites: false })).map((s) => s.id);
+    await createService(
+      owner.db,
+      { id: businessId, currencyCode: "GHS" },
+      {
+        name: "Gel manicure",
+        description: null,
+        price: 8000,
+        priceType: "fixed",
+        durationMinutes: 45,
+        deposit: null,
+        isActive: true,
+        staffIds,
+      },
+    );
 
     const business = await getBusinessById(owner.db, businessId);
     expect(business?.location).toMatchObject({
