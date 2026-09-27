@@ -38,6 +38,7 @@ insert into public.regions (country_code, name, slug) values
   ('GH', 'Western North', 'western-north');
 
 -- City centroids are approximate (city centre), good enough for map centring and "near me" fallback.
+-- Towns not listed here can still be entered as free text (business_locations.locality_text).
 insert into public.cities (region_id, name, slug, centroid)
 select r.id, c.name, c.slug, extensions.st_setsrid(extensions.st_makepoint(c.lng, c.lat), 4326)::extensions.geography
 from (values
@@ -46,7 +47,17 @@ from (values
   ('ashanti',       'Kumasi',     'kumasi',     6.6885, -1.6244),
   ('western',       'Takoradi',   'takoradi',   4.8845, -1.7554),
   ('central',       'Cape Coast', 'cape-coast', 5.1053, -1.2466),
-  ('northern',      'Tamale',     'tamale',     9.4008, -0.8393)
+  ('northern',      'Tamale',     'tamale',     9.4008, -0.8393),
+  ('greater-accra', 'Ashaiman',   'ashaiman',   5.6950, -0.0330),
+  ('central',       'Kasoa',      'kasoa',      5.5340, -0.4240),
+  ('central',       'Winneba',    'winneba',    5.3511, -0.6231),
+  ('eastern',       'Koforidua',  'koforidua',  6.0941, -0.2591),
+  ('volta',         'Ho',         'ho',         6.6008,  0.4713),
+  ('ashanti',       'Obuasi',     'obuasi',     6.2024, -1.6663),
+  ('bono',          'Sunyani',    'sunyani',    7.3349, -2.3123),
+  ('bono-east',     'Techiman',   'techiman',   7.5909, -1.9395),
+  ('upper-west',    'Wa',         'wa',        10.0601, -2.5099),
+  ('upper-east',    'Bolgatanga', 'bolgatanga',10.7856, -0.8514)
 ) as c(region_slug, name, slug, lat, lng)
 join public.regions r on r.slug = c.region_slug and r.country_code = 'GH';
 
@@ -143,3 +154,30 @@ insert into public.business_members (business_id, user_id, role) values
   ('b0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000003', 'staff'),
   ('b0000000-0000-4000-8000-000000000003', 'a0000000-0000-4000-8000-000000000004', 'owner'),
   ('b0000000-0000-4000-8000-000000000003', 'a0000000-0000-4000-8000-000000000005', 'manager');
+
+-- Demo business profiles (mirrors what create_business() + onboarding would produce).
+insert into public.business_categories (business_id, category_id, is_primary)
+select b.id, c.id, true
+from (values ('b0000000-0000-4000-8000-000000000001'::uuid, 'barbers'),
+             ('b0000000-0000-4000-8000-000000000002'::uuid, 'braids-locs'),
+             ('b0000000-0000-4000-8000-000000000003'::uuid, 'spa-massage')) as b(id, cat)
+join public.categories c on c.slug = b.cat;
+
+insert into public.business_locations (business_id, country_code, city_id, area_id, address_line, landmark, lat, lng)
+select v.id, 'GH', ci.id, a.id, v.address, v.landmark, v.lat, v.lng
+from (values
+  ('b0000000-0000-4000-8000-000000000001'::uuid, 'accra',  'east-legon', 'Lagos Avenue', 'Opposite the Shell filling station', 5.6350, -0.1560),
+  ('b0000000-0000-4000-8000-000000000002'::uuid, 'kumasi', 'adum',       'Prempeh II Street, 1st floor', 'Behind Kejetia market', 6.6930, -1.6230),
+  ('b0000000-0000-4000-8000-000000000003'::uuid, 'accra',  'osu',        'Oxford Street', 'Next to the Osu Castle junction', 5.5560, -0.1820)
+) as v(id, city, area, address, landmark, lat, lng)
+join public.cities ci on ci.slug = v.city
+join public.areas a on a.city_id = ci.id and a.slug = v.area;
+
+insert into public.booking_rules (business_id)
+select id from public.businesses where id::text like 'b0000000-0000-4000-8000-%';
+
+insert into public.staff (business_id, user_id, display_name, role_title, sort_order) values
+  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'Kwame', 'Barber', 0),
+  ('b0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000002', 'Ama', 'Lead braider', 0),
+  ('b0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000003', 'Efua', 'Braider', 1),
+  ('b0000000-0000-4000-8000-000000000003', 'a0000000-0000-4000-8000-000000000004', 'Kojo', 'Massage therapist', 0);

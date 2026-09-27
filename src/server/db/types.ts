@@ -35,6 +35,185 @@ export type Database = {
           },
         ];
       };
+      booking_rules: {
+        Row: {
+          allow_guest_booking: boolean;
+          auto_confirm: boolean;
+          buffer_after_minutes: number;
+          buffer_before_minutes: number;
+          business_id: string;
+          cancellation_window_hours: number;
+          max_advance_days: number;
+          min_notice_minutes: number;
+          pending_hold_minutes: number;
+          reschedule_window_hours: number;
+          slot_interval_minutes: number;
+          updated_at: string;
+        };
+        Insert: {
+          allow_guest_booking?: boolean;
+          auto_confirm?: boolean;
+          buffer_after_minutes?: number;
+          buffer_before_minutes?: number;
+          business_id: string;
+          cancellation_window_hours?: number;
+          max_advance_days?: number;
+          min_notice_minutes?: number;
+          pending_hold_minutes?: number;
+          reschedule_window_hours?: number;
+          slot_interval_minutes?: number;
+          updated_at?: string;
+        };
+        Update: {
+          allow_guest_booking?: boolean;
+          auto_confirm?: boolean;
+          buffer_after_minutes?: number;
+          buffer_before_minutes?: number;
+          business_id?: string;
+          cancellation_window_hours?: number;
+          max_advance_days?: number;
+          min_notice_minutes?: number;
+          pending_hold_minutes?: number;
+          reschedule_window_hours?: number;
+          slot_interval_minutes?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "booking_rules_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: true;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      business_categories: {
+        Row: {
+          business_id: string;
+          category_id: string;
+          is_primary: boolean;
+        };
+        Insert: {
+          business_id: string;
+          category_id: string;
+          is_primary?: boolean;
+        };
+        Update: {
+          business_id?: string;
+          category_id?: string;
+          is_primary?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_categories_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "business_categories_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "categories";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      business_locations: {
+        Row: {
+          address_line: string | null;
+          area_id: string | null;
+          business_id: string;
+          city_id: string | null;
+          country_code: string;
+          created_at: string;
+          directions: string | null;
+          geo: unknown;
+          id: string;
+          is_primary: boolean;
+          landmark: string | null;
+          lat: number | null;
+          lng: number | null;
+          locality_text: string | null;
+          region_id: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          address_line?: string | null;
+          area_id?: string | null;
+          business_id: string;
+          city_id?: string | null;
+          country_code: string;
+          created_at?: string;
+          directions?: string | null;
+          geo?: never;
+          id?: string;
+          is_primary?: boolean;
+          landmark?: string | null;
+          lat?: number | null;
+          lng?: number | null;
+          locality_text?: string | null;
+          region_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          address_line?: string | null;
+          area_id?: string | null;
+          business_id?: string;
+          city_id?: string | null;
+          country_code?: string;
+          created_at?: string;
+          directions?: string | null;
+          geo?: never;
+          id?: string;
+          is_primary?: boolean;
+          landmark?: string | null;
+          lat?: number | null;
+          lng?: number | null;
+          locality_text?: string | null;
+          region_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_locations_area_id_fkey";
+            columns: ["area_id"];
+            isOneToOne: false;
+            referencedRelation: "areas";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "business_locations_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "business_locations_city_id_fkey";
+            columns: ["city_id"];
+            isOneToOne: false;
+            referencedRelation: "cities";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "business_locations_country_code_fkey";
+            columns: ["country_code"];
+            isOneToOne: false;
+            referencedRelation: "countries";
+            referencedColumns: ["code"];
+          },
+          {
+            foreignKeyName: "business_locations_region_id_fkey";
+            columns: ["region_id"];
+            isOneToOne: false;
+            referencedRelation: "regions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       business_members: {
         Row: {
           business_id: string;
@@ -67,6 +246,50 @@ export type Database = {
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      business_photos: {
+        Row: {
+          business_id: string;
+          caption: string | null;
+          created_at: string;
+          height: number | null;
+          id: string;
+          path_large: string;
+          path_small: string;
+          sort_order: number;
+          width: number | null;
+        };
+        Insert: {
+          business_id: string;
+          caption?: string | null;
+          created_at?: string;
+          height?: number | null;
+          id?: string;
+          path_large: string;
+          path_small: string;
+          sort_order?: number;
+          width?: number | null;
+        };
+        Update: {
+          business_id?: string;
+          caption?: string | null;
+          created_at?: string;
+          height?: number | null;
+          id?: string;
+          path_large?: string;
+          path_small?: string;
+          sort_order?: number;
+          width?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_photos_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
             referencedColumns: ["id"];
           },
         ];
@@ -465,12 +688,94 @@ export type Database = {
           },
         ];
       };
+      staff: {
+        Row: {
+          accepts_online_bookings: boolean;
+          bio: string | null;
+          business_id: string;
+          created_at: string;
+          deleted_at: string | null;
+          display_name: string;
+          id: string;
+          is_active: boolean;
+          photo_path: string | null;
+          role_title: string | null;
+          sort_order: number;
+          updated_at: string;
+          user_id: string | null;
+          uses_business_hours: boolean;
+        };
+        Insert: {
+          accepts_online_bookings?: boolean;
+          bio?: string | null;
+          business_id: string;
+          created_at?: string;
+          deleted_at?: string | null;
+          display_name: string;
+          id?: string;
+          is_active?: boolean;
+          photo_path?: string | null;
+          role_title?: string | null;
+          sort_order?: number;
+          updated_at?: string;
+          user_id?: string | null;
+          uses_business_hours?: boolean;
+        };
+        Update: {
+          accepts_online_bookings?: boolean;
+          bio?: string | null;
+          business_id?: string;
+          created_at?: string;
+          deleted_at?: string | null;
+          display_name?: string;
+          id?: string;
+          is_active?: boolean;
+          photo_path?: string | null;
+          role_title?: string | null;
+          sort_order?: number;
+          updated_at?: string;
+          user_id?: string | null;
+          uses_business_hours?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "staff_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "staff_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      business_publish_readiness: { Args: { p_business_id: string }; Returns: string[] };
+      create_business: {
+        Args: {
+          p_category_id: string;
+          p_country_code: string;
+          p_kind: Database["public"]["Enums"]["business_kind"];
+          p_name: string;
+        };
+        Returns: {
+          id: string;
+          slug: string;
+        }[];
+      };
+      publish_business: { Args: { p_business_id: string }; Returns: undefined };
+      set_business_slug: { Args: { p_business_id: string; p_slug: string }; Returns: string };
+      set_primary_category: { Args: { p_business_id: string; p_category_id: string }; Returns: undefined };
+      unpublish_business: { Args: { p_business_id: string }; Returns: undefined };
     };
     Enums: {
       admin_role: "super_admin" | "moderator" | "support";
