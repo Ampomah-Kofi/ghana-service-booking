@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { GroupedSection } from "@/components/ui/card";
+import { ChevronRightIcon } from "@/components/ui/icons";
 import { SharePanel } from "@/components/business/share-panel";
 import { SETUP_STEPS } from "@/components/ui/step-header";
 import { formatPhoneInternational } from "@/lib/phone";
@@ -10,15 +11,13 @@ import { managedBusinessOr404 } from "@/server/businesses/access";
 import { getPublishReadiness } from "@/server/businesses/onboarding";
 import { formatPlace } from "@/server/businesses/queries";
 import { qrDataUrl } from "@/server/businesses/qr";
-import { AppointmentRow } from "@/components/bookings/appointment-row";
-import { listBusinessUpcoming } from "@/server/bookings/appointments";
-import { PublishButton, UnpublishButton } from "./publish-controls";
+import { PublishButton, UnpublishButton } from "../publish-controls";
 
-export const metadata: Metadata = { title: "Dashboard" };
+export const metadata: Metadata = { title: "More" };
 
 type ChecklistItem = { label: string; detail: string; done: boolean; required: boolean; href: string };
 
-export default async function BusinessDashboardPage({ params }: PageProps<"/dashboard/[businessId]">) {
+export default async function MorePage({ params }: PageProps<"/dashboard/[businessId]/more">) {
   const { businessId } = await params;
   const { db, business } = await managedBusinessOr404(businessId);
   const missing = await getPublishReadiness(db, business.id);
@@ -87,45 +86,42 @@ export default async function BusinessDashboardPage({ params }: PageProps<"/dash
   const siteUrl = publicEnv().NEXT_PUBLIC_SITE_URL;
   const pageUrl = businessPageUrl(siteUrl, business.slug);
   const published = business.status === "published";
-  const [qr, upcoming] = await Promise.all([
-    published ? qrDataUrl(pageUrl) : null,
-    listBusinessUpcoming(db, business.id, { limit: 10 }),
-  ]);
+  const qr = published ? await qrDataUrl(pageUrl) : null;
 
   return (
     <>
-      <h1 className="mb-1 text-display font-bold tracking-tight">{published ? "Your page is live" : "Almost there"}</h1>
+      <h1 className="mb-1 text-display font-bold tracking-tight">More</h1>
       <p className="mb-6 text-body text-ink-muted">
         {published
-          ? "Customers can book you online. Share your link to get more bookings."
+          ? "Your page is live. Customers can book you online."
           : business.status === "draft"
             ? "Finish the required items, then publish your page."
             : `This business is ${business.status}. Contact support to restore it.`}
       </p>
 
-      {published || upcoming.length > 0 ? (
-        <GroupedSection
-          title="Upcoming bookings"
-          footer={
-            upcoming.length === 10 ? "Showing the next 10. The full calendar arrives in the next update." : undefined
-          }
-        >
-          {upcoming.length === 0 ? (
-            <p className="px-4 py-3 text-body text-ink-muted">No bookings yet. Share your page to get your first.</p>
-          ) : (
-            <ul className="divide-y divide-border">
-              {upcoming.map((a) => (
-                <AppointmentRow
-                  key={a.id}
-                  appointment={a}
-                  who={a.customerName}
-                  detail={a.customerPhone ? formatPhoneInternational(a.customerPhone) : undefined}
-                />
-              ))}
-            </ul>
-          )}
-        </GroupedSection>
-      ) : null}
+      <GroupedSection title="Manage">
+        {[
+          { href: `/dashboard/${business.id}/services`, label: "Services", detail: "Prices, durations, who does what" },
+          ...(business.kind === "team"
+            ? [{ href: `/dashboard/${business.id}/team`, label: "Team", detail: "People, invites, their hours" }]
+            : []),
+          { href: `/dashboard/${business.id}/hours`, label: "Opening hours", detail: "Your week, with breaks" },
+          { href: `/dashboard/${business.id}/time-off`, label: "Time off", detail: "Holidays, days off, breaks" },
+          { href: `/dashboard/${business.id}/settings`, label: "Booking rules", detail: "Notice, gaps, cancellations" },
+        ].map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="flex min-h-14 items-center gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-fill"
+          >
+            <span className="min-w-0 flex-1">
+              <span className="block text-body">{item.label}</span>
+              <span className="block truncate text-small text-ink-muted">{item.detail}</span>
+            </span>
+            <ChevronRightIcon className="shrink-0 text-ink-muted" />
+          </Link>
+        ))}
+      </GroupedSection>
 
       <GroupedSection title="Your page">
         {checklist.map((item) => (

@@ -2,7 +2,7 @@
 -- moves and reassignments, clients. Who may do what, and the no-overlap rule still holds.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(41);
+select plan(43);
 
 create function pg_temp.act_as(p_user uuid) returns void language plpgsql as $$
 begin
@@ -79,6 +79,11 @@ select results_eq(
      where a.id = (select id from t where key = 'walk_in') $$,
   $$ values ('arrived', 'walk_in', 'Walk-in') $$,
   'walk-ins start as arrived, and history says so');
+
+select lives_ok($$ insert into t select 'anon_walk_in', pg_temp.kwame_add(null, null, null, true, true, now() + interval '2 hours') $$,
+  'an anonymous walk-in needs no name');
+select results_eq($$ select customer_name, client_id from public.appointments where id = (select id from t where key = 'anon_walk_in') $$,
+  $$ values ('Walk-in', null::uuid) $$, '...and creates no client record');
 
 -- ── Staff: only their own column ────────────────────────────────────────────
 select pg_temp.act_as('a0000000-0000-4000-8000-000000000003');  -- Efua, staff at Ama Braids

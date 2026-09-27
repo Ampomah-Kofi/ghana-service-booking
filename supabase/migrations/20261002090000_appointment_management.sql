@@ -114,7 +114,13 @@ begin
   end if;
 
   select * into v_rules from public.booking_rules r where r.business_id = p_business_id;
-  v_client := private.resolve_client(p_business_id, p_client_id, p_client_name, p_client_phone);
+  -- An anonymous walk-in (no name, no phone) gets no client record, so the client list stays clean.
+  if p_walk_in and p_client_id is null and nullif(trim(coalesce(p_client_name, '')), '') is null
+     and nullif(trim(coalesce(p_client_phone, '')), '') is null then
+    v_client.full_name := 'Walk-in';
+  else
+    v_client := private.resolve_client(p_business_id, p_client_id, p_client_name, p_client_phone);
+  end if;
   v_ends := p_starts_at + make_interval(mins => v_svc.duration_minutes);
 
   perform private.lock_staff(p_staff_id);

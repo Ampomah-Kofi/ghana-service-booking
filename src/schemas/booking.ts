@@ -58,3 +58,72 @@ export const cancelSchema = z.object({
     .optional()
     .transform((value) => (value ? value : null)),
 });
+
+// ── Provider actions (Phase 6) ──────────────────────────────────────────────
+
+const appointmentStatus = z.enum(["pending", "confirmed", "arrived", "completed", "cancelled", "no_show"]);
+const localTime = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Choose a time.");
+const optionalText = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max, `Use at most ${max} characters.`)
+    .optional()
+    .transform((value) => (value ? value : null));
+
+export const statusChangeSchema = z.object({
+  appointmentId: z.uuid(),
+  status: appointmentStatus,
+  reason: optionalText(200),
+  /** Typed by the provider in major units ("80" or "80.50"); converted with the currency's minor unit. */
+  finalPrice: z.string().trim().max(20).optional(),
+});
+
+export function manualAppointmentSchema(defaultCountry: CountryCode) {
+  return z
+    .object({
+      walkIn: z.enum(["0", "1"]).transform((v) => v === "1"),
+      serviceId: z.uuid("Choose a service."),
+      staffId: z.uuid("Choose who will do it."),
+      date: localDateSchema.optional(),
+      time: localTime.optional(),
+      clientId: z.union([z.uuid(), z.literal("")]).optional(),
+      clientName: optionalText(120),
+      clientPhone: z
+        .string()
+        .trim()
+        .optional()
+        .transform((value) => (value ? value : null))
+        .pipe(phoneInputSchema(defaultCountry).nullable()),
+      note: optionalText(500),
+      allowOutsideHours: z.string().nullish().transform((v) => v === "on"),
+    })
+    .superRefine((v, ctx) => {
+      if (!v.walkIn && !v.date) ctx.addIssue({ code: "custom", path: ["date"], message: "Choose a date." });
+      if (!v.walkIn && !v.time) ctx.addIssue({ code: "custom", path: ["time"], message: "Choose a time." });
+      if (!v.walkIn && !v.clientId && !v.clientName)
+        ctx.addIssue({ code: "custom", path: ["clientName"], message: "Enter the client's name or pick a client." });
+    });
+}
+
+export const moveSchema = z.object({
+  appointmentId: z.uuid(),
+  staffId: z.uuid("Choose who will do it."),
+  date: localDateSchema,
+  time: localTime,
+  allowOutsideHours: z.string().nullish().transform((v) => v === "on"),
+});
+
+export function clientSchema(defaultCountry: CountryCode) {
+  return z.object({
+    clientId: z.union([z.uuid(), z.literal("")]).transform((v) => (v ? v : null)),
+    name: z.string().trim().min(1, "Enter the client's name.").max(120, "Use at most 120 characters."),
+    phone: z
+      .string()
+      .trim()
+      .optional()
+      .transform((value) => (value ? value : null))
+      .pipe(phoneInputSchema(defaultCountry).nullable()),
+    notes: optionalText(2000),
+  });
+}
