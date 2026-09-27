@@ -30,6 +30,7 @@ CI (`.github/workflows/ci.yml`) runs all of these on every PR, plus a check that
 | `07_catalog_isolation` | Services (inactive/draft hidden), staff↔service links, hours, blocked times (private reasons), invites, audit log: public vs member vs cross-tenant, direct writes refused |
 | `08_schedule_team_functions` | Week hours (split shifts, midnight, overlap, 5-min steps, atomic replace), staff hours, cross-tenant assignment refused, time off in the business timezone (incl. a DST day in Europe/London), staff self-service limits, invite → accept (forwarded link to another phone refused, one use), owner-only manager invites, removing staff revokes access |
 | `09_admin_categories` | Only super admins; reason required; create/update audit-logged with before/after; moderators refused |
+| `10_search` | Query understanding (typos, plurals, missing spaces), the six SPEC §11 examples on seed data, service names searchable, drafts and suspended businesses never returned, live search-document refresh, page-size cap |
 | `03_business_isolation` | **Tenant isolation**: 6 personas × read/update/insert/delete on `businesses` and `business_members`; draft/suspended visibility; column protection; helper functions; slug/timezone constraints |
 
 **Rule (CLAUDE.md):** every new table ships with a test proving Business A cannot read or write Business B's rows. Adding a table without a policy makes `00_rls_coverage` fail.
@@ -49,13 +50,19 @@ CI (`.github/workflows/ci.yml`) runs all of these on every PR, plus a check that
 | `business-errors.test.ts` | SQLSTATE → AppError mapping (no internal leaks); JPEG/WebP magic-byte sniffing (SVG/PNG rejected) |
 | `share.test.ts` | Share, WhatsApp, tel, maps and media URLs |
 | `catalog-helpers.test.ts` | Price parsing (GH₵ input → pesewas, rejects `1e3`), week-hours validation, Postgres range parsing, service/time-off schemas, form refill helpers |
+| `search-query.test.ts` | "what in where" / "near me" parsing, last-place-word splitting, coordinate parsing |
 | `mock-sms-provider.test.ts` | Mock records and logs messages |
 
 ## Integration and end-to-end tests
 - Both create a **fresh email/password user per run** through the admin API (secret key; the helpers refuse to run against a non-local Supabase) and delete it, with its businesses and files, afterwards.
 - `tests/e2e/onboarding.spec.ts`: sign in → create business → 4 setup steps (including validation errors) → photo resized in the browser and uploaded → publish → public page as a signed-out visitor → QR download → unpublish returns 404.
 - `tests/integration/businesses.test.ts`: the same use-cases at the service layer, plus cross-tenant attempts and file-type sniffing.
+- `tests/integration/search.test.ts`: the marketplace service on seed data as an anonymous visitor: interpretation, widening notice, near-me, unknown places, category/town filters, newest-first.
+- `tests/e2e/marketplace.spec.ts`: search from the home page → result → provider page; the "nothing in this town yet" notice; category town filters; **no sideways scrolling at 360 px** on every public page.
 - `tests/integration/catalog.test.ts`: services (order, hide, archive), hours, time off, booking rules, team members with own hours, a real phone-bound invite accepted by the right user (and refused for another), removal revoking access, admin refusal.
+
+## Performance
+`scripts/perf/search_perf.sql` generates 5,000 businesses inside a rolled-back transaction and times 110 searches as `anon` (≈ 5 minutes, mostly seeding). Last run: p50 9.7 ms, p95 39.5 ms, max 41.3 ms. Not in CI (too slow); run it before changing search.
 
 ## Known gaps
 - The phone OTP sign-in path is not in E2E (needs the SMS hook plus the app running under the Auth container); it's covered by unit tests and a manual check.

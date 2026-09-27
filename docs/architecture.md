@@ -281,6 +281,13 @@ interface NotificationChannelProvider {
 - **Location:** PostGIS `geography(Point)` on `business_locations`. Fallback when coordinates are missing: area/city match. Browser geolocation only after the user taps "Near me".
 - **When we'd outgrow it:** p95 search > 300 ms at realistic load, a need for facet counts across many filters, heavy typo-tolerance or synonyms per language, or > ~200k listings. Next step is **Typesense or Meilisearch** fed from an outbox. Not before (ADR-0007).
 
+### As built (Phase 4)
+- `businesses.search_document` is rebuilt by triggers whenever the name, description, categories (and their keywords), active services or location change (`private.refresh_business_search`).
+- `match_search_terms(what, where, country)` resolves the words to a category (name or keyword, typo-tolerant via trigram, singular/plural) and the place to an area → city → region.
+- `search_businesses(...)` is `SECURITY DEFINER` with explicit *published and not deleted* filters. It returns only public card fields, so it avoids per-row RLS calls in a hot query.
+- `src/server/search/marketplace.ts` parses "what in where" / "near me", runs the search, and **widens with a notice** when a place has no matches instead of showing an empty page.
+- Measured with 5,000 generated businesses (`scripts/perf/search_perf.sql`): p50 ≈ 10 ms, p95 ≈ 40 ms (target < 300 ms).
+
 ## 11. Files and images
 
 | Bucket | Access | Contents | Path convention |

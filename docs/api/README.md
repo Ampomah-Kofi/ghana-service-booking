@@ -1,7 +1,7 @@
 # API
 
 ## Public / mobile API: `/api/v1`
-No endpoints yet. The first ones (catalogue and search reads) arrive in Phase 4. Shape, auth and versioning rules are in [`../architecture.md` §12](../architecture.md).
+See [`v1.md`](./v1.md) and the live OpenAPI document at `/api/v1/openapi.json`. Endpoints so far: `GET /categories`, `GET /search`, `GET /businesses/{slug}`.
 
 ## Internal endpoints (not for clients)
 | Method & path | Caller | Auth | Purpose |
