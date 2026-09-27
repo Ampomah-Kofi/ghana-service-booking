@@ -1,6 +1,6 @@
 # ADR-0005: Provider-agnostic payments
 
-**Status:** Proposed · **Date:** 2026-09-27
+**Status:** Accepted · **Date:** 2026-09-27
 
 ## Context
 We need Mobile Money, cards, cash, deposits and full payment (SPEC §13), but have no provider credentials yet. CLAUDE.md forbids inventing vendor APIs. Webhooks can be duplicated, delayed or lost.

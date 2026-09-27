@@ -1,6 +1,6 @@
 # ADR-0001: Stack, hosting and data access
 
-**Status:** Proposed · **Date:** 2026-09-27
+**Status:** Accepted · **Date:** 2026-09-27
 
 ## Context
 One developer, mobile-first web MVP, Ghana users on variable bandwidth, a future native app, and strict tenant isolation. CLAUDE.md already fixes Next.js + TypeScript + Tailwind + Supabase + pnpm. Still open: hosting, DB region, how server code talks to Postgres, jobs, and supporting libraries.

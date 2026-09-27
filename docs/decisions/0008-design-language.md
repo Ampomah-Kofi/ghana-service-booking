@@ -1,6 +1,6 @@
 # ADR-0008: Apple-inspired design language
 
-**Status:** Proposed · **Date:** 2026-09-27
+**Status:** Accepted · **Date:** 2026-09-27
 
 ## Context
 The product owner asked for an "Apple-like" UI. SPEC §1 requires an original identity (no copied branding or visual design), and CLAUDE.md requires low-bandwidth, accessible, mobile-first UI.

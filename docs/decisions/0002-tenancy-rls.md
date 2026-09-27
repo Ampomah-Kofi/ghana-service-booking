@@ -1,6 +1,6 @@
 # ADR-0002: Multi-tenancy via shared schema + RLS
 
-**Status:** Proposed · **Date:** 2026-09-27
+**Status:** Accepted · **Date:** 2026-09-27
 
 ## Context
 Thousands of independent businesses. Business A must never see B's data (SPEC §18), enforced both server-side and in Postgres. Staff, managers, customers and admins each have different scopes.

@@ -1,6 +1,6 @@
 # ADR-0003: Double-booking prevention with an exclusion constraint
 
-**Status:** Proposed · **Date:** 2026-09-27
+**Status:** Accepted · **Date:** 2026-09-27
 
 ## Context
 SPEC §10: double bookings must be impossible, including under concurrent requests, enforced in the DB. Appointments have variable durations and buffers. "Any available" must assign one of several staff atomically. Blocked times and appointments must not overlap either.

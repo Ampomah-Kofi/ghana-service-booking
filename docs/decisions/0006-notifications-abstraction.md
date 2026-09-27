@@ -1,6 +1,6 @@
 # ADR-0006: Notification outbox + channel providers
 
-**Status:** Proposed · **Date:** 2026-09-27
+**Status:** Accepted · **Date:** 2026-09-27
 
 ## Context
 Confirmations, reminders, cancellations, reschedules, payment receipts and provider alerts over SMS, WhatsApp, email and in-app (SPEC §14). Vendors are not chosen. Requests must not block on SMS gateways, and reminders must be scheduled and cancellable.

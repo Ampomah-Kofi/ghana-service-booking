@@ -1,6 +1,6 @@
 # ADR-0007: Search on Postgres (FTS + trigram + PostGIS)
 
-**Status:** Proposed · **Date:** 2026-09-27
+**Status:** Accepted · **Date:** 2026-09-27
 
 ## Context
 Queries like "Barber in East Legon", "Nails near me", "Braids in Accra". Results need category, area, price, rating and next availability. The corpus starts small (hundreds to low thousands of businesses).

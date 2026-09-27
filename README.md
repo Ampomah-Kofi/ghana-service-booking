@@ -1,6 +1,6 @@
 # Ghana Service Booking (working name)
 
-Ghana-first, multi-tenant appointment marketplace. **Status: Phase 0 (architecture & planning). There is no application code yet.**
+Ghana-first, multi-tenant appointment marketplace. **Status: Phase 0 approved; Phase 1 not started. There is no application code yet.**
 
 | Doc | What's in it |
 |---|---|
