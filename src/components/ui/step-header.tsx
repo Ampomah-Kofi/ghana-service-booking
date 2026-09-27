@@ -26,11 +26,11 @@ export function StepHeader({
   const index = SETUP_STEPS.findIndex((s) => s.slug === step);
   return (
     <div className="mb-6">
-      <div className="mb-3 flex items-center justify-between text-footnote text-text-secondary">
+      <div className="mb-3 flex items-center justify-between text-small text-ink-muted">
         <span>
           Step {index + 1} of {SETUP_STEPS.length}
         </span>
-        <Link href={`/dashboard/${businessId}`} className="font-medium text-accent">
+        <Link href={`/dashboard/${businessId}`} className="font-medium text-primary">
           Save for later
         </Link>
       </div>
@@ -43,12 +43,12 @@ export function StepHeader({
         aria-label="Setup progress"
       >
         <div
-          className="h-full rounded-full bg-accent"
+          className="h-full rounded-full bg-primary"
           style={{ width: `${((index + 1) / SETUP_STEPS.length) * 100}%` }}
         />
       </div>
-      <h1 className="text-large-title font-bold tracking-tight">{title}</h1>
-      <p className="mt-2 text-body text-text-secondary">{subtitle}</p>
+      <h1 className="text-display font-bold tracking-tight">{title}</h1>
+      <p className="mt-2 text-body text-ink-muted">{subtitle}</p>
     </div>
   );
 }

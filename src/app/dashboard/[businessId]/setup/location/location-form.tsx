@@ -51,7 +51,7 @@ export function LocationForm({ businessId, cities, values }: { businessId: strin
   }
 
   return (
-    <form action={formAction} noValidate className="rounded-card bg-surface-elevated p-5 shadow-card">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 border border-border">
       <input type="hidden" name="businessId" value={businessId} />
       <input type="hidden" name="lat" value={coords?.lat ?? ""} />
       <input type="hidden" name="lng" value={coords?.lng ?? ""} />
@@ -145,8 +145,8 @@ export function LocationForm({ businessId, cities, values }: { businessId: strin
       />
 
       <div className="mb-5 rounded-control bg-fill p-3">
-        <p className="text-callout font-medium">Map pin</p>
-        <p className="mb-2 text-footnote text-text-secondary">
+        <p className="text-small font-medium">Map pin</p>
+        <p className="mb-2 text-small text-ink-muted">
           {coords
             ? `Pinned at ${coords.lat}, ${coords.lng}.`
             : "Optional. Tap while you're at your shop to pin it on the map."}
@@ -162,7 +162,7 @@ export function LocationForm({ businessId, cities, values }: { businessId: strin
           ) : null}
         </div>
         {geoMessage ? (
-          <p className="mt-1 text-footnote text-text-secondary" role="status">
+          <p className="mt-1 text-small text-ink-muted" role="status">
             {geoMessage}
           </p>
         ) : null}

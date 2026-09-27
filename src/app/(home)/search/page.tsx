@@ -47,30 +47,30 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
         <SearchForm defaultQuery={[q, where && !q.includes(" in ") ? `in ${where}` : ""].filter(Boolean).join(" ")} />
       </div>
 
-      <h1 className="text-title-1 font-bold tracking-tight">{heading}</h1>
-      <p className="mb-4 text-callout text-text-secondary" aria-live="polite">
+      <h1 className="text-display font-bold tracking-tight">{heading}</h1>
+      <p className="mb-4 text-small text-ink-muted" aria-live="polite">
         {result.total === 1 ? "1 result" : `${result.total} results`}
       </p>
 
       {result.needsLocation ? (
-        <div className="mb-4 rounded-card bg-surface-elevated p-4 shadow-card">
+        <div className="mb-4 rounded-card bg-card p-4 border border-border">
           <p className="text-body">Allow location to see who&apos;s closest to you.</p>
           <NearMeButton query={q} />
         </div>
       ) : null}
       {result.notice ? (
-        <p role="status" className="mb-4 rounded-control bg-fill px-3 py-2 text-callout">
+        <p role="status" className="mb-4 rounded-control bg-fill px-3 py-2 text-small">
           {result.notice}
         </p>
       ) : null}
 
       {result.results.length === 0 ? (
-        <div className="rounded-card bg-surface-elevated p-6 text-center shadow-card">
-          <p className="text-title-2 font-semibold">No matches yet</p>
-          <p className="mt-2 text-body text-text-secondary">
+        <div className="rounded-card bg-card p-6 text-center border border-border">
+          <p className="text-title font-semibold">No matches yet</p>
+          <p className="mt-2 text-body text-ink-muted">
             Try a category like “barber” or “nails”, or a bigger town like Accra or Kumasi.
           </p>
-          <Link href="/" className="mt-3 inline-flex min-h-11 items-center font-medium text-accent">
+          <Link href="/" className="mt-3 inline-flex min-h-11 items-center font-medium text-primary">
             Browse all categories
           </Link>
         </div>
@@ -81,17 +81,17 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
       {pages > 1 ? (
         <nav aria-label="Pages" className="mt-6 flex items-center justify-between">
           {result.page > 1 ? (
-            <Link href={pageHref(result.page - 1)} className="min-h-11 content-center font-medium text-accent">
+            <Link href={pageHref(result.page - 1)} className="min-h-11 content-center font-medium text-primary">
               ‹ Previous
             </Link>
           ) : (
             <span />
           )}
-          <span className="text-footnote text-text-secondary">
+          <span className="text-small text-ink-muted">
             Page {result.page} of {pages}
           </span>
           {result.page < pages ? (
-            <Link href={pageHref(result.page + 1)} className="min-h-11 content-center font-medium text-accent">
+            <Link href={pageHref(result.page + 1)} className="min-h-11 content-center font-medium text-primary">
               Next ›
             </Link>
           ) : (

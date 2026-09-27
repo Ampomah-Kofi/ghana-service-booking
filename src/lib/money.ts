@@ -14,7 +14,7 @@ export function assertMinorUnits(amountMinor: number): void {
 
 /**
  * Formats minor units for display. `currency.symbol` overrides the locale's
- * symbol (e.g. "GH₵" instead of "GHS"), because the currency table is data.
+ * symbol (e.g. "GH₵ 50" instead of "GHS 50.00"), because the currency table is data.
  */
 export function formatMoney(money: Money, currency: CurrencyInfo, locale = "en-GH"): string {
   assertMinorUnits(money.amountMinor);
@@ -37,7 +37,7 @@ export function formatMoney(money: Money, currency: CurrencyInfo, locale = "en-G
     .filter((p) => p.type === "integer" || p.type === "group" || p.type === "decimal" || p.type === "fraction")
     .map((p) => p.value)
     .join("");
-  return `${sign}${symbol}${number}`;
+  return `${sign}${symbol} ${number}`;
 }
 
 /**
@@ -63,4 +63,10 @@ export function minorToInput(amountMinor: number, minorUnit: number): string {
   const whole = Math.trunc(amountMinor / factor);
   const fraction = amountMinor % factor;
   return fraction === 0 ? String(whole) : `${whole}.${String(fraction).padStart(minorUnit, "0")}`;
+}
+
+/** "GH₵ 50", or "From GH₵ 80" for starting prices (docs/design.md §3a). */
+export function formatPrice(amountMinor: number, type: "fixed" | "from", currency: CurrencyInfo): string {
+  const amount = formatMoney({ amountMinor, currency: currency.code }, currency);
+  return type === "from" ? `From ${amount}` : amount;
 }

@@ -28,10 +28,8 @@ export function DashboardTabs({ businessId, showTeam }: { businessId: string; sh
               <Link
                 href={tab.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-9 items-center rounded-full px-3.5 text-callout font-medium whitespace-nowrap transition-colors ${
-                  active
-                    ? "bg-surface-elevated text-text-primary shadow-card"
-                    : "text-text-secondary hover:text-text-primary"
+                className={`flex min-h-9 items-center rounded-full px-3.5 text-small font-medium whitespace-nowrap transition-colors ${
+                  active ? "bg-card text-ink border border-border" : "text-ink-muted hover:text-ink"
                 }`}
               >
                 {tab.label}

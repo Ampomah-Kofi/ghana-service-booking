@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { StatusBadge } from "@/components/bookings/status-badge";
 import { FormMessage } from "@/components/ui/field";
-import { formatDayLong, formatTime } from "@/lib/datetime";
-import { formatMoney } from "@/lib/money";
+import { formatDateShort, formatTime } from "@/lib/datetime";
+import { formatMoney, formatPrice } from "@/lib/money";
 import { formatPhoneInternational } from "@/lib/phone";
 import { telUrl, whatsappChatUrl } from "@/lib/share";
 import { requireUserOrRedirect } from "@/server/auth/session";
@@ -49,10 +49,10 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
       <div className="mb-2">
         <StatusBadge status={a.status} />
       </div>
-      <h1 className="mb-1 text-large-title font-bold tracking-tight">{a.serviceName}</h1>
-      <p className="mb-6 text-body text-text-secondary">
+      <h1 className="mb-1 text-display font-bold tracking-tight">{a.serviceName}</h1>
+      <p className="mb-6 text-body text-ink-muted">
         {a.business.slug ? (
-          <Link href={`/business/${a.business.slug}`} className="font-medium text-accent">
+          <Link href={`/business/${a.business.slug}`} className="font-medium text-primary">
             {a.business.name}
           </Link>
         ) : (
@@ -60,18 +60,15 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
         )}
       </p>
 
-      <dl className="mb-6 divide-y divide-separator overflow-hidden rounded-card bg-surface-elevated shadow-card">
-        <Row label="Date">{formatDayLong(a.startsAt, tz)}</Row>
+      <dl className="mb-6 divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
+        <Row label="Date">{formatDateShort(a.startsAt, tz)}</Row>
         <Row label="Time">
           <span className="tabular-nums">
-            {formatTime(a.startsAt, tz)}–{formatTime(a.endsAt, tz)}
+            {formatTime(a.startsAt, tz)} – {formatTime(a.endsAt, tz)}
           </span>
         </Row>
         {a.staffName ? <Row label="With">{a.staffName}</Row> : null}
-        <Row label="Price">
-          {a.price.type === "from" ? "from " : ""}
-          {money(a.price.amountMinor)}
-        </Row>
+        <Row label="Price">{formatPrice(a.price.amountMinor, a.price.type, a.price.currency)}</Row>
         {a.depositMinor ? (
           <Row label="Deposit">
             {money(a.depositMinor)} · {a.paymentStatus === "paid" ? "paid" : "the business will tell you how to pay"}
@@ -90,7 +87,7 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
           {a.business.phone ? (
             <a
               href={telUrl(a.business.phone)}
-              className="flex min-h-11 items-center justify-center rounded-control bg-surface-elevated px-3 text-body font-semibold text-accent shadow-card"
+              className="flex min-h-11 items-center justify-center rounded-control bg-card px-3 text-body font-semibold text-primary border border-border"
             >
               Call
             </a>
@@ -100,7 +97,7 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
               href={whatsappChatUrl(a.business.whatsapp)}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex min-h-11 items-center justify-center rounded-control bg-surface-elevated px-3 text-body font-semibold text-accent shadow-card"
+              className="flex min-h-11 items-center justify-center rounded-control bg-card px-3 text-body font-semibold text-primary border border-border"
             >
               WhatsApp
             </a>
@@ -112,20 +109,20 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
         <section className="grid gap-3" aria-label="Change this booking">
           <Link
             href={`/business/${a.business.slug}/book?reschedule=${a.id}`}
-            className="flex min-h-11 items-center justify-center rounded-control bg-accent px-4 text-body font-semibold text-on-accent"
+            className="flex min-h-11 items-center justify-center rounded-control bg-primary px-4 text-body font-semibold text-on-primary"
           >
             Change time
           </Link>
           <CancelBookingForm appointmentId={a.id} />
         </section>
       ) : live ? (
-        <p className="text-center text-footnote text-text-secondary">
+        <p className="text-center text-small text-ink-muted">
           It&apos;s too late to change this booking online. Please contact the business.
         </p>
       ) : null}
 
       <p className="mt-6 text-center">
-        <Link href="/bookings" className="inline-flex min-h-11 items-center font-medium text-accent">
+        <Link href="/bookings" className="inline-flex min-h-11 items-center font-medium text-primary">
           All your bookings
         </Link>
       </p>
@@ -136,7 +133,7 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex gap-4 px-4 py-3 text-body">
-      <dt className="w-24 shrink-0 text-text-secondary">{label}</dt>
+      <dt className="w-24 shrink-0 text-ink-muted">{label}</dt>
       <dd className="min-w-0">{children}</dd>
     </div>
   );

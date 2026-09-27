@@ -18,14 +18,14 @@ export default async function OnboardingPage() {
 
   return (
     <div className="mx-auto max-w-lg pt-4">
-      <h1 className="text-large-title font-bold tracking-tight">List your business</h1>
-      <p className="mb-6 mt-2 text-body text-text-secondary">
+      <h1 className="text-display font-bold tracking-tight">List your business</h1>
+      <p className="mb-6 mt-2 text-body text-ink-muted">
         Get a free booking page you can share on WhatsApp, Instagram and TikTok. It takes about 5 minutes.
       </p>
       {managed.length > 0 ? (
-        <p className="mb-6 rounded-control bg-fill px-3 py-2 text-callout">
+        <p className="mb-6 rounded-control bg-fill px-3 py-2 text-small">
           You already manage {managed.map((m) => m.business.name).join(", ")}.{" "}
-          <Link href="/dashboard" className="font-medium text-accent">
+          <Link href="/dashboard" className="font-medium text-primary">
             Go to your dashboard
           </Link>
         </p>

@@ -14,7 +14,7 @@ export function ContactForm({ businessId, values }: { businessId: string; values
   const [same, setSame] = useState(values.whatsappSame);
 
   return (
-    <form action={formAction} noValidate className="rounded-card bg-surface-elevated p-5 shadow-card">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 border border-border">
       <input type="hidden" name="businessId" value={businessId} />
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
       <Field
@@ -34,7 +34,7 @@ export function ContactForm({ businessId, values }: { businessId: string; values
           name="whatsappSameAsPhone"
           checked={same}
           onChange={(e) => setSame(e.target.checked)}
-          className="size-5 accent-accent"
+          className="size-5 accent-primary"
         />
         I use this number on WhatsApp
       </label>

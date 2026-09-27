@@ -18,32 +18,32 @@ export function CreateBusinessForm({ categories }: { categories: Category[] }) {
   const [state, formAction] = useActionState<FormState, FormData>(createBusinessAction, {});
 
   return (
-    <form action={formAction} noValidate className="rounded-card bg-surface-elevated p-5 shadow-card">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 border border-border">
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
 
       <fieldset className="mb-5">
-        <legend className="mb-2 text-callout font-medium">Who works at your business?</legend>
+        <legend className="mb-2 text-small font-medium">Who works at your business?</legend>
         <div className="grid gap-2 sm:grid-cols-2">
           {kinds.map((kind) => (
             <label
               key={kind.value}
-              className="flex min-h-11 cursor-pointer items-start gap-3 rounded-control border border-separator p-3 has-[:checked]:border-accent has-[:checked]:bg-accent/5"
+              className="flex min-h-11 cursor-pointer items-start gap-3 rounded-control border border-border p-3 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
             >
               <input
                 type="radio"
                 name="kind"
                 value={kind.value}
                 defaultChecked={valueOf(state.values, "kind", "solo") === kind.value}
-                className="mt-1 accent-accent"
+                className="mt-1 accent-primary"
               />
               <span>
                 <span className="block text-body font-medium">{kind.title}</span>
-                <span className="block text-footnote text-text-secondary">{kind.detail}</span>
+                <span className="block text-small text-ink-muted">{kind.detail}</span>
               </span>
             </label>
           ))}
         </div>
-        {state.fieldErrors?.kind ? <p className="mt-1.5 text-footnote text-danger">{state.fieldErrors.kind}</p> : null}
+        {state.fieldErrors?.kind ? <p className="mt-1.5 text-small text-danger">{state.fieldErrors.kind}</p> : null}
       </fieldset>
 
       <Field
@@ -76,7 +76,7 @@ export function CreateBusinessForm({ categories }: { categories: Category[] }) {
       </SelectField>
 
       <SubmitButton pendingLabel="Creating…">Continue</SubmitButton>
-      <p className="mt-3 text-center text-footnote text-text-secondary">
+      <p className="mt-3 text-center text-small text-ink-muted">
         You can change all of this later. Nothing is public until you publish.
       </p>
     </form>

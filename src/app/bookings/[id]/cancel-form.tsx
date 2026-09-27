@@ -19,14 +19,14 @@ export function CancelBookingForm({ appointmentId }: { appointmentId: string }) 
         type="button"
         variant="plain"
         onClick={() => setAsking(true)}
-        className="w-full rounded-card bg-surface-elevated text-danger shadow-card"
+        className="w-full rounded-card bg-card text-danger border border-border"
       >
         Cancel booking
       </Button>
     );
   }
   return (
-    <form action={formAction} className="rounded-card bg-surface-elevated p-5 shadow-card">
+    <form action={formAction} className="rounded-card bg-card p-5 border border-border">
       <input type="hidden" name="appointmentId" value={appointmentId} />
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
       <Field

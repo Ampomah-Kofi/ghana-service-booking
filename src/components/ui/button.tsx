@@ -4,8 +4,8 @@ type Variant = "primary" | "plain";
 
 const styles: Record<Variant, string> = {
   primary:
-    "w-full bg-accent text-on-accent font-semibold hover:bg-accent-pressed active:bg-accent-pressed disabled:opacity-50",
-  plain: "text-accent font-medium hover:opacity-80 disabled:opacity-40",
+    "w-full bg-primary text-on-primary font-semibold hover:bg-primary-hover active:bg-primary-hover disabled:opacity-50",
+  plain: "text-primary font-medium hover:opacity-80 disabled:opacity-40",
 };
 
 /** 44px minimum tap target (docs/design.md §3). */
@@ -17,7 +17,7 @@ export function Button({
   return (
     <button
       {...props}
-      className={`inline-flex min-h-11 items-center justify-center rounded-control px-4 text-body transition-colors ${styles[variant]} ${className}`}
+      className={`inline-flex min-h-12 items-center justify-center rounded-control px-4 text-body transition-colors ${styles[variant]} ${className}`}
     />
   );
 }

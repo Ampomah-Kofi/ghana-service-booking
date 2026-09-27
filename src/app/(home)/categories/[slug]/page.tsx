@@ -36,12 +36,12 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
   ]);
 
   const chip = (active: boolean) =>
-    `inline-flex min-h-9 items-center rounded-full px-3.5 text-callout whitespace-nowrap ${active ? "bg-text-primary text-surface" : "bg-fill text-text-primary"}`;
+    `inline-flex min-h-9 items-center rounded-full px-3.5 text-small whitespace-nowrap ${active ? "bg-ink text-surface" : "bg-fill text-ink"}`;
 
   return (
     <>
-      <h1 className="text-large-title font-bold tracking-tight">{category.name}</h1>
-      <p className="mb-4 mt-1 text-callout text-text-secondary">
+      <h1 className="text-display font-bold tracking-tight">{category.name}</h1>
+      <p className="mb-4 mt-1 text-small text-ink-muted">
         {result.total === 1 ? "1 professional" : `${result.total} professionals`}
         {result.interpretation.place ? ` in ${result.interpretation.place}` : ""}
       </p>
@@ -66,15 +66,15 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
         </ul>
       </nav>
       {result.notice ? (
-        <p role="status" className="mb-4 rounded-control bg-fill px-3 py-2 text-callout">
+        <p role="status" className="mb-4 rounded-control bg-fill px-3 py-2 text-small">
           {result.notice}
         </p>
       ) : null}
       {result.results.length === 0 ? (
-        <div className="rounded-card bg-surface-elevated p-6 text-center shadow-card">
-          <p className="text-title-2 font-semibold">No {category.name.toLowerCase()} yet</p>
-          <p className="mt-2 text-body text-text-secondary">New professionals join every week.</p>
-          <Link href="/onboarding" className="mt-3 inline-flex min-h-11 items-center font-medium text-accent">
+        <div className="rounded-card bg-card p-6 text-center border border-border">
+          <p className="text-title font-semibold">No {category.name.toLowerCase()} yet</p>
+          <p className="mt-2 text-body text-ink-muted">New professionals join every week.</p>
+          <Link href="/onboarding" className="mt-3 inline-flex min-h-11 items-center font-medium text-primary">
             Are you one? List your business
           </Link>
         </div>

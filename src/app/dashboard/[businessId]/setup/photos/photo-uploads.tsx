@@ -50,7 +50,7 @@ export function LogoUpload({ businessId, hasLogo }: { businessId: string; hasLog
     <div>
       <FormMessage tone="error" message={picker.error ?? state.message} />
       <FormMessage tone="notice" message={state.notice} />
-      <label className="inline-flex min-h-11 cursor-pointer items-center rounded-control bg-fill px-4 text-body font-medium text-accent">
+      <label className="inline-flex min-h-11 cursor-pointer items-center rounded-control bg-fill px-4 text-body font-medium text-primary">
         {working ? "Uploading…" : hasLogo ? "Change logo" : "Upload logo"}
         <input type="file" accept="image/*" className="sr-only" disabled={working} onChange={picker.handle} />
       </label>
@@ -80,11 +80,11 @@ export function PhotoUpload({ businessId, count }: { businessId: string; count: 
     <div>
       <FormMessage tone="error" message={picker.error ?? state.message} />
       <label
-        className={`flex aspect-square w-full cursor-pointer flex-col items-center justify-center rounded-control border-2 border-dashed border-separator text-center text-callout font-medium text-accent ${
+        className={`flex aspect-square w-full cursor-pointer flex-col items-center justify-center rounded-control border-2 border-dashed border-border text-center text-small font-medium text-primary ${
           full ? "pointer-events-none opacity-40" : ""
         }`}
       >
-        <span aria-hidden="true" className="text-title-1 leading-none">
+        <span aria-hidden="true" className="text-display leading-none">
           +
         </span>
         <span>{working ? "Uploading…" : full ? "Photo limit reached" : "Add photo"}</span>

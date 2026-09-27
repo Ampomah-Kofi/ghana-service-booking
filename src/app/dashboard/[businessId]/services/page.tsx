@@ -18,10 +18,10 @@ export default async function ServicesPage({ params }: PageProps<"/dashboard/[bu
   return (
     <>
       <div className="mb-4 flex items-end justify-between gap-3">
-        <h1 className="text-large-title font-bold tracking-tight">Services</h1>
+        <h1 className="text-display font-bold tracking-tight">Services</h1>
         <Link
           href={`/dashboard/${business.id}/services/new`}
-          className="min-h-11 content-center font-medium text-accent"
+          className="min-h-11 content-center font-medium text-primary"
         >
           Add service
         </Link>
@@ -32,7 +32,7 @@ export default async function ServicesPage({ params }: PageProps<"/dashboard/[bu
         currency={business.currency}
         staffNames={business.kind === "team" ? new Map(staff.map((s) => [s.id, s.displayName])) : null}
       />
-      <p className="mt-3 text-footnote text-text-secondary">Use the arrows to set the order customers see.</p>
+      <p className="mt-3 text-small text-ink-muted">Use the arrows to set the order customers see.</p>
     </>
   );
 }

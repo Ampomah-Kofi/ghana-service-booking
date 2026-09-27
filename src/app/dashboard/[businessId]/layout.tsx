@@ -8,11 +8,11 @@ export default async function BusinessDashboardLayout({ children, params }: Layo
 
   return (
     <div>
-      <nav className="mb-4 flex items-center justify-between gap-3 text-callout" aria-label="Business">
+      <nav className="mb-4 flex items-center justify-between gap-3 text-small" aria-label="Business">
         <Link href={`/dashboard/${business.id}`} className="min-w-0 truncate font-semibold">
           {business.name}
         </Link>
-        <Link href={`/business/${business.slug}`} className="shrink-0 font-medium text-accent">
+        <Link href={`/business/${business.slug}`} className="shrink-0 font-medium text-primary">
           {business.status === "published" ? "View page" : "Preview"}
         </Link>
       </nav>

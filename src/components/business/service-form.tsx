@@ -31,7 +31,7 @@ export function ServiceForm({ businessId, serviceId, returnTo, currencySymbol, s
   const e = state.fieldErrors ?? {};
 
   return (
-    <form action={formAction} noValidate className="rounded-card bg-surface-elevated p-5 shadow-card">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 border border-border">
       <input type="hidden" name="businessId" value={businessId} />
       <input type="hidden" name="returnTo" value={returnTo} />
       {serviceId ? <input type="hidden" name="serviceId" value={serviceId} /> : null}
@@ -49,11 +49,11 @@ export function ServiceForm({ businessId, serviceId, returnTo, currencySymbol, s
 
       <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3">
         <div>
-          <label htmlFor="price" className="mb-1.5 block text-callout font-medium">
+          <label htmlFor="price" className="mb-1.5 block text-small font-medium">
             Price
           </label>
-          <div className="flex min-h-11 items-center rounded-control border border-separator bg-surface-elevated focus-within:border-accent">
-            <span className="pl-3 text-body text-text-secondary">{currencySymbol}</span>
+          <div className="flex min-h-11 items-center rounded-control border border-border bg-card focus-within:border-primary">
+            <span className="pl-3 text-body text-ink-muted">{currencySymbol}</span>
             <input
               id="price"
               name="price"
@@ -66,7 +66,7 @@ export function ServiceForm({ businessId, serviceId, returnTo, currencySymbol, s
             />
           </div>
           {e.price ? (
-            <p id="price-error" role="alert" className="mt-1.5 text-footnote text-danger">
+            <p id="price-error" role="alert" className="mt-1.5 text-small text-danger">
               {e.price}
             </p>
           ) : null}
@@ -120,7 +120,7 @@ export function ServiceForm({ businessId, serviceId, returnTo, currencySymbol, s
 
       {staff ? (
         <fieldset className="mb-4">
-          <legend className="mb-1.5 text-callout font-medium">Who does this service?</legend>
+          <legend className="mb-1.5 text-small font-medium">Who does this service?</legend>
           <div className="grid gap-1">
             {staff.map((s) => (
               <label key={s.id} className="flex min-h-11 items-center gap-3 text-body">
@@ -129,14 +129,14 @@ export function ServiceForm({ businessId, serviceId, returnTo, currencySymbol, s
                   name="staffIds"
                   value={s.id}
                   defaultChecked={listOf(state.values, "staffIds", values.staffIds).includes(s.id)}
-                  className="size-5 accent-accent"
+                  className="size-5 accent-primary"
                 />
                 {s.name}
               </label>
             ))}
           </div>
           {e.staffIds ? (
-            <p role="alert" className="mt-1.5 text-footnote text-danger">
+            <p role="alert" className="mt-1.5 text-small text-danger">
               {e.staffIds}
             </p>
           ) : null}
@@ -146,7 +146,7 @@ export function ServiceForm({ businessId, serviceId, returnTo, currencySymbol, s
       <label className="mb-5 flex min-h-11 items-center justify-between gap-3 text-body">
         <span>
           Show on my page
-          <span className="block text-footnote text-text-secondary">Turn off to hide it without deleting it.</span>
+          <span className="block text-small text-ink-muted">Turn off to hide it without deleting it.</span>
         </span>
         <input
           type="checkbox"

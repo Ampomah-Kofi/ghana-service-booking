@@ -16,7 +16,7 @@ export default async function NewServicePage({
 
   return (
     <>
-      <h1 className="mb-4 text-large-title font-bold tracking-tight">Add a service</h1>
+      <h1 className="mb-4 text-display font-bold tracking-tight">Add a service</h1>
       <ServiceForm
         businessId={business.id}
         returnTo={returnTo === "setup" ? "setup" : "services"}

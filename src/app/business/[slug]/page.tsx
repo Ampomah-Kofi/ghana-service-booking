@@ -12,7 +12,9 @@ import { listServices } from "@/server/businesses/catalog";
 import { getBusinessHours } from "@/server/businesses/schedule";
 import { listStaff } from "@/server/businesses/team";
 import { describeWeek, formatDuration } from "@/lib/hours";
-import { formatMoney } from "@/lib/money";
+import { formatMoney, formatPrice } from "@/lib/money";
+import { ServiceRow } from "@/components/business/service-row";
+import { ChatIcon, PhoneIcon } from "@/components/ui/icons";
 import { createUserClient } from "@/server/db/supabase-server";
 
 // RLS decides visibility: everyone sees published pages; the business's team also sees drafts (preview).
@@ -75,9 +77,9 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
   return (
     <article className="-mt-2">
       {business.status !== "published" ? (
-        <p role="status" className="mb-4 rounded-control bg-fill px-3 py-2 text-callout">
+        <p role="status" className="mb-4 rounded-control bg-fill px-3 py-2 text-small">
           <strong>Preview.</strong> Only your team can see this page.{" "}
-          <Link href={`/dashboard/${business.id}`} className="font-medium text-accent">
+          <Link href={`/dashboard/${business.id}`} className="font-medium text-primary">
             Publish it from your dashboard
           </Link>
         </p>
@@ -103,14 +105,12 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
               alt=""
               width={64}
               height={64}
-              className="size-16 shrink-0 rounded-full object-cover shadow-card"
+              className="size-16 shrink-0 rounded-full object-cover border border-border"
             />
           ) : null}
           <div className="min-w-0">
-            <h1 className="text-title-1 font-bold tracking-tight">{business.name}</h1>
-            <p className="text-callout text-text-secondary">
-              {[business.category?.name, place].filter(Boolean).join(" · ")}
-            </p>
+            <h1 className="text-display font-bold tracking-tight">{business.name}</h1>
+            <p className="text-small text-ink-muted">{[business.category?.name, place].filter(Boolean).join(" · ")}</p>
           </div>
         </div>
       </header>
@@ -119,8 +119,9 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
         {business.phone ? (
           <a
             href={telUrl(business.phone)}
-            className="flex min-h-11 items-center justify-center rounded-control bg-accent px-3 text-body font-semibold text-on-accent"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-control border border-border bg-card px-3 text-body font-semibold text-ink"
           >
+            <PhoneIcon />
             Call
           </a>
         ) : null}
@@ -129,61 +130,54 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
             href={whatsappChatUrl(business.whatsapp)}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex min-h-11 items-center justify-center rounded-control bg-surface-elevated px-3 text-body font-semibold text-accent shadow-card"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-control border border-border bg-card px-3 text-body font-semibold text-whatsapp"
           >
+            <ChatIcon />
             WhatsApp
           </a>
         ) : null}
       </section>
 
       <section className="mb-6" aria-labelledby="services-heading">
-        <h2 id="services-heading" className="mb-2 text-title-2 font-semibold">
+        <h2 id="services-heading" className="mb-2 text-title font-semibold">
           Services
         </h2>
         {services.length === 0 ? (
-          <p className="rounded-card bg-surface-elevated p-4 text-body text-text-secondary shadow-card">
+          <p className="rounded-card bg-card p-4 text-body text-ink-muted border border-border">
             Services coming soon.
           </p>
         ) : (
-          <ul className="divide-y divide-separator overflow-hidden rounded-card bg-surface-elevated shadow-card">
+          <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
             {services.map((s) => (
-              <li key={s.id} className="flex items-start justify-between gap-4 px-4 py-3">
-                <div className="min-w-0">
-                  <p className="text-body font-medium">{s.name}</p>
-                  <p className="text-footnote text-text-secondary">
-                    {formatDuration(s.durationMinutes)}
-                    {business.kind === "team" && s.staffIds.length > 0
-                      ? ` · with ${s.staffIds
+              <li key={s.id}>
+                <ServiceRow
+                  href={bookable(s.staffIds) ? bookHref(s.id) : null}
+                  name={s.name}
+                  meta={[
+                    formatDuration(s.durationMinutes),
+                    business.kind === "team" && s.staffIds.length > 0
+                      ? `with ${s.staffIds
                           .map((id) => staffName.get(id))
                           .filter(Boolean)
                           .join(", ")}`
-                      : ""}
-                  </p>
-                  {s.description ? <p className="mt-1 text-footnote text-text-secondary">{s.description}</p> : null}
-                </div>
-                <div className="flex shrink-0 flex-col items-end gap-1">
-                  <p className="text-body font-semibold tabular-nums">
-                    {s.priceType === "from" ? (
-                      <span className="text-footnote font-normal text-text-secondary">from </span>
-                    ) : null}
-                    {formatMoney({ amountMinor: s.priceMinor, currency: s.currencyCode }, business.currency)}
-                  </p>
-                  {bookable(s.staffIds) ? (
-                    <Link
-                      href={bookHref(s.id)}
-                      aria-label={`Book ${s.name}`}
-                      className="inline-flex min-h-11 items-center rounded-full bg-fill px-4 text-callout font-semibold text-accent"
-                    >
-                      Book
-                    </Link>
-                  ) : null}
-                </div>
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                  description={s.description}
+                  price={formatPrice(s.priceMinor, s.priceType, business.currency)}
+                  deposit={
+                    s.depositMinor
+                      ? `${formatMoney({ amountMinor: s.depositMinor, currency: business.currency.code }, business.currency)} deposit to book`
+                      : null
+                  }
+                />
               </li>
             ))}
           </ul>
         )}
         {services.length > 0 && !canBook ? (
-          <p className="mt-2 text-footnote text-text-secondary">
+          <p className="mt-2 text-small text-ink-muted">
             To book, call or message {business.phone ? formatPhoneInternational(business.phone) : "on WhatsApp"}.
           </p>
         ) : null}
@@ -191,7 +185,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
 
       {business.kind === "team" && team.length > 1 ? (
         <section className="mb-6" aria-labelledby="team-heading">
-          <h2 id="team-heading" className="mb-2 text-title-2 font-semibold">
+          <h2 id="team-heading" className="mb-2 text-title font-semibold">
             Team
           </h2>
           <ul className="flex gap-4 overflow-x-auto pb-1">
@@ -199,13 +193,13 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
               <li key={member.id} className="flex w-20 shrink-0 flex-col items-center text-center">
                 <span
                   aria-hidden="true"
-                  className="mb-1 flex size-14 items-center justify-center rounded-full bg-surface-elevated text-title-2 font-semibold text-text-secondary shadow-card"
+                  className="mb-1 flex size-14 items-center justify-center rounded-full bg-card text-title font-semibold text-ink-muted border border-border"
                 >
                   {member.displayName.charAt(0).toUpperCase()}
                 </span>
-                <span className="w-full truncate text-footnote font-medium">{member.displayName}</span>
+                <span className="w-full truncate text-small font-medium">{member.displayName}</span>
                 {member.roleTitle ? (
-                  <span className="w-full truncate text-footnote text-text-secondary">{member.roleTitle}</span>
+                  <span className="w-full truncate text-small text-ink-muted">{member.roleTitle}</span>
                 ) : null}
               </li>
             ))}
@@ -215,7 +209,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
 
       {business.description ? (
         <section className="mb-6" aria-labelledby="about-heading">
-          <h2 id="about-heading" className="mb-2 text-title-2 font-semibold">
+          <h2 id="about-heading" className="mb-2 text-title font-semibold">
             About
           </h2>
           <p className="whitespace-pre-line text-body">{business.description}</p>
@@ -223,22 +217,22 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
       ) : null}
 
       {loc ? (
-        <section className="mb-6 rounded-card bg-surface-elevated p-4 shadow-card" aria-labelledby="where-heading">
-          <h2 id="where-heading" className="mb-2 text-title-2 font-semibold">
+        <section className="mb-6 rounded-card bg-card p-4 border border-border" aria-labelledby="where-heading">
+          <h2 id="where-heading" className="mb-2 text-title font-semibold">
             Where to find us
           </h2>
           <address className="grid gap-1 text-body not-italic">
             {loc.addressLine ? <span>{loc.addressLine}</span> : null}
             {place ? <span>{[place, loc.regionName].filter(Boolean).join(", ")}</span> : null}
-            {loc.landmark ? <span className="text-text-secondary">Landmark: {loc.landmark}</span> : null}
-            {loc.directions ? <span className="text-text-secondary">{loc.directions}</span> : null}
+            {loc.landmark ? <span className="text-ink-muted">Landmark: {loc.landmark}</span> : null}
+            {loc.directions ? <span className="text-ink-muted">{loc.directions}</span> : null}
           </address>
           {loc.lat !== null && loc.lng !== null ? (
             <a
               href={mapsUrl(loc.lat, loc.lng)}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 inline-flex min-h-11 items-center font-medium text-accent"
+              className="mt-2 inline-flex min-h-11 items-center font-medium text-primary"
             >
               Open in Maps
             </a>
@@ -248,14 +242,14 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
 
       {hours.length > 0 ? (
         <section className="mb-6" aria-labelledby="hours-heading">
-          <h2 id="hours-heading" className="mb-2 text-title-2 font-semibold">
+          <h2 id="hours-heading" className="mb-2 text-title font-semibold">
             Opening hours
           </h2>
-          <dl className="divide-y divide-separator overflow-hidden rounded-card bg-surface-elevated shadow-card">
+          <dl className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
             {week.map((day) => (
               <div key={day.day} className="flex justify-between gap-4 px-4 py-2.5 text-body">
                 <dt>{day.label}</dt>
-                <dd className={`text-right tabular-nums ${day.ranges.length ? "" : "text-text-secondary"}`}>
+                <dd className={`text-right tabular-nums ${day.ranges.length ? "" : "text-ink-muted"}`}>
                   {day.ranges.length ? day.ranges.join(", ") : "Closed"}
                 </dd>
               </div>
@@ -266,7 +260,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
 
       {business.photos.length > 0 ? (
         <section className="mb-6" aria-labelledby="work-heading">
-          <h2 id="work-heading" className="mb-2 text-title-2 font-semibold">
+          <h2 id="work-heading" className="mb-2 text-title font-semibold">
             Our work
           </h2>
           <ul className="grid grid-cols-3 gap-1.5">
@@ -291,7 +285,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
 
       {business.status === "published" ? (
         <section className="mb-6" aria-labelledby="share-heading">
-          <h2 id="share-heading" className="mb-2 text-title-2 font-semibold">
+          <h2 id="share-heading" className="mb-2 text-title font-semibold">
             Share
           </h2>
           <SharePanel
@@ -304,10 +298,10 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
       ) : null}
 
       {canBook ? (
-        <div className="sticky bottom-0 -mx-4 border-t border-separator bg-surface-grouped/85 px-4 py-3 backdrop-blur supports-[not(backdrop-filter:blur(1px))]:bg-surface-grouped">
+        <div className="sticky bottom-0 -mx-4 border-t border-border bg-surface px-4 py-3 shadow-sheet">
           <Link
             href={bookHref()}
-            className="flex min-h-11 w-full items-center justify-center rounded-control bg-accent px-4 text-body font-semibold text-on-accent"
+            className="flex min-h-11 w-full items-center justify-center rounded-control bg-primary px-4 text-body font-semibold text-on-primary"
           >
             Book an appointment
           </Link>

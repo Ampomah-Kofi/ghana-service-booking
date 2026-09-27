@@ -12,6 +12,7 @@ Changing an accepted decision means writing a new ADR (see CLAUDE.md §Architect
 | [0005](0005-payments-abstraction.md) | Provider-agnostic payments | Accepted |
 | [0006](0006-notifications-abstraction.md) | Notification outbox + channel providers | Accepted |
 | [0007](0007-search.md) | Search on Postgres (FTS + trigram + PostGIS) | Accepted |
-| [0008](0008-design-language.md) | Apple-inspired design language | Accepted |
+| [0008](0008-design-language.md) | Apple-inspired design language | Accepted, amended by 0009 |
+| [0009](0009-combined-design-system.md) | Combined design system (Apple principles + owner DESIGN.md) | Accepted |
 
 Accepted 2026-09-27 with Phase 0 approval.

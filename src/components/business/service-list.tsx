@@ -15,13 +15,13 @@ type Props = {
 export function ServiceList({ businessId, services, currency, staffNames, editQuery = "" }: Props) {
   if (services.length === 0) {
     return (
-      <p className="rounded-card bg-surface-elevated p-4 text-body text-text-secondary shadow-card">
+      <p className="rounded-card bg-card p-4 text-body text-ink-muted border border-border">
         No services yet. Add what you offer, with prices and how long each takes.
       </p>
     );
   }
   return (
-    <ul className="divide-y divide-separator overflow-hidden rounded-card bg-surface-elevated shadow-card">
+    <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
       {services.map((s, i) => (
         <li key={s.id} className="flex items-center gap-2 pr-2">
           <Link
@@ -31,12 +31,12 @@ export function ServiceList({ businessId, services, currency, staffNames, editQu
             <span className="truncate text-body font-medium">
               {s.name}
               {s.isActive ? null : (
-                <span className="ml-2 rounded-full bg-fill px-2 py-0.5 text-footnote font-normal text-text-secondary">
+                <span className="ml-2 rounded-full bg-fill px-2 py-0.5 text-small font-normal text-ink-muted">
                   Hidden
                 </span>
               )}
             </span>
-            <span className="text-footnote text-text-secondary tabular-nums">
+            <span className="text-small text-ink-muted tabular-nums">
               {s.priceType === "from" ? "From " : ""}
               {formatMoney({ amountMinor: s.priceMinor, currency: s.currencyCode }, currency)} ·{" "}
               {formatDuration(s.durationMinutes)}
@@ -59,7 +59,7 @@ export function ServiceList({ businessId, services, currency, staffNames, editQu
               value="up"
               disabled={i === 0}
               aria-label={`Move ${s.name} up`}
-              className="size-8 text-text-secondary disabled:opacity-30"
+              className="size-8 text-ink-muted disabled:opacity-30"
             >
               ▲
             </button>
@@ -69,7 +69,7 @@ export function ServiceList({ businessId, services, currency, staffNames, editQu
               value="down"
               disabled={i === services.length - 1}
               aria-label={`Move ${s.name} down`}
-              className="size-8 text-text-secondary disabled:opacity-30"
+              className="size-8 text-ink-muted disabled:opacity-30"
             >
               ▼
             </button>

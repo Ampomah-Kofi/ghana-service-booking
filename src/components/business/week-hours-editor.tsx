@@ -46,7 +46,7 @@ export function WeekHoursEditor({ name, initial }: { name: string; initial: Hour
   }
 
   const timeInput =
-    "min-h-11 min-w-0 flex-1 rounded-control border border-separator bg-surface-elevated px-2 text-body tabular-nums outline-none focus:border-accent";
+    "min-h-11 min-w-0 flex-1 rounded-control border border-border bg-card px-2 text-body tabular-nums outline-none focus:border-primary";
 
   return (
     <div>
@@ -55,7 +55,7 @@ export function WeekHoursEditor({ name, initial }: { name: string; initial: Hour
         name={name}
         value={JSON.stringify(ranges.map((r) => ({ ...r, closes: r.closes === "00:00" ? "24:00" : r.closes })))}
       />
-      <ul className="divide-y divide-separator overflow-hidden rounded-card bg-surface-elevated shadow-card">
+      <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
         {WEEKDAYS.map(({ day, long }) => {
           const dayRanges = ranges.map((r, index) => ({ ...r, index })).filter((r) => r.weekday === day);
           const open = dayRanges.length > 0;
@@ -66,7 +66,7 @@ export function WeekHoursEditor({ name, initial }: { name: string; initial: Hour
                   {long}
                 </label>
                 <div className="flex items-center gap-3">
-                  <span className="text-footnote text-text-secondary">{open ? "Open" : "Closed"}</span>
+                  <span className="text-small text-ink-muted">{open ? "Open" : "Closed"}</span>
                   <input
                     id={`${id}-${day}`}
                     type="checkbox"
@@ -88,7 +88,7 @@ export function WeekHoursEditor({ name, initial }: { name: string; initial: Hour
                         onChange={(e) => update(r.index, { opens: e.target.value })}
                         className={timeInput}
                       />
-                      <span aria-hidden="true" className="text-text-secondary">
+                      <span aria-hidden="true" className="text-ink-muted">
                         –
                       </span>
                       <input
@@ -105,7 +105,7 @@ export function WeekHoursEditor({ name, initial }: { name: string; initial: Hour
                         <button
                           type="button"
                           onClick={() => setRanges((current) => current.filter((_, i) => i !== r.index))}
-                          className="flex size-11 shrink-0 items-center justify-center rounded-full text-title-2 text-danger"
+                          className="flex size-11 shrink-0 items-center justify-center rounded-full text-title text-danger"
                           aria-label={`Remove ${long} period ${n + 1}`}
                         >
                           <span aria-hidden="true">⊖</span>
@@ -117,14 +117,14 @@ export function WeekHoursEditor({ name, initial }: { name: string; initial: Hour
                     <button
                       type="button"
                       onClick={() => addBreak(day)}
-                      className="min-h-11 text-callout font-medium text-accent"
+                      className="min-h-11 text-small font-medium text-primary"
                     >
                       Add a break
                     </button>
                     <button
                       type="button"
                       onClick={() => copyToAll(day)}
-                      className="min-h-11 text-callout font-medium text-accent"
+                      className="min-h-11 text-small font-medium text-primary"
                     >
                       Copy to other open days
                     </button>
@@ -136,7 +136,7 @@ export function WeekHoursEditor({ name, initial }: { name: string; initial: Hour
         })}
       </ul>
       {problem ? (
-        <p role="alert" className="mt-3 rounded-control bg-danger/10 px-3 py-2 text-callout text-danger">
+        <p role="alert" className="mt-3 rounded-control bg-danger/10 px-3 py-2 text-small text-danger">
           {problem}
         </p>
       ) : null}

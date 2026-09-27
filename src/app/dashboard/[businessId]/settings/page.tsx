@@ -14,8 +14,8 @@ export default async function SettingsPage({ params }: PageProps<"/dashboard/[bu
 
   return (
     <>
-      <h1 className="mb-5 text-large-title font-bold tracking-tight">Settings</h1>
-      <h2 className="mb-2 px-4 text-footnote font-medium uppercase tracking-wide text-text-secondary">Booking rules</h2>
+      <h1 className="mb-5 text-display font-bold tracking-tight">Settings</h1>
+      <h2 className="mb-2 px-4 text-heading font-semibold text-ink">Booking rules</h2>
       <BookingRulesForm
         businessId={business.id}
         values={{
@@ -28,10 +28,8 @@ export default async function SettingsPage({ params }: PageProps<"/dashboard/[bu
           autoConfirm: rules.auto_confirm,
         }}
       />
-      <h2 className="mb-2 mt-8 px-4 text-footnote font-medium uppercase tracking-wide text-text-secondary">
-        Business profile
-      </h2>
-      <ul className="divide-y divide-separator overflow-hidden rounded-card bg-surface-elevated shadow-card">
+      <h2 className="mb-2 mt-8 px-4 text-heading font-semibold text-ink">Business profile</h2>
+      <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
         {[
           ["about", "Name, category and description"],
           ["location", "Location"],
@@ -44,7 +42,7 @@ export default async function SettingsPage({ params }: PageProps<"/dashboard/[bu
               className="flex min-h-11 items-center justify-between px-4 py-3 text-body hover:bg-fill"
             >
               {label}
-              <span aria-hidden="true" className="text-text-secondary">
+              <span aria-hidden="true" className="text-ink-muted">
                 ›
               </span>
             </Link>

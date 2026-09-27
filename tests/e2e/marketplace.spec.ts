@@ -15,7 +15,7 @@ test("search from the home page and open a provider", async ({ page }) => {
 
   await expect(page.getByRole("heading", { level: 1, name: "Kwame Cuts" })).toBeVisible();
   await expect(page.getByText("Skin fade")).toBeVisible();
-  await expect(page.getByText("GH₵80")).toBeVisible();
+  await expect(page.getByText("GH₵ 80")).toBeVisible();
 });
 
 test("a town with no matches explains itself instead of showing nothing", async ({ page }) => {

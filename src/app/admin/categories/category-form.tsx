@@ -71,7 +71,7 @@ export function CategoryForm({ values }: { values: Values }) {
             type="checkbox"
             name="isActive"
             defaultChecked={checkedOf(state.values, "isActive", values.isActive)}
-            className="size-5 accent-accent"
+            className="size-5 accent-primary"
           />
           Visible to everyone
         </label>

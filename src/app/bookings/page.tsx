@@ -14,17 +14,17 @@ export default async function BookingsPage() {
 
   return (
     <>
-      <h1 className="mb-6 text-large-title font-bold tracking-tight">Your bookings</h1>
+      <h1 className="mb-6 text-display font-bold tracking-tight">Your bookings</h1>
       <GroupedSection title="Upcoming">
         {upcoming.length === 0 ? (
-          <p className="px-4 py-3 text-body text-text-secondary">
+          <p className="px-4 py-3 text-body text-ink-muted">
             Nothing booked yet.{" "}
-            <Link href="/" className="font-medium text-accent">
+            <Link href="/" className="font-medium text-primary">
               Find a professional
             </Link>
           </p>
         ) : (
-          <ul className="divide-y divide-separator">
+          <ul className="divide-y divide-border">
             {upcoming.map((a) => (
               <AppointmentRow
                 key={a.id}
@@ -38,7 +38,7 @@ export default async function BookingsPage() {
       </GroupedSection>
       {past.length > 0 ? (
         <GroupedSection title="Past and cancelled">
-          <ul className="divide-y divide-separator">
+          <ul className="divide-y divide-border">
             {past.map((a) => (
               <AppointmentRow
                 key={a.id}

@@ -33,7 +33,7 @@ export default async function ServicesStepPage({ params }: PageProps<"/dashboard
       />
       <Link
         href={`/dashboard/${business.id}/services/new?returnTo=setup`}
-        className="mt-3 flex min-h-11 items-center justify-center rounded-control bg-fill text-body font-medium text-accent"
+        className="mt-3 flex min-h-11 items-center justify-center rounded-control bg-fill text-body font-medium text-primary"
       >
         {services.length === 0 ? "Add your first service" : "Add another service"}
       </Link>
@@ -42,8 +42,8 @@ export default async function ServicesStepPage({ params }: PageProps<"/dashboard
         aria-disabled={services.length === 0}
         className={`mt-6 flex min-h-11 items-center justify-center rounded-control px-4 text-body font-semibold ${
           services.length === 0
-            ? "pointer-events-none bg-fill text-text-secondary"
-            : "bg-accent text-on-accent hover:bg-accent-pressed"
+            ? "pointer-events-none bg-fill text-ink-muted"
+            : "bg-primary text-on-primary hover:bg-primary-hover"
         }`}
       >
         Continue

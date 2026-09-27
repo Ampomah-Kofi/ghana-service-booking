@@ -13,12 +13,12 @@ export default async function TeamPage({ params }: PageProps<"/dashboard/[busine
   return (
     <>
       <div className="mb-4 flex items-end justify-between gap-3">
-        <h1 className="text-large-title font-bold tracking-tight">Team</h1>
-        <Link href={`/dashboard/${business.id}/team/new`} className="min-h-11 content-center font-medium text-accent">
+        <h1 className="text-display font-bold tracking-tight">Team</h1>
+        <Link href={`/dashboard/${business.id}/team/new`} className="min-h-11 content-center font-medium text-primary">
           Add member
         </Link>
       </div>
-      <ul className="divide-y divide-separator overflow-hidden rounded-card bg-surface-elevated shadow-card">
+      <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
         {staff.map((s) => (
           <li key={s.id}>
             <Link
@@ -27,13 +27,13 @@ export default async function TeamPage({ params }: PageProps<"/dashboard/[busine
             >
               <span
                 aria-hidden="true"
-                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-fill font-semibold text-text-secondary"
+                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-fill font-semibold text-ink-muted"
               >
                 {s.displayName.charAt(0).toUpperCase()}
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-body font-medium">{s.displayName}</span>
-                <span className="block truncate text-footnote text-text-secondary">
+                <span className="block truncate text-small text-ink-muted">
                   {[
                     s.roleTitle,
                     `${s.serviceIds.length} service${s.serviceIds.length === 1 ? "" : "s"}`,
@@ -44,14 +44,14 @@ export default async function TeamPage({ params }: PageProps<"/dashboard/[busine
                     .join(" · ")}
                 </span>
               </span>
-              <span aria-hidden="true" className="text-text-secondary">
+              <span aria-hidden="true" className="text-ink-muted">
                 ›
               </span>
             </Link>
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-footnote text-text-secondary">
+      <p className="mt-3 text-small text-ink-muted">
         Team members don&apos;t need an account to appear on your page. Invite them if they should see their own
         bookings.
       </p>

@@ -8,7 +8,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   if (!(await isPlatformAdmin())) notFound();
   return (
     <div>
-      <p className="mb-2 text-footnote font-medium uppercase tracking-wide text-text-secondary">Admin</p>
+      <p className="mb-2 text-heading font-semibold text-ink">Admin</p>
       {children}
     </div>
   );

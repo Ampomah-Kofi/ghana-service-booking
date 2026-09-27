@@ -19,20 +19,20 @@ export default async function SignInPage({ searchParams }: PageProps<"/sign-in">
 
   return (
     <div className="mx-auto max-w-sm pt-4">
-      <h1 className="text-large-title font-bold tracking-tight">Sign in</h1>
-      <p className="mb-6 mt-2 text-body text-text-secondary">
+      <h1 className="text-display font-bold tracking-tight">Sign in</h1>
+      <p className="mb-6 mt-2 text-body text-ink-muted">
         {method === "phone" ? "Use your phone number. No password needed." : "Sign in with your email and password."}
       </p>
       {params.error === "link" ? (
-        <p role="alert" className="mb-4 rounded-control bg-danger/10 px-3 py-2 text-callout text-danger">
+        <p role="alert" className="mb-4 rounded-control bg-danger/10 px-3 py-2 text-small text-danger">
           That link is invalid or has expired. Please sign in again.
         </p>
       ) : null}
-      <div className="rounded-card bg-surface-elevated p-5 shadow-card">
+      <div className="rounded-card bg-card p-5 border border-border">
         {method === "phone" ? <PhoneSignInForm next={next} /> : <EmailSignInForm next={next} />}
       </div>
-      <p className="mt-6 text-center text-callout">
-        <Link href={otherMethodHref} className="font-medium text-accent">
+      <p className="mt-6 text-center text-small">
+        <Link href={otherMethodHref} className="font-medium text-primary">
           {method === "phone" ? "Use email instead" : "Use phone number instead"}
         </Link>
       </p>

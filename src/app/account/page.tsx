@@ -18,7 +18,7 @@ export default async function AccountPage() {
 
   return (
     <>
-      <h1 className="mb-6 text-large-title font-bold tracking-tight">{profile?.fullName ?? "Your account"}</h1>
+      <h1 className="mb-6 text-display font-bold tracking-tight">{profile?.fullName ?? "Your account"}</h1>
 
       <GroupedSection title="Profile">
         <GroupedRow label="Phone" value={user.phone ? formatPhoneInternational(user.phone) : "Not set"} />
@@ -39,13 +39,13 @@ export default async function AccountPage() {
       <GroupedSection
         title="Your businesses"
         footer={
-          <Link href="/onboarding" className="font-medium text-accent">
+          <Link href="/onboarding" className="font-medium text-primary">
             {memberships.length === 0 ? "List your business for free" : "List another business"}
           </Link>
         }
       >
         {memberships.length === 0 ? (
-          <p className="px-4 py-3 text-body text-text-secondary">You don&apos;t manage any businesses yet.</p>
+          <p className="px-4 py-3 text-body text-ink-muted">You don&apos;t manage any businesses yet.</p>
         ) : (
           memberships.map((m) => {
             const value = `${roleLabel[m.role]}${m.business.status === "published" ? "" : ` · ${m.business.status}`}`;
@@ -61,11 +61,7 @@ export default async function AccountPage() {
       </GroupedSection>
 
       <form action={signOutAction}>
-        <Button
-          type="submit"
-          variant="plain"
-          className="w-full rounded-card bg-surface-elevated text-danger shadow-card"
-        >
+        <Button type="submit" variant="plain" className="w-full rounded-card bg-card text-danger border border-border">
           Sign out
         </Button>
       </form>

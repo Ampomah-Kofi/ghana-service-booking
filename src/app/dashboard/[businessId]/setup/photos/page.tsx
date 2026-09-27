@@ -23,8 +23,8 @@ export default async function PhotosStepPage({ params }: PageProps<"/dashboard/[
         subtitle="Good photos are the biggest reason customers book. Both are optional."
       />
 
-      <section className="mb-8 rounded-card bg-surface-elevated p-5 shadow-card" aria-labelledby="logo-heading">
-        <h2 id="logo-heading" className="mb-3 text-title-2 font-semibold">
+      <section className="mb-8 rounded-card bg-card p-5 border border-border" aria-labelledby="logo-heading">
+        <h2 id="logo-heading" className="mb-3 text-title font-semibold">
           Logo or profile photo
         </h2>
         <div className="flex items-center gap-4">
@@ -39,7 +39,7 @@ export default async function PhotosStepPage({ params }: PageProps<"/dashboard/[
             />
           ) : (
             <div
-              className="flex size-18 items-center justify-center rounded-full bg-fill text-title-2 font-semibold text-text-secondary"
+              className="flex size-18 items-center justify-center rounded-full bg-fill text-title font-semibold text-ink-muted"
               aria-hidden="true"
             >
               {business.name.charAt(0).toUpperCase()}
@@ -50,7 +50,7 @@ export default async function PhotosStepPage({ params }: PageProps<"/dashboard/[
             {business.logoPath ? (
               <form action={removeLogoAction}>
                 <input type="hidden" name="businessId" value={business.id} />
-                <button type="submit" className="min-h-11 text-callout text-danger">
+                <button type="submit" className="min-h-11 text-small text-danger">
                   Remove logo
                 </button>
               </form>
@@ -61,10 +61,10 @@ export default async function PhotosStepPage({ params }: PageProps<"/dashboard/[
 
       <section className="mb-8" aria-labelledby="portfolio-heading">
         <div className="mb-3 flex items-baseline justify-between">
-          <h2 id="portfolio-heading" className="text-title-2 font-semibold">
+          <h2 id="portfolio-heading" className="text-title font-semibold">
             Portfolio
           </h2>
-          <span className="text-footnote text-text-secondary">
+          <span className="text-small text-ink-muted">
             {business.photos.length} of {IMAGE_LIMITS.maxPortfolioPhotos}
           </span>
         </div>
@@ -86,7 +86,7 @@ export default async function PhotosStepPage({ params }: PageProps<"/dashboard/[
                 <button
                   type="submit"
                   aria-label="Remove photo"
-                  className="flex size-8 items-center justify-center rounded-full bg-black/60 text-callout text-white backdrop-blur"
+                  className="flex size-8 items-center justify-center rounded-full bg-black/60 text-small text-white backdrop-blur"
                 >
                   ✕
                 </button>
@@ -97,14 +97,14 @@ export default async function PhotosStepPage({ params }: PageProps<"/dashboard/[
             <PhotoUpload businessId={business.id} count={business.photos.length} />
           </li>
         </ul>
-        <p className="mt-2 text-footnote text-text-secondary">
+        <p className="mt-2 text-small text-ink-muted">
           Photos are resized on your phone before uploading, to save data.
         </p>
       </section>
 
       <Link
         href={`/dashboard/${business.id}?setup=done`}
-        className="flex min-h-11 w-full items-center justify-center rounded-control bg-accent px-4 text-body font-semibold text-on-accent hover:bg-accent-pressed"
+        className="flex min-h-11 w-full items-center justify-center rounded-control bg-primary px-4 text-body font-semibold text-on-primary hover:bg-primary-hover"
       >
         Finish and preview
       </Link>

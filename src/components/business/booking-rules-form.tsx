@@ -28,7 +28,7 @@ export function BookingRulesForm({ businessId, values }: { businessId: string; v
   const [state, formAction] = useActionState<FormState, FormData>(saveBookingRulesAction, {});
   const e = state.fieldErrors ?? {};
   return (
-    <form action={formAction} noValidate className="rounded-card bg-surface-elevated p-5 shadow-card">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 border border-border">
       <input type="hidden" name="businessId" value={businessId} />
       <FormMessage tone="notice" message={state.notice} />
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
@@ -136,7 +136,7 @@ export function BookingRulesForm({ businessId, values }: { businessId: string; v
       <label className="mb-5 flex min-h-11 items-center justify-between gap-3 text-body">
         <span>
           Confirm bookings automatically
-          <span className="block text-footnote text-text-secondary">Turn off to approve each booking yourself.</span>
+          <span className="block text-small text-ink-muted">Turn off to approve each booking yourself.</span>
         </span>
         <input
           type="checkbox"

@@ -19,20 +19,20 @@ export default async function HomePage() {
     recentlyJoined(db, 6),
     listCurrencies(db),
   ]);
-  const sectionTitle = "mb-3 text-title-2 font-semibold tracking-tight";
+  const sectionTitle = "mb-3 text-title font-semibold tracking-tight";
 
   return (
     <>
       <section className="mb-8 pt-2">
-        <h1 className="mb-2 text-large-title font-bold tracking-tight">{BRAND.tagline}</h1>
-        <p className="mb-5 text-body text-text-secondary">
+        <h1 className="mb-2 text-display font-bold tracking-tight">{BRAND.tagline}</h1>
+        <p className="mb-5 text-body text-ink-muted">
           Barbers, braiders, nail techs, tutors and more. See prices, then book.
         </p>
         <SearchForm />
-        <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 px-1 text-footnote text-text-secondary">
+        <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 px-1 text-small text-ink-muted">
           <span>Try:</span>
           {EXAMPLES.map((example) => (
-            <Link key={example} href={`/search?q=${encodeURIComponent(example)}`} className="text-accent">
+            <Link key={example} href={`/search?q=${encodeURIComponent(example)}`} className="text-primary">
               {example}
             </Link>
           ))}
@@ -44,16 +44,14 @@ export default async function HomePage() {
           Browse categories
         </h2>
         {categories.length === 0 ? (
-          <p className="rounded-card bg-surface-elevated p-4 text-body text-text-secondary">
-            No categories yet. Check back soon.
-          </p>
+          <p className="rounded-card bg-card p-4 text-body text-ink-muted">No categories yet. Check back soon.</p>
         ) : (
           <ul className="flex flex-wrap gap-2">
             {categories.map((category) => (
               <li key={category.id}>
                 <Link
                   href={`/categories/${category.slug}`}
-                  className="inline-flex min-h-11 items-center rounded-full bg-surface-elevated px-4 text-callout shadow-card hover:bg-fill"
+                  className="inline-flex min-h-11 items-center rounded-full bg-card px-4 text-small border border-border hover:bg-fill"
                 >
                   {category.name}
                 </Link>
@@ -81,7 +79,7 @@ export default async function HomePage() {
             <li key={city.slug}>
               <Link
                 href={`/search?where=${encodeURIComponent(city.name)}`}
-                className="inline-flex min-h-11 items-center rounded-full bg-fill px-4 text-callout hover:opacity-80"
+                className="inline-flex min-h-11 items-center rounded-full bg-fill px-4 text-small hover:opacity-80"
               >
                 {city.name}
               </Link>
@@ -90,9 +88,9 @@ export default async function HomePage() {
         </ul>
       </section>
 
-      <p className="text-callout text-text-secondary">
+      <p className="text-small text-ink-muted">
         Are you a professional?{" "}
-        <Link href="/onboarding" className="font-medium text-accent">
+        <Link href="/onboarding" className="font-medium text-primary">
           List your business for free
         </Link>
       </p>

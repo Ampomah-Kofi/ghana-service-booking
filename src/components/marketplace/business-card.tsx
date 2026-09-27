@@ -20,7 +20,7 @@ export function BusinessCard({
   return (
     <Link
       href={`/business/${card.slug}`}
-      className="group flex gap-3 rounded-card bg-surface-elevated p-3 shadow-card transition-colors hover:bg-fill"
+      className="group flex gap-3 rounded-card bg-card p-3 border border-border transition-colors hover:bg-fill"
     >
       {image ? (
         // eslint-disable-next-line @next/next/no-img-element -- pre-sized 400px rendition from upload
@@ -35,18 +35,18 @@ export function BusinessCard({
       ) : (
         <span
           aria-hidden="true"
-          className="flex size-22 shrink-0 items-center justify-center rounded-control bg-accent/10 text-title-1 font-bold text-accent"
+          className="flex size-22 shrink-0 items-center justify-center rounded-control bg-primary/10 text-display font-bold text-primary"
         >
           {card.name.charAt(0).toUpperCase()}
         </span>
       )}
       <span className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
         <span className="truncate text-body font-semibold">{card.name}</span>
-        <span className="truncate text-footnote text-text-secondary">
+        <span className="truncate text-small text-ink-muted">
           {[card.categoryName, card.place].filter(Boolean).join(" · ")}
           {card.distanceKm !== null ? ` · ${card.distanceKm} km` : ""}
         </span>
-        <span className="flex items-center gap-2 text-footnote tabular-nums">
+        <span className="flex items-center gap-2 text-small tabular-nums">
           {card.startingPrice && currency ? (
             <span className="font-medium">
               From{" "}
@@ -57,11 +57,11 @@ export function BusinessCard({
             </span>
           ) : null}
           {card.rating ? (
-            <span className="text-text-secondary">
+            <span className="text-ink-muted">
               ★ {card.rating.average.toFixed(1)} ({card.rating.count})
             </span>
           ) : (
-            <span className="rounded-full bg-accent/10 px-2 py-0.5 text-accent">New</span>
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">New</span>
           )}
         </span>
       </span>

@@ -38,7 +38,7 @@ export function StaffForm({
   const [state, formAction] = useActionState<FormState, FormData>(saveStaffAction, {});
   const e = state.fieldErrors ?? {};
   return (
-    <form action={formAction} noValidate className="rounded-card bg-surface-elevated p-5 shadow-card">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 border border-border">
       <input type="hidden" name="businessId" value={businessId} />
       {staffId ? <input type="hidden" name="staffId" value={staffId} /> : null}
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
@@ -72,7 +72,7 @@ export function StaffForm({
       />
       {services.length > 0 ? (
         <fieldset className="mb-4">
-          <legend className="mb-1.5 text-callout font-medium">Services they do</legend>
+          <legend className="mb-1.5 text-small font-medium">Services they do</legend>
           {services.map((s) => (
             <label key={s.id} className="flex min-h-11 items-center gap-3 text-body">
               <input
@@ -80,7 +80,7 @@ export function StaffForm({
                 name="serviceIds"
                 value={s.id}
                 defaultChecked={listOf(state.values, "serviceIds", values.serviceIds).includes(s.id)}
-                className="size-5 accent-accent"
+                className="size-5 accent-primary"
               />
               {s.name}
             </label>
@@ -90,7 +90,7 @@ export function StaffForm({
       <label className="mb-5 flex min-h-11 items-center justify-between gap-3 text-body">
         <span>
           Customers can book them online
-          <span className="block text-footnote text-text-secondary">Turn off for people who only take walk-ins.</span>
+          <span className="block text-small text-ink-muted">Turn off for people who only take walk-ins.</span>
         </span>
         <input
           type="checkbox"
@@ -123,7 +123,7 @@ export function StaffHoursForm({
       <input type="hidden" name="staffId" value={staffId} />
       <FormMessage tone="notice" message={state.notice} />
       <FormMessage tone="error" message={state.message} />
-      <label className="mb-3 flex min-h-11 items-center justify-between gap-3 rounded-card bg-surface-elevated px-4 text-body shadow-card">
+      <label className="mb-3 flex min-h-11 items-center justify-between gap-3 rounded-card bg-card px-4 text-body border border-border">
         Same as the business hours
         <input
           type="checkbox"
@@ -161,18 +161,18 @@ export function InviteForm({
   if (state.link) {
     const message = `You've been added to our team on Hyia. Open this link and sign in with ${state.phone} to accept: ${state.link}`;
     return (
-      <div className="grid gap-3 rounded-card bg-surface-elevated p-5 shadow-card">
+      <div className="grid gap-3 rounded-card bg-card p-5 border border-border">
         <p className="text-body">
           Send this link to <strong>{state.phone}</strong>. It works once, only for that phone number, and expires in 7
           days.
         </p>
-        <p className="break-all rounded-control bg-fill px-3 py-2 text-footnote">{state.link}</p>
+        <p className="break-all rounded-control bg-fill px-3 py-2 text-small">{state.link}</p>
         <div className="grid grid-cols-2 gap-2">
           <a
             href={`https://wa.me/${state.phone?.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex min-h-11 items-center justify-center rounded-control bg-accent px-3 text-body font-semibold text-on-accent"
+            className="flex min-h-11 items-center justify-center rounded-control bg-primary px-3 text-body font-semibold text-on-primary"
           >
             Send on WhatsApp
           </a>
@@ -195,7 +195,7 @@ export function InviteForm({
   }
 
   return (
-    <form action={formAction} noValidate className="rounded-card bg-surface-elevated p-5 shadow-card">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 border border-border">
       <input type="hidden" name="businessId" value={businessId} />
       <input type="hidden" name="staffId" value={staffId} />
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
@@ -236,7 +236,7 @@ export function RemoveStaffForm({ businessId, staffId, name }: { businessId: str
       <input type="hidden" name="staffId" value={staffId} />
       <FormMessage tone="error" message={state.message} />
       {confirming ? (
-        <div className="grid gap-2 rounded-card bg-surface-elevated p-4 shadow-card">
+        <div className="grid gap-2 rounded-card bg-card p-4 border border-border">
           <p className="text-body">
             Remove {name}? They&apos;ll disappear from your page and lose access. Past bookings are kept.
           </p>
@@ -253,7 +253,7 @@ export function RemoveStaffForm({ businessId, staffId, name }: { businessId: str
         <Button
           type="button"
           variant="plain"
-          className="w-full rounded-card bg-surface-elevated text-danger shadow-card"
+          className="w-full rounded-card bg-card text-danger border border-border"
           onClick={() => setConfirming(true)}
         >
           Remove from team

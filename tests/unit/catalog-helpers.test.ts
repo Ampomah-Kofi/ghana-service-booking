@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { checkedOf, listOf, valueOf } from "@/lib/form-values";
-import { describeWeek, formatDuration, validateWeek } from "@/lib/hours";
+import { describeWeek, formatClock, formatDuration, validateWeek } from "@/lib/hours";
 import { minorToInput, parseMoneyInput } from "@/lib/money";
 import { blockedTimeSchema, serviceSchema, weekHoursSchema } from "@/schemas/catalog";
 import { parseTimeRange } from "@/server/businesses/team";
@@ -53,7 +53,10 @@ describe("weekly hours", () => {
       { weekday: 1, opens: "13:00", closes: "18:00" },
       { weekday: 1, opens: "09:00", closes: "12:00" },
     ]);
-    expect(week[0]).toEqual({ day: 1, label: "Monday", ranges: ["09:00–12:00", "13:00–18:00"] });
+    expect(week[0]).toEqual({ day: 1, label: "Monday", ranges: ["9:00 am – 12:00 pm", "1:00 pm – 6:00 pm"] });
+    expect(formatClock("00:00")).toBe("12:00 am");
+    expect(formatClock("12:30")).toBe("12:30 pm");
+    expect(formatClock("24:00")).toBe("12:00 am");
     expect(week[6]).toEqual({ day: 7, label: "Sunday", ranges: [] });
   });
   it("parses Postgres range text", () => {

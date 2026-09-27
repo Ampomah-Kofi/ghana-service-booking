@@ -27,28 +27,26 @@ export default async function TimeOffPage({ params }: PageProps<"/dashboard/[bus
 
   return (
     <>
-      <h1 className="text-large-title font-bold tracking-tight">Time off</h1>
-      <p className="mb-5 mt-2 text-body text-text-secondary">
+      <h1 className="text-display font-bold tracking-tight">Time off</h1>
+      <p className="mb-5 mt-2 text-body text-ink-muted">
         Holidays, days off and breaks. Customers can&apos;t book these times.
       </p>
 
       <section aria-labelledby="upcoming" className="mb-8">
-        <h2 id="upcoming" className="mb-2 px-4 text-footnote font-medium uppercase tracking-wide text-text-secondary">
+        <h2 id="upcoming" className="mb-2 px-4 text-heading font-semibold text-ink">
           Upcoming
         </h2>
         {blocks.length === 0 ? (
-          <p className="rounded-card bg-surface-elevated p-4 text-body text-text-secondary shadow-card">
-            No time off planned.
-          </p>
+          <p className="rounded-card bg-card p-4 text-body text-ink-muted border border-border">No time off planned.</p>
         ) : (
-          <ul className="divide-y divide-separator overflow-hidden rounded-card bg-surface-elevated shadow-card">
+          <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
             {blocks.map((b) => (
               <li key={b.id} className="flex items-center gap-3 px-4 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-body font-medium">
                     {b.staffId ? (names.get(b.staffId) ?? "Team member") : "Whole business"}
                   </p>
-                  <p className="text-footnote text-text-secondary tabular-nums">
+                  <p className="text-small text-ink-muted tabular-nums">
                     {format.format(new Date(b.startsAt))} – {format.format(new Date(b.endsAt))}
                     {b.reason ? ` · ${b.reason}` : ""}
                   </p>
@@ -56,7 +54,7 @@ export default async function TimeOffPage({ params }: PageProps<"/dashboard/[bus
                 <form action={deleteBlockedTimeAction}>
                   <input type="hidden" name="businessId" value={business.id} />
                   <input type="hidden" name="blockId" value={b.id} />
-                  <button type="submit" className="min-h-11 px-2 text-callout text-danger">
+                  <button type="submit" className="min-h-11 px-2 text-small text-danger">
                     Remove
                   </button>
                 </form>
@@ -66,7 +64,7 @@ export default async function TimeOffPage({ params }: PageProps<"/dashboard/[bus
         )}
       </section>
 
-      <h2 className="mb-2 px-4 text-footnote font-medium uppercase tracking-wide text-text-secondary">Add time off</h2>
+      <h2 className="mb-2 px-4 text-heading font-semibold text-ink">Add time off</h2>
       <TimeOffForm
         businessId={business.id}
         staff={business.kind === "team" ? staff.map((s) => ({ id: s.id, name: s.displayName })) : null}

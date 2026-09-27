@@ -26,7 +26,7 @@ export default async function EditServicePage({
 
   return (
     <>
-      <h1 className="mb-4 text-large-title font-bold tracking-tight">{service.name}</h1>
+      <h1 className="mb-4 text-display font-bold tracking-tight">{service.name}</h1>
       <ServiceForm
         businessId={business.id}
         serviceId={service.id}
@@ -50,11 +50,11 @@ export default async function EditServicePage({
         <input type="hidden" name="returnTo" value={back} />
         <button
           type="submit"
-          className="min-h-11 w-full rounded-card bg-surface-elevated text-body text-danger shadow-card"
+          className="min-h-11 w-full rounded-card bg-card text-body text-danger border border-border"
         >
           Delete service
         </button>
-        <p className="mt-2 text-center text-footnote text-text-secondary">Past bookings keep their details.</p>
+        <p className="mt-2 text-center text-small text-ink-muted">Past bookings keep their details.</p>
       </form>
     </>
   );

@@ -39,12 +39,12 @@ export function SharePanel({
   }
 
   const linkClass =
-    "flex min-h-11 items-center justify-center rounded-control bg-fill px-3 text-callout font-medium text-text-primary hover:opacity-80";
+    "flex min-h-11 items-center justify-center rounded-control bg-fill px-3 text-small font-medium text-ink hover:opacity-80";
 
   return (
     <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3">
       <div className="flex items-center gap-2 rounded-control bg-fill px-3 py-2">
-        <span className="min-w-0 flex-1 truncate text-callout" title={url}>
+        <span className="min-w-0 flex-1 truncate text-small" title={url}>
           {url}
         </span>
         <Button type="button" variant="plain" className="shrink-0 px-2" onClick={copy}>
@@ -52,7 +52,7 @@ export function SharePanel({
         </Button>
       </div>
       {copied === "failed" ? (
-        <p className="text-footnote text-text-secondary" role="status">
+        <p className="text-small text-ink-muted" role="status">
           Couldn&apos;t copy automatically. Press and hold the link above to copy it.
         </p>
       ) : null}
@@ -72,9 +72,7 @@ export function SharePanel({
           SMS
         </a>
       </div>
-      <p className="text-footnote text-text-secondary">
-        For Instagram and TikTok, copy the link and add it to your bio.
-      </p>
+      <p className="text-small text-ink-muted">For Instagram and TikTok, copy the link and add it to your bio.</p>
     </div>
   );
 }

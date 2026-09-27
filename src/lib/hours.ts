@@ -42,7 +42,15 @@ export function validateWeek(ranges: HoursRange[]): string | null {
   return null;
 }
 
-/** Groups a week for display: [{ day, label, ranges: ["09:00–13:00", …] }]. Closed days have no ranges. */
+/** Wall-clock "HH:MM" → "9:30 am" (docs/design.md §3a). "24:00" is midnight. */
+export function formatClock(time: string): string {
+  const minutes = minutesOf(time) % 1440;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${h % 12 === 0 ? 12 : h % 12}:${String(m).padStart(2, "0")} ${h < 12 ? "am" : "pm"}`;
+}
+
+/** Groups a week for display: [{ day, label, ranges: ["9:00 am – 1:00 pm", …] }]. Closed days have no ranges. */
 export function describeWeek(ranges: HoursRange[]) {
   return WEEKDAYS.map(({ day, long }) => ({
     day,
@@ -50,7 +58,7 @@ export function describeWeek(ranges: HoursRange[]) {
     ranges: ranges
       .filter((r) => r.weekday === day)
       .sort((a, b) => minutesOf(a.opens) - minutesOf(b.opens))
-      .map((r) => `${hhmm(r.opens)}–${hhmm(r.closes)}`),
+      .map((r) => `${formatClock(r.opens)} – ${formatClock(r.closes)}`),
   }));
 }
 

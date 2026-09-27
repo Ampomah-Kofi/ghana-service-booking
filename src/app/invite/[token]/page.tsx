@@ -28,12 +28,12 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
   await requireUserOrRedirect(`/invite/${token}`);
   const invite = await getInvite(await createUserClient(), token);
 
-  const card = "rounded-card bg-surface-elevated p-6 shadow-card";
+  const card = "rounded-card bg-card p-6 border border-border";
   if (!invite) {
     return (
       <div className={card}>
-        <h1 className="text-title-2 font-semibold">Invite not found</h1>
-        <p className="mt-2 text-body text-text-secondary">Check the link, or ask for a new invite.</p>
+        <h1 className="text-title font-semibold">Invite not found</h1>
+        <p className="mt-2 text-body text-ink-muted">Check the link, or ask for a new invite.</p>
       </div>
     );
   }
@@ -48,14 +48,14 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
   return (
     <div className="mx-auto max-w-sm pt-4">
       <div className={card}>
-        <p className="text-footnote font-medium uppercase tracking-wide text-text-secondary">Team invite</p>
-        <h1 className="mt-1 text-title-1 font-bold tracking-tight">Join {invite.businessName}</h1>
-        <p className="mt-2 text-body text-text-secondary">
-          You&apos;ll appear as <strong className="text-text-primary">{invite.staffName}</strong>
+        <p className="text-heading font-semibold text-ink">Team invite</p>
+        <h1 className="mt-1 text-display font-bold tracking-tight">Join {invite.businessName}</h1>
+        <p className="mt-2 text-body text-ink-muted">
+          You&apos;ll appear as <strong className="text-ink">{invite.staffName}</strong>
           {invite.role === "manager" ? " and can manage the business." : " and see your own bookings."}
         </p>
         {error ? (
-          <p role="alert" className="mt-4 rounded-control bg-danger/10 px-3 py-2 text-callout text-danger">
+          <p role="alert" className="mt-4 rounded-control bg-danger/10 px-3 py-2 text-small text-danger">
             Couldn&apos;t accept this invite. It may have been used or cancelled.
           </p>
         ) : null}
@@ -65,11 +65,11 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
             <SubmitButton pendingLabel="Joining…">Accept invite</SubmitButton>
           </form>
         ) : (
-          <p className="mt-4 rounded-control bg-fill px-3 py-2 text-callout">{blocked[invite.status]}</p>
+          <p className="mt-4 rounded-control bg-fill px-3 py-2 text-small">{blocked[invite.status]}</p>
         )}
       </div>
-      <p className="mt-4 text-center text-callout">
-        <Link href="/" className="font-medium text-accent">
+      <p className="mt-4 text-center text-small">
+        <Link href="/" className="font-medium text-primary">
           Not now
         </Link>
       </p>

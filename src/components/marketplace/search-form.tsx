@@ -20,11 +20,11 @@ export function SearchForm({ defaultQuery = "", autoFocus = false }: { defaultQu
           maxLength={100}
           enterKeyHint="search"
           placeholder="Try “Barber in East Legon”"
-          className="min-h-12 min-w-0 flex-1 rounded-full border border-separator bg-surface-elevated px-5 text-body shadow-card outline-none focus:border-accent"
+          className="min-h-12 min-w-0 flex-1 rounded-full border border-border bg-card px-5 text-body border border-border outline-none focus:border-primary"
         />
         <button
           type="submit"
-          className="min-h-12 shrink-0 rounded-full bg-accent px-5 text-body font-semibold text-on-accent hover:bg-accent-pressed"
+          className="min-h-12 shrink-0 rounded-full bg-primary px-5 text-body font-semibold text-on-primary hover:bg-primary-hover"
         >
           Search
         </button>

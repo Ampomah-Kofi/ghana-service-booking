@@ -91,12 +91,12 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
         {setup.services.length === 0 ? (
           <Panel>
             {business.name} isn&apos;t taking online bookings yet.{" "}
-            <Link href={`/business/${slug}`} className="font-medium text-accent">
+            <Link href={`/business/${slug}`} className="font-medium text-primary">
               See how to contact them
             </Link>
           </Panel>
         ) : (
-          <ul className="divide-y divide-separator overflow-hidden rounded-card bg-surface-elevated shadow-card">
+          <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
             {setup.services.map((s) => (
               <li key={s.id}>
                 <Link
@@ -105,12 +105,12 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
                 >
                   <span className="min-w-0">
                     <span className="block text-body font-medium">{s.name}</span>
-                    <span className="block text-footnote text-text-secondary">{formatDuration(s.durationMinutes)}</span>
+                    <span className="block text-small text-ink-muted">{formatDuration(s.durationMinutes)}</span>
                   </span>
                   <span className="shrink-0 text-body font-semibold tabular-nums">
-                    {s.priceType === "from" ? <span className="text-footnote font-normal">from </span> : null}
+                    {s.priceType === "from" ? <span className="text-small font-normal">from </span> : null}
                     {money(s.priceMinor)}{" "}
-                    <span aria-hidden="true" className="text-text-secondary">
+                    <span aria-hidden="true" className="text-ink-muted">
                       ›
                     </span>
                   </span>
@@ -128,7 +128,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
   const staffChoice = chosen ? chosen.id : "any";
   const withWhom = chosen?.displayName ?? (eligible.length === 1 ? eligible[0].displayName : "Any available");
   const summary = (
-    <p className="mb-5 inline-flex max-w-full flex-wrap items-center gap-x-1.5 rounded-full bg-surface-elevated px-4 py-2 text-callout shadow-card">
+    <p className="mb-5 inline-flex max-w-full flex-wrap items-center gap-x-1.5 rounded-full bg-card px-4 py-2 text-small border border-border">
       <span className="font-semibold">{service.name}</span>
       <span aria-hidden="true">·</span>
       <span className="tabular-nums">
@@ -152,7 +152,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
     return (
       <Shell business={business} title="Choose a professional" back={reschedule ? "/bookings" : bookHref(slug, {})}>
         {summary}
-        <ul className="divide-y divide-separator overflow-hidden rounded-card bg-surface-elevated shadow-card">
+        <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
           {[
             { id: "any", displayName: "Any available professional", roleTitle: "We'll match you with whoever is free" },
             ...eligible,
@@ -164,15 +164,15 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
               >
                 <span
                   aria-hidden="true"
-                  className="flex size-10 shrink-0 items-center justify-center rounded-full bg-fill text-body font-semibold text-text-secondary"
+                  className="flex size-10 shrink-0 items-center justify-center rounded-full bg-fill text-body font-semibold text-ink-muted"
                 >
                   {s.id === "any" ? "✦" : s.displayName.charAt(0).toUpperCase()}
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-body font-medium">{s.displayName}</span>
-                  {s.roleTitle ? <span className="block text-footnote text-text-secondary">{s.roleTitle}</span> : null}
+                  {s.roleTitle ? <span className="block text-small text-ink-muted">{s.roleTitle}</span> : null}
                 </span>
-                <span aria-hidden="true" className="text-text-secondary">
+                <span aria-hidden="true" className="text-ink-muted">
                   ›
                 </span>
               </Link>
@@ -205,7 +205,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
     const when = `${formatDayLong(startsAt, setup.timezone)} at ${formatTime(startsAt, setup.timezone)}`;
     const place = formatPlace(business.location);
     const details = (
-      <dl className="mb-5 divide-y divide-separator overflow-hidden rounded-card bg-surface-elevated shadow-card">
+      <dl className="mb-5 divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
         <Row label="When">{when}</Row>
         <Row label="Service">
           {service.name} · {formatDuration(service.durationMinutes)}
@@ -226,7 +226,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
     if (reschedule) {
       return (
         <Shell business={business} title="Move your booking?" back={timeHref}>
-          <p className="mb-4 text-body text-text-secondary">
+          <p className="mb-4 text-body text-ink-muted">
             From {formatDayLong(reschedule.startsAt, setup.timezone)} at{" "}
             {formatTime(reschedule.startsAt, setup.timezone)}
           </p>
@@ -246,7 +246,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
           </Panel>
           <Link
             href={`/sign-in?next=${encodeURIComponent(next)}`}
-            className="flex min-h-11 w-full items-center justify-center rounded-control bg-accent px-4 text-body font-semibold text-on-accent"
+            className="flex min-h-11 w-full items-center justify-center rounded-control bg-primary px-4 text-body font-semibold text-on-primary"
           >
             Sign in to book
           </Link>
@@ -268,7 +268,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
           }}
           defaults={{ customerName: profile?.fullName ?? "", customerPhone: profile?.phoneE164 ?? user.phone ?? "" }}
         />
-        <p className="mt-3 text-center text-footnote text-text-secondary">
+        <p className="mt-3 text-center text-small text-ink-muted">
           {setup.rules.autoConfirm
             ? "Your booking is confirmed straight away."
             : `${business.name} will confirm your booking.`}{" "}
@@ -313,25 +313,25 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
                   aria-label={label}
                   className={`flex w-14 flex-col items-center rounded-card py-2 text-center ${
                     isSelected
-                      ? "bg-accent text-on-accent"
+                      ? "bg-primary text-on-primary"
                       : open
-                        ? "bg-surface-elevated shadow-card"
-                        : "bg-fill text-text-secondary line-through decoration-1"
+                        ? "bg-card border border-border"
+                        : "bg-fill text-ink-muted line-through decoration-1"
                   }`}
                 >
-                  <span className="text-footnote">{d.date === today ? "Today" : pill.weekday}</span>
-                  <span className="text-title-2 font-semibold tabular-nums">{pill.day}</span>
-                  <span className="text-footnote">{pill.month}</span>
+                  <span className="text-small">{d.date === today ? "Today" : pill.weekday}</span>
+                  <span className="text-title font-semibold tabular-nums">{pill.day}</span>
+                  <span className="text-small">{pill.month}</span>
                 </Link>
               </li>
             );
           })}
         </ul>
-        <div className="flex justify-between text-callout">
+        <div className="flex justify-between text-small">
           {earlier ? (
             <Link
               href={bookHref(slug, { ...withStaff, from: earlier === today ? undefined : earlier })}
-              className="min-h-11 content-center font-medium text-accent"
+              className="min-h-11 content-center font-medium text-primary"
             >
               ‹ Earlier
             </Link>
@@ -341,7 +341,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
           {later ? (
             <Link
               href={bookHref(slug, { ...withStaff, from: later })}
-              className="min-h-11 content-center font-medium text-accent"
+              className="min-h-11 content-center font-medium text-primary"
             >
               Later dates ›
             </Link>
@@ -351,7 +351,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
 
       {selected ? (
         <section aria-labelledby="times-heading">
-          <h2 id="times-heading" className="mb-3 text-title-2 font-semibold">
+          <h2 id="times-heading" className="mb-3 text-title font-semibold">
             {formatLocalDate(selected.date)}
           </h2>
           {selected.slots.length === 0 ? (
@@ -362,7 +362,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
           ) : (
             groupByPartOfDay(selected.slots, setup.timezone).map(([part, slots]) => (
               <div key={part} className="mb-5">
-                <h3 className="mb-2 text-footnote font-medium uppercase tracking-wide text-text-secondary">{part}</h3>
+                <h3 className="mb-2 text-heading font-semibold text-ink">{part}</h3>
                 <ul className="grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2">
                   {slots.map((slot) => (
                     <li key={slot.start.toISOString()}>
@@ -373,7 +373,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
                           date: selected.date,
                           time: slot.start.toISOString(),
                         })}
-                        className="flex min-h-11 items-center justify-center rounded-full bg-surface-elevated text-body font-medium tabular-nums text-accent shadow-card hover:bg-fill"
+                        className="flex min-h-11 items-center justify-center rounded-full bg-card text-body font-medium tabular-nums text-primary border border-border hover:bg-fill"
                       >
                         {formatTime(slot.start, setup.timezone)}
                       </Link>
@@ -385,7 +385,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
           )}
         </section>
       ) : null}
-      <p className="text-footnote text-text-secondary">Times are shown in {business.name}&apos;s local time.</p>
+      <p className="text-small text-ink-muted">Times are shown in {business.name}&apos;s local time.</p>
     </Shell>
   );
 }
@@ -403,29 +403,27 @@ function Shell({
 }) {
   return (
     <div>
-      <div className="mb-3 flex items-center justify-between text-callout">
-        <Link href={back ?? `/business/${business.slug}`} className="min-h-11 content-center font-medium text-accent">
+      <div className="mb-3 flex items-center justify-between text-small">
+        <Link href={back ?? `/business/${business.slug}`} className="min-h-11 content-center font-medium text-primary">
           ‹ Back
         </Link>
-        <Link href={`/business/${business.slug}`} className="min-h-11 content-center truncate text-text-secondary">
+        <Link href={`/business/${business.slug}`} className="min-h-11 content-center truncate text-ink-muted">
           {business.name}
         </Link>
       </div>
-      <h1 className="mb-4 text-large-title font-bold tracking-tight">{title}</h1>
+      <h1 className="mb-4 text-display font-bold tracking-tight">{title}</h1>
       {children}
     </div>
   );
 }
 
 function Panel({ children }: { children: ReactNode }) {
-  return (
-    <p className="mb-4 rounded-card bg-surface-elevated p-4 text-body text-text-secondary shadow-card">{children}</p>
-  );
+  return <p className="mb-4 rounded-card bg-card p-4 text-body text-ink-muted border border-border">{children}</p>;
 }
 
 function BackLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Link href={href} className="flex min-h-11 items-center justify-center font-medium text-accent">
+    <Link href={href} className="flex min-h-11 items-center justify-center font-medium text-primary">
       {children}
     </Link>
   );
@@ -434,7 +432,7 @@ function BackLink({ href, children }: { href: string; children: ReactNode }) {
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex gap-4 px-4 py-3 text-body">
-      <dt className="w-20 shrink-0 text-text-secondary">{label}</dt>
+      <dt className="w-20 shrink-0 text-ink-muted">{label}</dt>
       <dd className="min-w-0">{children}</dd>
     </div>
   );

@@ -15,9 +15,9 @@ export function PhoneSignInForm({ next }: { next: string }) {
       <form action={formAction} noValidate>
         <input type="hidden" name="next" value={next} />
         <input type="hidden" name="phone" value={state.phone} />
-        <p className="mb-4 text-body text-text-secondary">
+        <p className="mb-4 text-body text-ink-muted">
           Enter the 6-digit code we sent to{" "}
-          <span className="font-medium whitespace-nowrap text-text-primary">{state.phoneDisplay ?? state.phone}</span>.
+          <span className="font-medium whitespace-nowrap text-ink">{state.phoneDisplay ?? state.phone}</span>.
         </p>
         <FormMessage tone="notice" message={state.notice} />
         <FormMessage tone="error" message={state.fieldErrors?.code ? undefined : state.message} />

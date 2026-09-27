@@ -15,20 +15,20 @@ export default async function DashboardIndexPage() {
 
   return (
     <>
-      <h1 className="mb-6 text-large-title font-bold tracking-tight">Your businesses</h1>
+      <h1 className="mb-6 text-display font-bold tracking-tight">Your businesses</h1>
       <GroupedSection>
         {managed.map((m) => (
           <Link
             key={m.businessId}
             href={`/dashboard/${m.businessId}`}
-            className="flex min-h-11 items-center justify-between gap-3 border-b border-separator px-4 py-3 last:border-b-0 hover:bg-fill"
+            className="flex min-h-11 items-center justify-between gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-fill"
           >
             <span className="text-body">{m.business.name}</span>
-            <span className="text-footnote text-text-secondary">{m.business.status}</span>
+            <span className="text-small text-ink-muted">{m.business.status}</span>
           </Link>
         ))}
       </GroupedSection>
-      <Link href="/onboarding" className="text-body font-medium text-accent">
+      <Link href="/onboarding" className="text-body font-medium text-primary">
         List another business
       </Link>
     </>

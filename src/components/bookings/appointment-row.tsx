@@ -20,18 +20,18 @@ export function AppointmentRow({
     <>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-body font-medium">{who}</span>
-        <span className="block truncate text-footnote text-text-secondary">
+        <span className="block truncate text-small text-ink-muted">
           {appointment.serviceName}
           {appointment.staffName ? ` · ${appointment.staffName}` : ""}
         </span>
-        <span className="block text-footnote tabular-nums text-text-secondary">
+        <span className="block text-small tabular-nums text-ink-muted">
           {formatDateTime(appointment.startsAt, tz)}
           {detail ? ` · ${detail}` : ""}
         </span>
       </span>
       <StatusBadge status={appointment.status} />
       {href ? (
-        <span aria-hidden="true" className="text-text-secondary">
+        <span aria-hidden="true" className="text-ink-muted">
           ›
         </span>
       ) : null}

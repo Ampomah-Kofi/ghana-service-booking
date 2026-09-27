@@ -212,3 +212,16 @@ describe("orderForAnyAvailable and grouping", () => {
     ]);
   });
 });
+
+describe("display formats", () => {
+  it("uses 12-hour times and short dates in the business timezone", async () => {
+    const { formatTime, formatDateShort, formatDateTime, formatLocalDate } = await import("@/lib/datetime");
+    const t = new Date("2027-03-01T13:05:00Z");
+    expect(formatTime(t, ACCRA)).toBe("1:05 pm");
+    expect(formatTime(new Date("2027-03-01T00:30:00Z"), ACCRA)).toBe("12:30 am");
+    expect(formatTime(t, "Africa/Lagos")).toBe("2:05 pm");
+    expect(formatDateShort(t, ACCRA)).toBe("Mon, 1 Mar");
+    expect(formatDateTime(t, ACCRA)).toBe("Mon, 1 Mar · 1:05 pm");
+    expect(formatLocalDate("2027-03-01")).toBe("Monday, 1 March");
+  });
+});

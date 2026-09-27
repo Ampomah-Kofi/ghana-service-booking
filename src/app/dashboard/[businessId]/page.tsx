@@ -94,10 +94,8 @@ export default async function BusinessDashboardPage({ params }: PageProps<"/dash
 
   return (
     <>
-      <h1 className="mb-1 text-large-title font-bold tracking-tight">
-        {published ? "Your page is live" : "Almost there"}
-      </h1>
-      <p className="mb-6 text-body text-text-secondary">
+      <h1 className="mb-1 text-display font-bold tracking-tight">{published ? "Your page is live" : "Almost there"}</h1>
+      <p className="mb-6 text-body text-ink-muted">
         {published
           ? "Customers can book you online. Share your link to get more bookings."
           : business.status === "draft"
@@ -113,11 +111,9 @@ export default async function BusinessDashboardPage({ params }: PageProps<"/dash
           }
         >
           {upcoming.length === 0 ? (
-            <p className="px-4 py-3 text-body text-text-secondary">
-              No bookings yet. Share your page to get your first.
-            </p>
+            <p className="px-4 py-3 text-body text-ink-muted">No bookings yet. Share your page to get your first.</p>
           ) : (
-            <ul className="divide-y divide-separator">
+            <ul className="divide-y divide-border">
               {upcoming.map((a) => (
                 <AppointmentRow
                   key={a.id}
@@ -136,16 +132,16 @@ export default async function BusinessDashboardPage({ params }: PageProps<"/dash
           <Link
             key={item.label}
             href={item.href}
-            className="flex min-h-11 items-center gap-3 border-b border-separator px-4 py-3 last:border-b-0 hover:bg-fill"
+            className="flex min-h-11 items-center gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-fill"
           >
             <span
               aria-hidden="true"
-              className={`flex size-6 shrink-0 items-center justify-center rounded-full text-footnote font-bold ${
+              className={`flex size-6 shrink-0 items-center justify-center rounded-full text-small font-bold ${
                 item.done
                   ? "bg-success text-white"
                   : item.required
                     ? "border-2 border-danger"
-                    : "border-2 border-separator"
+                    : "border-2 border-border"
               }`}
             >
               {item.done ? "✓" : ""}
@@ -155,9 +151,9 @@ export default async function BusinessDashboardPage({ params }: PageProps<"/dash
                 {item.label}
                 <span className="sr-only">{item.done ? " (done)" : item.required ? " (required)" : " (optional)"}</span>
               </span>
-              <span className="block truncate text-footnote text-text-secondary">{item.detail}</span>
+              <span className="block truncate text-small text-ink-muted">{item.detail}</span>
             </span>
-            <span aria-hidden="true" className="text-text-secondary">
+            <span aria-hidden="true" className="text-ink-muted">
               ›
             </span>
           </Link>
@@ -167,9 +163,9 @@ export default async function BusinessDashboardPage({ params }: PageProps<"/dash
       {business.status === "draft" ? (
         <section className="mb-8 grid gap-3">
           <PublishButton businessId={business.id} ready={missing.length === 0} />
-          <p className="text-center text-footnote text-text-secondary">
+          <p className="text-center text-small text-ink-muted">
             {missing.length === 0 ? "Everything required is done." : `Still needed: ${missing.join(", ")}.`}{" "}
-            <Link href={`/business/${business.slug}`} className="font-medium text-accent">
+            <Link href={`/business/${business.slug}`} className="font-medium text-primary">
               Preview your page
             </Link>
           </p>
@@ -203,7 +199,7 @@ export default async function BusinessDashboardPage({ params }: PageProps<"/dash
               />
               <a
                 href={`/business/${business.slug}/qr`}
-                className="min-h-11 content-center text-body font-medium text-accent"
+                className="min-h-11 content-center text-body font-medium text-primary"
                 download
               >
                 Download QR code (PNG)

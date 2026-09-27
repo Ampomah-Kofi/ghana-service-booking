@@ -11,11 +11,11 @@ export default async function AdminCategoriesPage() {
 
   return (
     <>
-      <h1 className="mb-2 text-large-title font-bold tracking-tight">Categories</h1>
-      <p className="mb-6 text-body text-text-secondary">
+      <h1 className="mb-2 text-display font-bold tracking-tight">Categories</h1>
+      <p className="mb-6 text-body text-ink-muted">
         Changes show on the site straight away. Every change is recorded in the audit log.
       </p>
-      <ul className="mb-8 divide-y divide-separator overflow-hidden rounded-card bg-surface-elevated shadow-card">
+      <ul className="mb-8 divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
         {categories.map((c) => (
           <li key={c.id}>
             <details>
@@ -23,12 +23,12 @@ export default async function AdminCategoriesPage() {
                 <span className="text-body font-medium">
                   {c.name}
                   {c.isActive ? null : (
-                    <span className="ml-2 rounded-full bg-fill px-2 py-0.5 text-footnote font-normal text-text-secondary">
+                    <span className="ml-2 rounded-full bg-fill px-2 py-0.5 text-small font-normal text-ink-muted">
                       Hidden
                     </span>
                   )}
                 </span>
-                <span className="text-footnote text-text-secondary tabular-nums">#{c.sortOrder}</span>
+                <span className="text-small text-ink-muted tabular-nums">#{c.sortOrder}</span>
               </summary>
               <CategoryForm
                 values={{
@@ -45,8 +45,8 @@ export default async function AdminCategoriesPage() {
           </li>
         ))}
       </ul>
-      <h2 className="mb-2 px-4 text-footnote font-medium uppercase tracking-wide text-text-secondary">New category</h2>
-      <div className="rounded-card bg-surface-elevated shadow-card">
+      <h2 className="mb-2 px-4 text-heading font-semibold text-ink">New category</h2>
+      <div className="rounded-card bg-card border border-border">
         <CategoryForm
           values={{ name: "", slug: "", description: "", keywords: "", sortOrder: next, isActive: false }}
         />

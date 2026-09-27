@@ -1,6 +1,6 @@
 # Design Direction
 
-> Added in Phase 0 at the product owner's request: *"the design should be Apple-like."*
+> Added in Phase 0 at the product owner's request: *"the design should be Apple-like."* Combined in Phase 6 with the owner's DESIGN.md (ADR-0009).
 > We take Apple's **principles** (clarity, deference, depth, restraint) and none of its **identity**: no SF Pro font files, no Apple icons or imagery, no copied layouts. SPEC §1 says the product has its own identity.
 > Implemented as Tailwind tokens in Phase 1; every screen from Phase 2 onward follows it.
 
@@ -14,23 +14,27 @@
 | **Restraint** | Fewer colours, fewer weights, fewer effects | One accent colour; two font weights on most screens |
 | **Fast feels premium** | On low bandwidth, speed *is* the polish | Skeletons not spinners; instant tap feedback; no layout shift |
 
-## 2. Tokens (initial; tuned in Phase 1)
+## 2. Tokens (ADR-0009: combined with the owner's DESIGN.md)
 
-| Token | Value | Notes |
-|---|---|---|
-| Font | System stack: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif` | Renders SF on Apple devices and Roboto on Android. **Zero font download**, so it's both Apple-like and low-bandwidth |
-| Type scale | 34 / 28 / 22 / 17 (body) / 15 / 13 px | Body 17px (iOS default) for legibility; line-height 1.4 |
-| Weights | 400, 600 (700 for large titles only) | |
-| Radius | 12px cards, 10px inputs/buttons, full for pills/avatars | Continuous-feeling rounded corners |
-| Spacing | 4-pt grid; page gutter 16px mobile / 24px tablet+ | Generous whitespace |
-| Colour: surfaces | `#FFFFFF`, grouped background `#F5F5F7`; dark: `#000000` / `#1C1C1E` | Light and dark mode from day one (`prefers-color-scheme`) |
-| Colour: text | Primary `#1D1D1F`, secondary `#6E6E73`; dark: `#F5F5F7` / `#A1A1A6` | Contrast ≥ 4.5:1 checked |
-| Colour: accent | **One brand colour, chosen with the name** (placeholder: deep green `#0A7A5A`, a nod to Ghana without flag clichés) | Used for primary buttons, links and selected slots only |
-| Semantic | success, warning, danger in muted tones | Never the only signal; always with text/icon |
-| Shadow | `0 1px 2px rgb(0 0 0 / .06), 0 4px 12px rgb(0 0 0 / .06)` | Cards and sheets only |
-| Blur | `backdrop-blur` on sticky top bar and bottom tab bar | Behind `@supports`; solid fallback on low-end devices |
-| Motion | 200–300 ms, ease-out; sheets spring-like | `prefers-reduced-motion` disables it |
-| Icons | Open-source line icon set (e.g. Lucide), 1.5px stroke | Inlined SVG, tree-shaken |
+| Token | Light | Dark | Use / boundary |
+|---|---|---|---|
+| `surface` | `#FAF8F4` | `#121512` | The only page background |
+| `card` | `#FFFFFF` | `#1C201D` | Cards, sheets, inputs; always on `surface`, never on another card |
+| `ink` / `ink-muted` | `#14201B` / `#5B6660` | `#EEF0EC` / `#A6AEA8` | Text; muted text ≥ 14 px, never for prices or actions |
+| `border` | `#E3DED5` | `#2E3430` | 1 px dividers and outlines |
+| `fill` | ink at 6 % | ink at 8 % | Skeletons, quiet chips, pressed rows |
+| `primary` / `primary-hover` | `#0F6B4F` / `#0B5540` | `#4CC596` / `#3DB386` | One filled primary button per screen, links, selected time |
+| `primary-soft` | `#E4F2EC` | green at 16 % | Selected-but-secondary (chosen staff, active chip). Never text |
+| `danger` · `warning` · `info` · `success` | `#B42318` · `#B54708` · `#1D4ED8` · `#1F7A3A` | lighter equivalents | Status and errors only, always with a label |
+| `star` | `#E0A526` | same | Stars only, next to the number |
+| `whatsapp` | `#1F7A45` | `#4CC07A` | The WhatsApp button only |
+
+- **Type:** system font stack, zero downloads. `display` 28/34 bold (large titles, provider name), `title` 20/28, `heading` 17/24, `body` 16/24, `small` 14/20, `caption` 12/16 (badges only).
+- **Radii:** `chip` 6 px, `control` 10 px, `card` 16 px. Pills and avatars are full-round.
+- **Spacing:** 4 px grid; gutters 16 px mobile, 24 px `md+`.
+- **Depth:** flat cards with borders. `shadow-sheet` for sheets and sticky bars, `shadow-pop` for menus and the floating "+". No blur, no gradients.
+- **Controls:** buttons and inputs 48 px tall; every tap target ≥ 44 px.
+- **Motion:** 200–300 ms ease-out; sheets slide up; `prefers-reduced-motion` turns it off.
 
 ## 3. Patterns
 
@@ -99,5 +103,5 @@ Always a text label, never colour alone.
 
 ## 4. What we will not do
 - Ship custom web fonts on public pages (bandwidth).
-- Use glassmorphism everywhere. Blur is limited to the two bars.
+- Use blur or glass effects (costly on low-end phones; ADR-0009).
 - Use Apple trademarks, SF Symbols, Apple product imagery, or pixel-copy any Apple or competitor layout.

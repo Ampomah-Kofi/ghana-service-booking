@@ -33,12 +33,12 @@ export function NearMeButton({ query }: { query: string }) {
         type="button"
         onClick={locate}
         disabled={status === "locating"}
-        className="min-h-11 text-callout font-medium text-accent disabled:opacity-60"
+        className="min-h-11 text-small font-medium text-primary disabled:opacity-60"
       >
         {status === "locating" ? "Finding you…" : "⌖ Near me"}
       </button>
       {status === "denied" ? (
-        <span role="status" className="text-footnote text-text-secondary">
+        <span role="status" className="text-small text-ink-muted">
           Location is off. Type your area instead, e.g. “in Osu”.
         </span>
       ) : null}
