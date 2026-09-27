@@ -153,7 +153,7 @@ Business `timezone`; `business_hours` (per ISO weekday, several ranges allowed =
 - **Timezone:** all arithmetic is done on local wall-clock per date in the business's IANA zone, then converted to UTC instants. Ghana has no DST, but zones that do are handled naturally: a local time that doesn't exist is skipped, and a repeated one takes the first instance. Storage is always `timestamptz`.
 - **Overnight ranges** (e.g. 22:00–02:00) are out of scope for MVP (validated at input).
 
-### Pseudocode (`src/server/scheduling/availability.ts`, pure function)
+### Pseudocode (as built: pure engine in `src/lib/availability.ts`, data loading in `src/server/scheduling/availability.ts`)
 ```ts
 function availableSlots(input: {
   tz: string; rules: BookingRules; service: { durationMin: number };
@@ -181,18 +181,18 @@ function availableSlots(input: {
   return sortByStart(byStart);   // UI shows the time; "any available" = staffIds.length > 0
 }
 ```
-`blocks` and `busy` both come from one RPC call per request (`get_busy_intervals(business, dayStart, dayEnd)`). Complexity is O(staff × slots × busy), trivial at our scale. Pre-sort intervals and sweep if it ever matters.
+`blocks` and `busy` both come from one RPC call per request (`get_busy_intervals(business, from, to)`; the booking page asks for 14 days at once, ±4 h for neighbouring buffers). Busy appointment intervals are already the other bookings' `occupied` ranges. Complexity is O(staff × slots × busy), trivial at our scale. Pre-sort intervals and sweep if it ever matters.
 
 ### "Any available professional"
 1. Slot list = union across eligible staff (as above).
 2. At booking, the server orders the candidates for that start time: **fewest booked minutes that day first**, then `staff.sort_order`. This spreads load and is deterministic in tests.
-3. `book_appointment(..., p_staff_ids => ordered[])` tries each candidate in order inside the DB. The exclusion constraint decides, and a conflict falls through to the next candidate. Only if **all** fail does the client get `409 SLOT_UNAVAILABLE` with fresh slots.
+3. `book_appointment(..., p_staff_ids => ordered[])` tries each candidate in order inside the DB. The exclusion constraint decides, and a conflict falls through to the next candidate. Only if **all** fail does the client get `409 CONFLICT` and picks another time. If the engine sees nobody free, the server still asks the database with every eligible person, so a retried idempotency key returns the original booking.
 
 ### Server-side re-validation
-The TS function **lists** slots; the SQL function **accepts** bookings. `book_appointment` re-checks the window, working hours (`private.within_working_hours`), blocks, and overlap (constraint). The client never has to be trusted. A **parity test** runs randomised fixtures and asserts that every slot TS offers is accepted by SQL. That catches drift between the two implementations.
+The TS function **lists** slots; the SQL function **accepts** bookings. `book_appointment` re-checks the window, working hours (`private.within_working_hours`), blocks, and overlap (constraint). The client never has to be trusted. Parity is covered by targeted integration cases (a slot touching a booking is offered and accepted; overlapping and out-of-hours times are refused by SQL even without the app pre-check). A randomised parity run is a known gap.
 
 ### Next-available cache
-`businesses.next_available_at` powers result cards. It is recomputed by the dispatcher job when a booking, block or hours change for that business (debounced), and every 30 minutes otherwise. Cards say "Next: Today 3:15 PM". It is *advisory*: the booking page always computes live.
+*Not built yet (needs the Phase 8 job runner); cards omit it.* `businesses.next_available_at` powers result cards. It is recomputed by the dispatcher job when a booking, block or hours change for that business (debounced), and every 30 minutes otherwise. Cards say "Next: Today 3:15 PM". It is *advisory*: the booking page always computes live.
 
 ## 7. Double-booking prevention (summary of ADR-0003)
 
@@ -204,7 +204,7 @@ exclude using gist (staff_id with =, occupied with &&)
 - `occupied` = `[starts_at − buffer_before, ends_at + buffer_after)`, set by trigger (`timestamptz ± interval` isn't immutable, so it can't be a generated column).
 - `btree_gist` makes `uuid =` usable in the GiST index.
 - **Blocked times vs. appointments** live in different tables, so the constraint can't cover them. `book_appointment` and `create_blocked_time` both take `pg_advisory_xact_lock(hash('staff:'||id))` and check each other's table under that lock. Direct inserts into `blocked_times` are not granted.
-- **Pending holds** (deposit required) block the slot for `pending_hold_minutes`. Expired holds are cancelled by the job and also lazily inside `book_appointment` for that staff member.
+- **Pending holds** (Phase 9, with deposits; not built yet) block the slot for `pending_hold_minutes`. Expired holds are cancelled by the job and also lazily inside `book_appointment` for that staff member.
 
 | Option | Guarantees under concurrency | Cost | Verdict |
 |---|---|---|---|
@@ -214,7 +214,7 @@ exclude using gist (staff_id with =, occupied with &&)
 | `SERIALIZABLE` isolation | Yes, but with retry storms under contention | Every write path must retry | Rejected |
 | Unique `(staff_id, slot_start)` on a slot table | Only for fixed-length grid slots | Breaks with variable durations/buffers | Rejected |
 
-**Tested by:** pgTAP (overlap rejected; touching ranges `[10:00,10:30)` + `[10:30,11:00)` allowed; cancelled/no-show don't block; buffers honoured; blocks reject) and a **concurrency test** (N parallel connections booking the same slot). Phase 0 smoke run on the draft: 10 parallel sessions, 2 eligible staff → exactly **2 successes, 8 `BK409`**.
+**Tested by:** pgTAP (overlap rejected; touching ranges `[10:00,10:30)` + `[10:30,11:00)` allowed; cancelled/no-show don't block; buffers honoured; blocks reject) and a **concurrency test** (N parallel connections booking the same slot). Phase 0 smoke run on the draft: 10 parallel sessions, 2 eligible staff → exactly **2 successes, 8 `BK409`**. Phase 5 (`tests/integration/booking.test.ts`): 20 users racing for one person → exactly 1 booking; 20 racing for "any available" with 3 people → exactly 3; 10 raw RPC calls → exactly 1.
 
 ## 8. Payments
 
