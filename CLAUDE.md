@@ -4,6 +4,7 @@ Ghana-first, multi-tenant appointment marketplace (working name TBD in Phase 0).
 Full product spec: @docs/SPEC.md — it is authoritative. Read it before planning any phase.
 
 ## Stack
+- Next.js 16: read @AGENTS.md. APIs differ from older versions (e.g. `middleware` is now `src/proxy.ts`); check `node_modules/next/dist/docs/` before writing Next code.
 - Next.js (App Router) + React + TypeScript (`strict: true`, no `any`, no `@ts-ignore` without a comment explaining why)
 - Tailwind CSS
 - Supabase: Postgres, Auth, Storage, RLS. Local dev via Supabase CLI.
