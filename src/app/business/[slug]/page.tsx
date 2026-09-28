@@ -1,4 +1,10 @@
 import type { Metadata } from "next";
+import { ReviewCard } from "@/components/reviews/review-card";
+import { RatingSummary } from "@/components/reviews/rating-summary";
+import { FavoriteButton } from "@/components/marketplace/favorite-button";
+import { listBusinessReviews, ratingSummary } from "@/server/reviews/reviews";
+import { isFavorite } from "@/server/favorites/favorites";
+import { getCurrentUser } from "@/server/auth/session";
 import { PhotoCountChip, PhotoGallery } from "@/components/business/photo-viewer";
 import { ShareButton } from "@/components/ui/share-button";
 import { MorphCover } from "@/components/marketplace/business-card";
@@ -62,10 +68,14 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
   if (!business) notFound();
 
   const db = await createUserClient();
-  const [allServices, allStaff, hours] = await Promise.all([
+  const user = await getCurrentUser();
+  const [allServices, allStaff, hours, summary, reviews, saved] = await Promise.all([
     listServices(db, business.id),
     listStaff(db, business.id, { withInvites: false }),
     getBusinessHours(db, business.id),
+    ratingSummary(db, business.id),
+    listBusinessReviews(db, business.id, { limit: 3, viewerId: user?.id ?? null }),
+    user ? isFavorite(db, user.id, business.id) : Promise.resolve(null),
   ]);
   // Members previewing a draft also receive hidden items; show exactly what customers will see.
   const services = allServices.filter((s) => s.isActive);
@@ -129,16 +139,24 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
               <ChevronLeftIcon />
             </Link>
             {business.status === "published" ? (
-              <ShareButton
-                url={pageUrl}
-                title={business.name}
-                text={shareMessage(business.name, pageUrl)}
-                fallbackHref="#share"
-                label="Share"
-                className="glass pressable flex size-11 items-center justify-center rounded-full text-ink"
-              >
-                <ShareIcon />
-              </ShareButton>
+              <div className="flex gap-2">
+                <FavoriteButton
+                  businessId={business.id}
+                  businessName={business.name}
+                  saved={saved}
+                  className="glass size-11! text-ink"
+                />
+                <ShareButton
+                  url={pageUrl}
+                  title={business.name}
+                  text={shareMessage(business.name, pageUrl)}
+                  fallbackHref="#share"
+                  label="Share"
+                  className="glass pressable flex size-11 items-center justify-center rounded-full text-ink"
+                >
+                  <ShareIcon />
+                </ShareButton>
+              </div>
             ) : null}
           </div>
           {business.photos.length > 1 ? <PhotoCountChip count={business.photos.length} /> : null}
@@ -172,7 +190,14 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
           </div>
           {/* App-store style facts strip: rating, opening, services. Labels always spelled out. */}
           <dl className="mt-4 grid grid-cols-3 divide-x divide-border border-y border-border py-3 text-center">
-            <Stat label="Reviews" value="New" />
+            {summary.count > 0 && summary.average !== null ? (
+              <Stat
+                label={summary.count === 1 ? "1 review" : `${summary.count} reviews`}
+                value={`${summary.average.toFixed(1)} ★`}
+              />
+            ) : (
+              <Stat label="Reviews" value="New" />
+            )}
             {status ? (
               <Stat
                 label={status.label.split(" · ")[1] ?? ""}
@@ -226,6 +251,9 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
               <li key={s.id}>
                 <ServiceRow
                   id={s.id}
+                  photos={business.photos
+                    .filter((p) => p.serviceId === s.id)
+                    .map((p) => ({ small: media(p.pathSmall), large: media(p.pathLarge) }))}
                   href={bookable(s.staffIds) ? bookHref(s.id) : null}
                   name={s.name}
                   meta={[
@@ -281,6 +309,40 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
           </ul>
         </section>
       ) : null}
+
+      <section className="mb-6" aria-labelledby="reviews-heading">
+        <div className="mb-2 flex items-baseline justify-between gap-3">
+          <h2 id="reviews-heading" className="text-title font-semibold">
+            Reviews
+          </h2>
+          {summary.count > reviews.length ? (
+            <Link href={`/business/${business.slug}/reviews`} className="text-body text-primary">
+              See all {summary.count}
+            </Link>
+          ) : null}
+        </div>
+        {summary.count === 0 ? (
+          <p className="rounded-card bg-card p-4 text-body text-ink-muted lift">
+            No reviews yet. Reviews come only from customers who booked and visited.
+          </p>
+        ) : (
+          <div className="overflow-hidden rounded-card bg-card lift">
+            <div className="px-4 pt-4 pb-3">
+              <RatingSummary summary={summary} />
+            </div>
+            <ul className="ios-list border-t border-border">
+              {reviews.map((r) => (
+                <li key={r.id}>
+                  <ReviewCard review={r} businessName={business.name} canReport={Boolean(user) && !r.mine} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <p className="mt-2 px-1 text-small text-ink-muted">
+          Only customers with a completed booking can leave a review.
+        </p>
+      </section>
 
       {business.description ? (
         <section className="mb-6" aria-labelledby="about-heading">

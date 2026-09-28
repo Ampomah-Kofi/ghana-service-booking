@@ -25,6 +25,8 @@ export type BusinessPhotoView = {
   pathLarge: string;
   width: number | null;
   height: number | null;
+  /** The service this photo shows, if the business tagged one (Phase 7). */
+  serviceId: string | null;
 };
 
 export type BusinessView = {
@@ -52,7 +54,7 @@ const businessSelect = `
   business_categories ( is_primary, categories ( id, name, slug ) ),
   business_locations ( is_primary, city_id, area_id, locality_text, address_line, landmark, directions, lat, lng,
                        cities ( name, regions ( name ) ), areas ( name ) ),
-  business_photos ( id, path_small, path_large, width, height, sort_order, created_at )
+  business_photos ( id, path_small, path_large, width, height, sort_order, created_at, service_id )
 ` as const;
 
 /**
@@ -107,7 +109,14 @@ async function loadBusiness(db: Db, column: "id" | "slug", value: string): Promi
       : null,
     photos: [...data.business_photos]
       .sort((a, b) => a.sort_order - b.sort_order || a.created_at.localeCompare(b.created_at))
-      .map((p) => ({ id: p.id, pathSmall: p.path_small, pathLarge: p.path_large, width: p.width, height: p.height })),
+      .map((p) => ({
+        id: p.id,
+        pathSmall: p.path_small,
+        pathLarge: p.path_large,
+        width: p.width,
+        height: p.height,
+        serviceId: p.service_id,
+      })),
   };
 }
 
