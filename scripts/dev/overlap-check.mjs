@@ -42,7 +42,7 @@ for (const width of [360, 390]) {
       // 1) In-flow text overlapping other in-flow text.
       const leaves = [...document.querySelectorAll("main *")].filter(
         (el) =>
-          visible(el) && !isFixedOnly(el) && [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()),
+          visible(el) && !isFixed(el) && [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()),
       );
       const boxes = leaves.map((el) => {
         const rs = [...el.getClientRects()];
@@ -90,7 +90,7 @@ for (const width of [360, 390]) {
           )
         : innerHeight;
       const content = [...document.querySelectorAll("main *")].filter(
-        (el) => visible(el) && !isFixedOnly(el) && el.children.length === 0,
+        (el) => visible(el) && !isFixed(el) && el.children.length === 0,
       );
       const lastBottom = Math.max(...content.map((el) => el.getBoundingClientRect().bottom));
       return { hits: [...new Set(hits)].slice(0, 6), hidden: Math.round(lastBottom - barTop) };
