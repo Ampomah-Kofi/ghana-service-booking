@@ -59,3 +59,9 @@ export function formatMonthYear(date: string): string {
   const p = parts(noon(date), "UTC", { month: "long", year: "numeric" });
   return `${p.month} ${p.year}`;
 }
+
+/** "Sep 2026" from a local date. */
+export function formatMonthYearShort(date: string): string {
+  const p = parts(noon(date), "UTC", { month: "short", year: "numeric" });
+  return `${p.month} ${p.year}`;
+}

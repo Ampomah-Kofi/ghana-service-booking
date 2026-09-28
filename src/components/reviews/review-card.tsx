@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { formatMonthYear } from "@/lib/datetime";
+import { formatMonthYearShort } from "@/lib/datetime";
 import type { ReviewView } from "@/server/reviews/reviews";
 import { ReportReview } from "./report-review";
 import { Stars } from "./stars";
@@ -27,9 +27,9 @@ export function ReviewCard({
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-body font-semibold">{review.authorName}</p>
-          <p className="truncate text-caption text-ink-muted">
+          <p className="text-caption text-ink-muted">
             {review.serviceName}
-            {review.staffName ? ` with ${review.staffName}` : ""} · {formatMonthYear(review.visitedOn)}
+            {review.staffName ? ` with ${review.staffName}` : ""} · {formatMonthYearShort(review.visitedOn)}
           </p>
         </div>
         <Stars value={review.rating} className="size-3.5" />
