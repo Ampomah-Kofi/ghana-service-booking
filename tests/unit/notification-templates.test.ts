@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { renderNotification, TEMPLATE_KEYS, toGsm7 } from "@/lib/notification-templates";
+import { BRAND } from "@/lib/brand";
 
 const GSM7 = /^[@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !"#¤%&'()*+,\-./0-9:;<=>?¡A-ZÄÖÑÜ§¿a-zäöñüà]*$/;
 const SITE = "https://hyia.example";
@@ -39,7 +40,7 @@ describe("notification templates", () => {
   it("uses the business's clock and links to the booking", () => {
     const r = renderNotification("booking.confirmed", base, SITE);
     expect(r.text).toBe(
-      `Hyia: Booked! Skin fade at Kwame Cuts, Wed, 14 Oct, 9:30 am. Details: ${SITE}/bookings/${base.appointment_id}`,
+      `${BRAND.name}: Booked! Skin fade at Kwame Cuts, Wed, 14 Oct, 9:30 am. Details: ${SITE}/bookings/${base.appointment_id}`,
     );
     expect(r.href).toBe(`/bookings/${base.appointment_id}`);
     expect(r.audience).toBe("customer");

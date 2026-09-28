@@ -46,7 +46,9 @@ Criteria: short, easy to say in Twi/Ga/Ewe-speaking Ghana and in English, spella
 | Ayoba | MTN's messaging app |
 | Tumi / Kasa / Timely / Bookly | Tumi luggage, TP-Link Kasa, Timely salon software, Bookly booking plugin |
 
-**Recommendation: Hyia.** The meaning *is* the product, it is 4 letters, and it reads fine in English even when mispronounced. It also works as a verb in a tagline ("Hyia your barber"). The risk is inconsistent pronunciation abroad. Mitigate with a phonetic hint on the landing page and a domain such as `hyia.app` or `gethyia.com`. **Okwan** is the fallback if Hyia fails clearance.
+> **Decision (28 Sep 2026):** the product owner named the app **Booker GH**. It replaces the working name Hyia everywhere (one constant: `src/lib/brand.ts`). Trademark and domain checks are still to do.
+
+**Recommendation (earlier): Hyia.** The meaning *is* the product, it is 4 letters, and it reads fine in English even when mispronounced. It also works as a verb in a tagline ("Hyia your barber"). The risk is inconsistent pronunciation abroad. Mitigate with a phonetic hint on the landing page and a domain such as `hyia.app` or `gethyia.com`. **Okwan** is the fallback if Hyia fails clearance.
 
 ## 5. MVP scope (end of Phase 10)
 

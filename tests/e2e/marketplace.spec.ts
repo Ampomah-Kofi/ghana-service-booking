@@ -1,9 +1,10 @@
 import { expect, test } from "@playwright/test";
+import { BRAND } from "../../src/lib/brand";
 
 /** A customer finds a provider without an account (read-only; uses seed data). */
 test("search from the home page and open a provider", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "New on Hyia" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: `New on ${BRAND.name}` })).toBeVisible();
 
   await page.getByRole("searchbox", { name: /Search for a service/ }).fill("Barber in East Legon");
   await page.getByRole("searchbox", { name: /Search for a service/ }).press("Enter");

@@ -1,8 +1,9 @@
 /**
- * Product identity in one place. "Hyia" is the recommended working name from
- * docs/product.md §4 and is still pending trademark clearance. Change it here only.
+ * Product identity in one place. The product owner named the app "Booker GH" (28 Sep 2026),
+ * replacing the working name "Hyia" (docs/product.md §4). Still subject to trademark clearance.
+ * Change it here only.
  */
 export const BRAND = {
-  name: "Hyia",
+  name: "Booker GH",
   tagline: "Book trusted professionals near you.",
 } as const;

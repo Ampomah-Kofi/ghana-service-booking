@@ -1,3 +1,4 @@
+import { BRAND } from "./brand";
 /**
  * Minimal iCalendar (RFC 5545) event for "Add to calendar" (ADR-0012). Pure and dependency-free:
  * phones open the downloaded .ics in their own calendar app. No third-party calendar API.
@@ -51,7 +52,7 @@ export function buildIcs(event: IcsEvent): string {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Hyia//Bookings//EN",
+    `PRODID:-//${BRAND.name}//Bookings//EN`,
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",

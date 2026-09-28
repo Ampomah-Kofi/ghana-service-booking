@@ -8,6 +8,7 @@ import { Segmented } from "@/components/ui/segmented";
 import { memberBusinessOr404 } from "@/server/businesses/access";
 import { listReviewsForBusiness, ratingSummary } from "@/server/reviews/reviews";
 import { ReplyForm } from "./reply-form";
+import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = { title: "Reviews" };
 
@@ -65,7 +66,7 @@ export default async function ProviderReviewsPage({
                   <span className="flex items-center gap-2">
                     {r.status === "hidden" ? (
                       <span className="rounded-full bg-warning/10 px-2.5 py-1 text-caption font-semibold text-warning">
-                        Hidden by Hyia after a report
+                        Hidden by {BRAND.name} after a report
                       </span>
                     ) : canManage ? (
                       <ReplyForm reviewId={r.id} authorName={r.authorName} current={r.reply?.body ?? null} />

@@ -15,6 +15,7 @@ import {
   type InviteState,
 } from "@/app/dashboard/[businessId]/team/actions";
 import { WeekHoursEditor } from "./week-hours-editor";
+import { BRAND } from "@/lib/brand";
 
 type StaffValues = {
   displayName: string;
@@ -159,7 +160,7 @@ export function InviteForm({
   const [copied, setCopied] = useState(false);
 
   if (state.link) {
-    const message = `You've been added to our team on Hyia. Open this link and sign in with ${state.phone} to accept: ${state.link}`;
+    const message = `You've been added to our team on ${BRAND.name}. Open this link and sign in with ${state.phone} to accept: ${state.link}`;
     return (
       <div className="grid gap-3 rounded-card bg-card p-5 lift">
         <p className="text-body">
