@@ -27,8 +27,9 @@ select
   (select id from public.services where business_id = 'b0000000-0000-4000-8000-000000000002' and name = 'Twists') as twists,
   (select id from public.services where business_id = 'b0000000-0000-4000-8000-000000000002' and name = 'Loc retwist') as retwist,
   (select id from public.services where business_id = 'b0000000-0000-4000-8000-000000000003' and name = 'Facial') as facial,
-  -- The Monday 8–14 days from now: inside the default 60-day window, outside every cancellation window.
-  (current_date + (8 - extract(isodow from current_date)::int) + 7) as mon;
+  -- Next week's Monday (1–7 days away): inside the default 60-day window and the 2-hour
+  -- cancellation window, and its Tuesday (≤ 8 days = 192 h) is inside a 336-hour window on any weekday.
+  (current_date + (8 - extract(isodow from current_date)::int)) as mon;
 -- Deterministic on any local database: demo data (pnpm db:demo) or E2E leftovers are removed
 -- inside this transaction, which is rolled back at the end.
 delete from public.appointments;

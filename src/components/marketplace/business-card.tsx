@@ -16,12 +16,15 @@ export function BusinessCard({
   currencies,
   compact = false,
   eager = false,
+  next = null,
 }: {
   card: Card;
   supabaseUrl: string;
   currencies: Map<string, Currency>;
   compact?: boolean;
   eager?: boolean;
+  /** "Today 2:30 pm" when there's still a free time today (SPEC §11: next available). */
+  next?: string | null;
 }) {
   const image = card.imagePath ?? card.logoPath;
   const currency = card.startingPrice ? currencies.get(card.startingPrice.currency) : undefined;
@@ -63,11 +66,19 @@ export function BusinessCard({
           ) : null}
         </div>
         {meta ? <p className="truncate text-small text-ink-muted">{meta}</p> : null}
-        {price ? (
-          <p className="mt-0.5 text-small">
-            From <span className="font-semibold tabular-nums">{price}</span>
-          </p>
-        ) : null}
+        <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-small">
+          {price ? (
+            <span>
+              From <span className="font-semibold tabular-nums">{price}</span>
+            </span>
+          ) : null}
+          {next ? (
+            <span className="inline-flex items-center gap-1 font-medium text-success">
+              <span aria-hidden="true" className="size-1.5 rounded-full bg-success" />
+              {next}
+            </span>
+          ) : null}
+        </p>
       </div>
     </Link>
   );

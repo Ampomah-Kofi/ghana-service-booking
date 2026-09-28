@@ -1477,6 +1477,16 @@ export type Database = {
           starts_at: string;
         }[];
       };
+      get_busy_intervals_many: {
+        Args: { p_business_ids: string[]; p_from: string; p_to: string };
+        Returns: {
+          business_id: string;
+          ends_at: string;
+          kind: string;
+          staff_id: string;
+          starts_at: string;
+        }[];
+      };
       get_staff_invite: {
         Args: { p_token: string };
         Returns: {

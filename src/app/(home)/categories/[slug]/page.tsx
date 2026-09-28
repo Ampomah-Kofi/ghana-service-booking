@@ -7,6 +7,7 @@ import { listActiveCategories } from "@/server/catalog/categories";
 import { listCities, listCurrencies } from "@/server/catalog/currencies";
 import { createUserClient } from "@/server/db/supabase-server";
 import { serverEnv } from "@/server/env";
+import { nextAvailableToday } from "@/server/scheduling/next-available";
 import { searchMarketplace } from "@/server/search/marketplace";
 
 export async function generateMetadata({ params }: PageProps<"/categories/[slug]">): Promise<Metadata> {
@@ -35,6 +36,10 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
     listCurrencies(db),
   ]);
 
+  const next = await nextAvailableToday(
+    db,
+    result.results.map((c) => c.id),
+  );
   const chip = (active: boolean) =>
     `inline-flex min-h-9 items-center rounded-full px-3.5 text-small whitespace-nowrap ${active ? "bg-ink text-surface" : "bg-fill text-ink"}`;
 
@@ -79,7 +84,12 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
           </Link>
         </div>
       ) : (
-        <ResultList cards={result.results} supabaseUrl={publicEnv().NEXT_PUBLIC_SUPABASE_URL} currencies={currencies} />
+        <ResultList
+          cards={result.results}
+          supabaseUrl={publicEnv().NEXT_PUBLIC_SUPABASE_URL}
+          currencies={currencies}
+          next={next}
+        />
       )}
     </>
   );

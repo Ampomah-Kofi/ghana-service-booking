@@ -10,19 +10,33 @@ import { listActiveCategories } from "@/server/catalog/categories";
 import { listCities, listCurrencies } from "@/server/catalog/currencies";
 import { createUserClient } from "@/server/db/supabase-server";
 import { serverEnv } from "@/server/env";
+import { getCurrentUser } from "@/server/auth/session";
+import { listMyPlaces } from "@/server/bookings/places";
+import { nextAvailableToday } from "@/server/scheduling/next-available";
 import { recentlyJoined, type BusinessCard as Card } from "@/server/search/marketplace";
+import { PlaceCard } from "@/components/marketplace/place-card";
 
 const EXAMPLES = ["Barber in East Legon", "Braids in Kumasi", "Nails near me", "Home cleaning"];
 
 /** Explore: search first, then categories and swipeable rows of providers (SPEC §11). */
 export default async function HomePage() {
   const db = await createUserClient();
-  const [categories, cities, recent, currencies] = await Promise.all([
+  const user = await getCurrentUser();
+  const [categories, cities, recent, currencies, places] = await Promise.all([
     listActiveCategories(db),
     listCities(db, serverEnv().DEFAULT_COUNTRY_CODE),
     recentlyJoined(db, 40),
     listCurrencies(db),
+    user ? listMyPlaces(db, user.id) : Promise.resolve([]),
   ]);
+  // Live "next free time today" for everything shown, in one batch (same engine as booking).
+  const next = await nextAvailableToday(
+    db,
+    recent.map((c) => c.id),
+  );
+  const availableToday = recent
+    .filter((c) => next.has(c.id))
+    .sort((a, b) => (next.get(a.id)?.at.getTime() ?? 0) - (next.get(b.id)?.at.getTime() ?? 0));
   const supabaseUrl = publicEnv().NEXT_PUBLIC_SUPABASE_URL;
 
   // One query, grouped: a row per category that has providers, in the admin's category order.
@@ -43,6 +57,7 @@ export default async function HomePage() {
             currencies={currencies}
             compact
             eager={eagerFirst && i < 2}
+            next={next.get(card.id)?.label}
           />
         </li>
       ))}
@@ -72,6 +87,18 @@ export default async function HomePage() {
         </ul>
       </section>
 
+      {places.length > 0 ? (
+        <Section title="Your places" id="places">
+          <ul className="rail -mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
+            {places.map((place) => (
+              <li key={place.businessId} className="w-3/4 max-w-72 shrink-0">
+                <PlaceCard place={place} supabaseUrl={supabaseUrl} />
+              </li>
+            ))}
+          </ul>
+        </Section>
+      ) : null}
+
       <Section title="Categories" id="categories">
         {categories.length === 0 ? (
           <p className="rounded-card border border-border bg-card p-4 text-body text-ink-muted">
@@ -93,9 +120,15 @@ export default async function HomePage() {
         )}
       </Section>
 
+      {availableToday.length > 0 ? (
+        <Section title="Available today" id="today" href="/search?today=1">
+          {row(availableToday.slice(0, 8), true)}
+        </Section>
+      ) : null}
+
       {recent.length > 0 ? (
         <Section title={`New on ${BRAND.name}`} id="recent">
-          {row(recent.slice(0, 8), true)}
+          {row(recent.slice(0, 8), availableToday.length === 0)}
         </Section>
       ) : (
         <p className="mb-8 rounded-card border border-border bg-card p-5 text-body text-ink-muted">

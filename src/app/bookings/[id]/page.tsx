@@ -8,6 +8,7 @@ import { formatDateShort, formatTime } from "@/lib/datetime";
 import { formatMoney, formatPrice } from "@/lib/money";
 import { formatPhoneInternational } from "@/lib/phone";
 import { telUrl, whatsappChatUrl } from "@/lib/share";
+import { rebookHref } from "@/lib/rebook";
 import { requireUserOrRedirect } from "@/server/auth/session";
 import { customerCanChange, getAppointment } from "@/server/bookings/appointments";
 import { createUserClient } from "@/server/db/supabase-server";
@@ -134,6 +135,13 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
           </Link>
           <CancelBookingForm appointmentId={a.id} />
         </section>
+      ) : !live && a.business.slug ? (
+        <Link
+          href={rebookHref(a.business.slug, a.serviceId, a.staffId)}
+          className="pressable flex min-h-12 items-center justify-center rounded-control bg-primary px-4 text-body font-semibold text-on-primary hover:bg-primary-hover"
+        >
+          Book again
+        </Link>
       ) : live ? (
         <p className="text-center text-small text-ink-muted">
           It&apos;s too late to change this booking online. Please contact the business.

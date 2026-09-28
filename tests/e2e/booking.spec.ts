@@ -75,6 +75,15 @@ test("customer books any available professional, then cancels", async ({ page })
   await expect(page.getByText("Your booking is cancelled.")).toBeVisible();
   await page.reload();
   await expect(page.getByText("Cancelled", { exact: true })).toBeVisible();
+
+  // Book again: same service and person, straight to the time step.
+  await page.getByRole("link", { name: "Book again" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Choose a time" })).toBeVisible();
+  await expect(page.getByText(/^Twists · /).first()).toBeVisible();
+
+  // Explore remembers where you've been, with the same shortcut. Cancelled visits don't count.
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Your places" })).toHaveCount(0);
 });
 
 test("the booking API needs a signed-in caller; availability is public", async ({ request }) => {

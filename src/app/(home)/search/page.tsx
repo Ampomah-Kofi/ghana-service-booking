@@ -8,6 +8,7 @@ import { parseCoordinates } from "@/lib/search-query";
 import { listCurrencies } from "@/server/catalog/currencies";
 import { createUserClient } from "@/server/db/supabase-server";
 import { serverEnv } from "@/server/env";
+import { nextAvailableToday } from "@/server/scheduling/next-available";
 import { searchMarketplace } from "@/server/search/marketplace";
 
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
@@ -24,12 +25,27 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
   const where = one(p.where).slice(0, 60);
   const page = Math.max(1, Number.parseInt(one(p.page), 10) || 1);
   const coords = parseCoordinates(one(p.near));
+  const todayOnly = one(p.today) === "1";
 
   const db = await createUserClient();
   const [result, currencies] = await Promise.all([
-    searchMarketplace(db, { q, where, coords, page, pageSize: 20 }, serverEnv().DEFAULT_COUNTRY_CODE),
+    // "Available today" checks the best 50 matches and keeps those with a free time left today.
+    searchMarketplace(
+      db,
+      { q, where, coords, page: todayOnly ? 1 : page, pageSize: todayOnly ? 50 : 20 },
+      serverEnv().DEFAULT_COUNTRY_CODE,
+    ),
     listCurrencies(db),
   ]);
+  const next = await nextAvailableToday(
+    db,
+    result.results.map((c) => c.id),
+  );
+  const cards = todayOnly
+    ? result.results
+        .filter((c) => next.has(c.id))
+        .sort((a, b) => (next.get(a.id)?.at.getTime() ?? 0) - (next.get(b.id)?.at.getTime() ?? 0))
+    : result.results;
   const { interpretation: i } = result;
   const heading = [
     i.category?.name ?? (i.text ? `“${i.text}”` : "Everything"),
@@ -37,7 +53,9 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
   ]
     .filter(Boolean)
     .join(" ");
-  const pages = Math.ceil(result.total / result.pageSize);
+  const pages = todayOnly ? 1 : Math.ceil(result.total / result.pageSize);
+  const filterHref = (today: boolean) =>
+    `/search?${new URLSearchParams({ ...(q && { q }), ...(where && { where }), ...(one(p.near) && { near: one(p.near) }), ...(today && { today: "1" }) })}`;
   const pageHref = (n: number) =>
     `/search?${new URLSearchParams({ ...(q && { q }), ...(where && { where }), ...(one(p.near) && { near: one(p.near) }), page: String(n) })}`;
 
@@ -48,9 +66,26 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
       </div>
 
       <h1 className="text-display font-bold tracking-tight">{heading}</h1>
-      <p className="mb-4 text-small text-ink-muted" aria-live="polite">
-        {result.total === 1 ? "1 result" : `${result.total} results`}
+      <p className="mb-3 text-small text-ink-muted" aria-live="polite">
+        {todayOnly ? `${cards.length} available today` : result.total === 1 ? "1 result" : `${result.total} results`}
       </p>
+      <nav aria-label="Filters" className="mb-5 flex gap-2">
+        {[
+          { label: "Any day", active: !todayOnly, href: filterHref(false) },
+          { label: "Available today", active: todayOnly, href: filterHref(true) },
+        ].map((f) => (
+          <Link
+            key={f.label}
+            href={f.href}
+            aria-current={f.active ? "page" : undefined}
+            className={`pressable inline-flex min-h-10 items-center rounded-full border px-4 text-small font-medium ${
+              f.active ? "border-primary bg-primary-soft text-primary" : "border-border bg-card"
+            }`}
+          >
+            {f.label}
+          </Link>
+        ))}
+      </nav>
 
       {result.needsLocation ? (
         <div className="mb-4 rounded-card bg-card p-4 border border-border">
@@ -64,7 +99,17 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
         </p>
       ) : null}
 
-      {result.results.length === 0 ? (
+      {todayOnly && cards.length === 0 && result.results.length > 0 ? (
+        <div className="rounded-card border border-border bg-card p-6 text-center">
+          <p className="text-title font-semibold">Nothing free today</p>
+          <p className="mt-2 text-body text-ink-muted">
+            These places are fully booked or closed for the rest of today.
+          </p>
+          <Link href={filterHref(false)} className="mt-3 inline-flex min-h-11 items-center font-medium text-primary">
+            See other days
+          </Link>
+        </div>
+      ) : result.results.length === 0 ? (
         <div className="rounded-card bg-card p-6 text-center border border-border">
           <p className="text-title font-semibold">No matches yet</p>
           <p className="mt-2 text-body text-ink-muted">
@@ -75,7 +120,12 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
           </Link>
         </div>
       ) : (
-        <ResultList cards={result.results} supabaseUrl={publicEnv().NEXT_PUBLIC_SUPABASE_URL} currencies={currencies} />
+        <ResultList
+          cards={cards}
+          supabaseUrl={publicEnv().NEXT_PUBLIC_SUPABASE_URL}
+          currencies={currencies}
+          next={next}
+        />
       )}
 
       {pages > 1 ? (

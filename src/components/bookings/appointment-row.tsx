@@ -9,11 +9,14 @@ export function AppointmentRow({
   href,
   who,
   detail,
+  action,
 }: {
   appointment: AppointmentView;
   href?: string;
   who: string;
   detail?: string;
+  /** A secondary action under the row, e.g. "Book again". */
+  action?: { href: string; label: string };
 }) {
   const tz = appointment.business.timezone ?? "UTC";
   const body = (
@@ -47,6 +50,16 @@ export function AppointmentRow({
       ) : (
         <div className={className}>{body}</div>
       )}
+      {action ? (
+        <div className="px-4 pb-3">
+          <Link
+            href={action.href}
+            className="pressable inline-flex min-h-10 items-center rounded-full bg-primary-soft px-4 text-small font-semibold text-primary"
+          >
+            {action.label}
+          </Link>
+        </div>
+      ) : null}
     </li>
   );
 }

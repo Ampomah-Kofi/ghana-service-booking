@@ -5,6 +5,7 @@ import { GroupedSection } from "@/components/ui/card";
 import { requireUserOrRedirect } from "@/server/auth/session";
 import { listMyAppointments } from "@/server/bookings/appointments";
 import { createUserClient } from "@/server/db/supabase-server";
+import { rebookHref } from "@/lib/rebook";
 
 export const metadata: Metadata = { title: "Your bookings" };
 
@@ -45,6 +46,11 @@ export default async function BookingsPage() {
                 appointment={a}
                 href={`/bookings/${a.id}`}
                 who={a.business.name ?? "Business"}
+                action={
+                  a.business.slug
+                    ? { href: rebookHref(a.business.slug, a.serviceId, a.staffId), label: "Book again" }
+                    : undefined
+                }
               />
             ))}
           </ul>

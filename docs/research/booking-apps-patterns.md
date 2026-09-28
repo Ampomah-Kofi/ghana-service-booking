@@ -43,9 +43,9 @@
 | Walk-ins, calendar, clients, one-tap statuses | ✅ Phase 6 |
 | Photo-first cards and pages, installable app | ✅ App-feel pass (illustrated covers until photos exist) |
 | Directions | ✅ link out (no embedded map) |
-| **Rebook in one tap** | ❌ gap: small, high value |
-| **"My places" (recently booked) on Explore** | ❌ gap: answers the "find my same barber" complaint |
-| **Search/filter by availability ("Available today")** | ❌ gap: needs next-available computation |
+| **Rebook in one tap** | ✅ "Book again" on past bookings and on Explore |
+| **"Your places" (recently booked) on Explore** | ✅ last visit, or "booked" when you haven't been yet |
+| **Search/filter by availability ("Available today")** | ✅ live "Today 2:30 pm" on cards, an Explore row, and a search filter |
 | Photos per service (portfolio next to the service) | ❌ business-level photos only |
 | Favourites, verified reviews with replies | ⏳ Phase 7 |
 | Reminders, provider-worded messages | ⏳ Phase 8 |
