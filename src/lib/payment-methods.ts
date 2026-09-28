@@ -15,7 +15,7 @@ export const PAYMENT_METHOD_KEYS = Object.keys(PAYMENT_METHODS) as [PaymentMetho
 export const MOMO_NETWORKS = { mtn: "MTN MoMo", telecel: "Telecel Cash", airteltigo: "AirtelTigo Money" } as const;
 export type MomoNetwork = keyof typeof MOMO_NETWORKS;
 
-/** "Pays: Cash · MoMo" in the order the app lists them. */
+/** "Cash · MoMo" in the order the app lists them. */
 export function acceptedSummary(methods: readonly PaymentMethod[]): string {
   return PAYMENT_METHOD_KEYS.filter((m) => methods.includes(m))
     .map((m) => PAYMENT_METHODS[m].short)

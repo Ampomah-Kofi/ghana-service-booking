@@ -1,5 +1,7 @@
 # Phase 9 plan: payments, deposits, Mobile Money
 
+> **Superseded (28 Sep):** the product owner decided Booker GH is not a payment platform. The build below was replaced by ADR-0017: customers pay businesses directly, no deposits, no online payments. Kept for history.
+
 Approved 28 Sep ("approve"). Builds on ADR-0005; decisions recorded in ADR-0017. Additions from the product owner during the phase: pay in the app **and** face to face; checkout choices Mobile Money, card, bank transfer or just book (Apple Pay only if the provider supports it); owners enter their payout details so the money goes to them.
 
 **Goal:** a customer can pay a deposit (or the full price) with Mobile Money or a card when a business asks for it, the slot is held while they pay, the booking confirms itself when the money arrives, and the business can record cash, all fully testable with a mock before any real provider is connected.

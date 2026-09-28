@@ -30,6 +30,9 @@ delete from public.reviews;
 delete from public.notifications;
 delete from public.payments;
 delete from public.appointments;
+-- Start from the defaults (demo walkthroughs may have changed Kwame's settings).
+update public.booking_rules set accepted_payment_methods = default where business_id = 'b0000000-0000-4000-8000-000000000001';
+delete from public.business_payment_details where business_id = 'b0000000-0000-4000-8000-000000000001';
 
 create function pg_temp.low_cut() returns uuid language sql stable as $$
   select id from public.services where business_id = 'b0000000-0000-4000-8000-000000000001' and name = 'Low cut';

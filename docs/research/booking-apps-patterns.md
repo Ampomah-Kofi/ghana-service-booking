@@ -49,7 +49,7 @@
 | Photos per service (portfolio next to the service)            | ✅ Phase 7 (tag photos with a service)                                        |
 | Favourites, verified reviews with replies                     | ✅ Phase 7                                                                    |
 | Reminders, provider-worded messages                           | ⏳ Phase 8                                                                    |
-| Deposits, no-show fees, pay after the appointment             | ⏳ Phase 9                                                                    |
+| Deposits, no-show fees, pay after the appointment             | Paid directly; no deposits (ADR-0017)                                         |
 | Map of results                                                | ⏳ later (map tiles cost data and API keys; the distance sort already exists) |
 | Off-peak/last-minute deals, loyalty points, paid promotion    | ⏳ later (business-model decisions; promotion must be clearly labelled)       |
 
@@ -63,7 +63,7 @@
 
 **Phase 7:** favourites (heart on cards and pages); verified reviews with photos and business replies, shown as the rating on cards; per-service portfolio photos.
 **Phase 8:** reminders; providers can edit their message wording; last-minute "free slot" alerts to favourites (opt-in).
-**Phase 9:** deposits and no-show protection; pay after the appointment (Mobile Money, cash recorded at checkout).
+**Phase 9 (as built, ADR-0017):** no deposits; customers pay the business directly and the business marks it paid.
 **Later, needs a decision:** map view; off-peak pricing; loyalty; paid promotion (if ever: clearly labelled, charged only on verifiable new clients).
 
 ## Sources

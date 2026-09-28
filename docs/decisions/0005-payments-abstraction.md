@@ -1,6 +1,6 @@
 # ADR-0005: Provider-agnostic payments
 
-**Status:** Accepted · **Date:** 2026-09-27
+**Status:** Superseded by [ADR-0017](0017-payments-deposits-payouts.md) (28 Sep 2026: no money moves through the app) · **Date:** 2026-09-27
 
 ## Context
 

@@ -17,8 +17,6 @@ Rule: **`NEXT_PUBLIC_*` is shipped to every browser. Never put a secret there.**
 | `WHATSAPP_PROVIDER`                    | server     | no (default `mock`) | WhatsApp channel provider (Phase 8). **`mock` refused in production**                                                                          | `mock`                                       |
 | `EMAIL_PROVIDER`                       | server     | no (default `mock`) | Email channel provider (Phase 8). **`mock` refused in production**                                                                             | `mock`                                       |
 | `CRON_SECRET`                          | **server** | for sending         | Bearer secret for `/api/internal/jobs/dispatch` (≥ 32 chars). Unset = the dispatcher answers 503                                               | `openssl rand -hex 32`                       |
-| `PAYMENTS_PROVIDER`                    | server     | no (default `mock`) | `mock` \| `none` (Phase 9). `none` = online payment off, customers just book. **`mock` refused when `APP_ENV=production`**                     | `mock`                                       |
-| `PAYMENTS_WEBHOOK_SECRET`              | **server** | with `mock`         | Signs mock webhooks (≥ 32 chars). A real provider's secret gets its own variable                                                               | `openssl rand -hex 32`                       |
 | `DEFAULT_COUNTRY_CODE`                 | server     | yes                 | Default region for parsing phones typed without `+`. Country data itself lives in the DB                                                       | `GH`                                         |
 
 ## Supabase CLI (`supabase/.env`, local only)
@@ -54,20 +52,6 @@ Configured per project (staging, production) in the Supabase dashboard. Record c
   $$);
   ```
   Rotating: update the Vault secret and the Vercel variable together (the route compares in constant time).
-
-## Payments job (Phase 9)
-
-- **Local:** `node scripts/dev/dispatch-loop.mjs` also calls `/api/internal/jobs/payments` (expire holds, reconcile, refunds).
-- **Hosted:** schedule it like the dispatcher, every minute:
-  ```sql
-  select cron.schedule('payments-job', '* * * * *', $$
-    select net.http_post(
-      url := 'https://<site>/api/internal/jobs/payments',
-      headers := jsonb_build_object('Authorization', 'Bearer ' ||
-        (select decrypted_secret from vault.decrypted_secrets where name = 'cron_secret')))
-  $$);
-  ```
-- The provider's webhook URL is `https://<site>/api/internal/webhooks/payments/<provider>`.
 
 ## Rotation
 

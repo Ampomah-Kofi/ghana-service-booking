@@ -232,7 +232,7 @@ exclude using gist (staff_id with =, occupied with &&)
 - `occupied` = `[starts_at − buffer_before, ends_at + buffer_after)`, set by trigger (`timestamptz ± interval` isn't immutable, so it can't be a generated column).
 - `btree_gist` makes `uuid =` usable in the GiST index.
 - **Blocked times vs. appointments** live in different tables, so the constraint can't cover them. `book_appointment` and `create_blocked_time` both take `pg_advisory_xact_lock(hash('staff:'||id))` and check each other's table under that lock. Direct inserts into `blocked_times` are not granted.
-- **Pending holds** (Phase 9, with deposits; not built yet) block the slot for `pending_hold_minutes`. Expired holds are cancelled by the job and also lazily inside `book_appointment` for that staff member.
+- **No payment holds**: there are no deposits (ADR-0017), so a `pending` booking only waits for the business to confirm.
 
 | Option                                                     | Guarantees under concurrency                                           | Cost                                                         | Verdict                         |
 | ---------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------- |
@@ -244,43 +244,16 @@ exclude using gist (staff_id with =, occupied with &&)
 
 **Tested by:** pgTAP (overlap rejected; touching ranges `[10:00,10:30)` + `[10:30,11:00)` allowed; cancelled/no-show don't block; buffers honoured; blocks reject) and a **concurrency test** (N parallel connections booking the same slot). Phase 0 smoke run on the draft: 10 parallel sessions, 2 eligible staff → exactly **2 successes, 8 `BK409`**. Phase 5 (`tests/integration/booking.test.ts`): 20 users racing for one person → exactly 1 booking; 20 racing for "any available" with 3 people → exactly 3; 10 raw RPC calls → exactly 1.
 
-## 8. Payments
+## 8. Payments (ADR-0017: paid directly to the business)
 
-```ts
-// src/server/payments/provider.ts
-interface PaymentProvider {
-  readonly id: string; // 'mock' | 'cash' | '<vendor>'
-  readonly methods: PaymentMethod[]; // ['mobile_money','card']
-  createCharge(input: {
-    paymentId: string;
-    idempotencyKey: string;
-    amountMinor: number;
-    currency: string;
-    customer: { phoneE164?: string; email?: string; name: string };
-    method: PaymentMethod;
-    returnUrl: string;
-    description: string;
-  }): Promise<{
-    providerReference: string;
-    next:
-      | { type: "redirect"; url: string }
-      | { type: "await_customer_approval"; message: string } // e.g. MoMo prompt on phone
-      | { type: "none" };
-  }>;
-  verifyWebhook(req: { headers: Headers; rawBody: string }): Promise<ProviderEvent | null>; // null = bad signature
-  fetchStatus(providerReference: string): Promise<ProviderStatus>; // reconciliation
-  refund(input: { providerReference: string; amountMinor: number; idempotencyKey: string }): Promise<RefundResult>;
-}
-```
+Booker GH never takes, holds or moves money, and there are no deposits.
 
-- **Providers:** `MockPaymentProvider` (dev/staging only, refused in production; `/dev/mock-pay/[reference]` approves or declines and posts a signed webhook) and manual cash / Mobile Money recorded by the business (`record_manual_payment`). A real aggregator is added from its published docs once chosen, **never guessed**. `PAYMENTS_PROVIDER` (`mock` | `none`) selects it.
-- **Attempt states** (`payments.status`): `pending → paid → refund_pending → refunded`; `pending → failed | expired`. A retry is a new row. `appointments.payment_status` is derived: `null` / `pending` / `partially_paid` / `paid` / `refunded` / `failed`.
-- **Request path without secrets:** the customer's own session calls `start_payment` (checks it's theirs, the hold and the amount) which sets the merchant reference = `idempotency_key`; the provider is then asked for a charge under it. A provider failure closes the attempt with `abandon_payment`.
-- **Webhooks:** `POST /api/internal/webhooks/payments/{provider}` verifies the signature, then `apply_payment_event` stores the event in `payment_events` (unique `(provider, event_id)`) and applies it once under `FOR UPDATE`. Amount/currency mismatches are recorded, never applied; money arriving after the hold expired is refunded.
-- **Jobs:** `/api/internal/jobs/payments` (CRON_SECRET) expires holds, reconciles `pending` attempts older than 10 min via `fetchStatus`, and sends queued refunds (`claim_refunds`, SKIP LOCKED).
-- **Deposit flow:** booking → appointment `pending` + `hold_expires_at` (the exclusion constraint already blocks the slot) → Pay screen → charge → webhook `paid` → `confirmed` + "You're booked" / "Payment received". Hold expiry → cancelled, slot freed, no message.
-- **Refund policy** (trigger): cancelled by anyone → refund; no-show → refund only if the business chose it; reschedule → the payment moves to the new booking.
-- **Payouts:** the owner's `business_payout_accounts` row says where money lands; online payments can't be switched on without it. **Money never flows through the platform** (ADR-0005, ADR-0017).
+- **Accepted methods** (`booking_rules.accepted_payment_methods`, public): cash, Mobile Money, bank transfer, card at the shop. Shown on the business page ("Pay Kwame Cuts directly: Cash · MoMo").
+- **The customer's choice** (`appointments.payment_method_choice`): picked when booking (`choose_payment_method` checks it's accepted and the booking is theirs); information for the business.
+- **Payment details** (`business_payment_details`): the business's own MoMo number and/or bank account. Owner writes (`set_payment_details`); owners and managers read; a customer gets them only through `get_booking_payment_details` for their own booking, and only for the method they chose. The ticket adds a reference (`BK-` + 6 characters of the booking id) for the transfer.
+- **Recorded payments** (`payments`): what the business marks received (`record_payment`, any member, capped at a fixed price) or gives back (`mark_payment_refunded`, owners and managers). `appointments.payment_status` is derived: `null` / `partially_paid` / `paid` / `refunded`. Customers see their own; staff never see amounts.
+- **Receipt:** an in-app `payment.received` message when the business marks money received; no text message.
+- No provider interface, webhooks, jobs or payment secrets exist. Taking money online would need a new ADR.
 
 ## 9. Notifications
 

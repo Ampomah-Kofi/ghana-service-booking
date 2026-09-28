@@ -24,8 +24,8 @@
 │   │   ├── (provider)/            # /dashboard, /calendar, onboarding wizard
 │   │   ├── (admin)/               # /admin
 │   │   ├── api/v1/                # mobile/public API (route handlers → src/server)
-│   │   ├── api/internal/          # jobs/dispatch, auth/send-sms, webhooks/payments/[provider]
-│   │   └── dev/                   # mock-pay, outbox (404 unless APP_ENV != production)
+│   │   ├── api/internal/          # jobs/dispatch, auth/send-sms
+│   │   └── dev/                   # outbox (404 unless APP_ENV != production)
 │   ├── components/                # small, presentational (ui/, booking/, calendar/…)
 │   ├── server/                    # ALL business logic ('server-only')
 │   │   ├── auth/                  # session helpers, role guards
@@ -33,7 +33,7 @@
 │   │   ├── privileged/            # service-key client: lint-restricted imports
 │   │   ├── scheduling/            # availability.ts (pure) + tests
 │   │   ├── booking/  businesses/  services/  staff/  reviews/  search/  analytics/  admin/
-│   │   ├── payments/              # provider.ts, mock.ts, cash.ts, state-machine.ts
+│   │   ├── payments/              # service.ts (recorded payments), settings.ts (methods, details)
 │   │   ├── notifications/         # provider.ts, mock-*.ts, templates/, dispatcher.ts
 │   │   └── jobs/
 │   ├── lib/                       # shared, isomorphic: money.ts, phone.ts, time.ts, errors.ts
@@ -52,22 +52,20 @@
 
 Rule: `NEXT_PUBLIC_*` is shipped to browsers, so **never** put a secret there. Server-only values are read through a Zod-validated `src/server/env.ts` that imports `server-only` and fails fast at boot.
 
-| Name                                                    | Purpose                                                                                                    | Scope      | Example (local)                                           |
-| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------- | --------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL`                                  | Absolute URLs for share links, QR codes, OAuth redirects                                                   | public     | `http://localhost:3000`                                   |
-| `NEXT_PUBLIC_SUPABASE_URL`                              | Supabase API URL                                                                                           | public     | `http://127.0.0.1:54321`                                  |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`                  | Client key (the older "anon" key); safe because RLS applies                                                | public     | _(printed by `supabase status`)_                          |
-| `SUPABASE_SECRET_KEY`                                   | Service-role key. **Only** `src/server/privileged`                                                         | **server** | _(printed by `supabase status`)_                          |
-| `SUPABASE_DB_URL`                                       | Direct Postgres URL for tests/scripts only (never the app)                                                 | server/CI  | `postgresql://postgres:postgres@127.0.0.1:54322/postgres` |
-| `APP_ENV`                                               | `local` \| `staging` \| `production`; gates mocks and dev routes                                           | server     | `local`                                                   |
-| `PAYMENTS_PROVIDER`                                     | `mock` \| `<vendor>`; `mock` refused when `APP_ENV=production`                                             | server     | `mock`                                                    |
-| `PAYMENTS_WEBHOOK_SECRET`                               | HMAC secret for inbound payment webhooks (mock uses it too)                                                | server     | `dev-only-change-me`                                      |
-| `SMS_PROVIDER` / `WHATSAPP_PROVIDER` / `EMAIL_PROVIDER` | Channel provider selection                                                                                 | server     | `mock`                                                    |
-| `SEND_SMS_HOOK_SECRET`                                  | Verifies Supabase Auth → our SMS hook calls                                                                | server     | `v1,whsec_…` (from Supabase)                              |
-| `CRON_SECRET`                                           | Bearer secret pg_cron uses to call `/api/internal/jobs/*`                                                  | server     | `dev-cron-secret`                                         |
-| `DEFAULT_COUNTRY_CODE`                                  | Phone parsing default region; country data lives in the DB                                                 | server     | `GH`                                                      |
-| `SENTRY_DSN`                                            | Error reporting (Phase 11)                                                                                 | server     | _(empty)_                                                 |
-| _Vendor keys (later)_                                   | e.g. `SMS_<VENDOR>_API_KEY`, `PAYMENTS_<VENDOR>_SECRET_KEY`, added only when a real provider is integrated | server     | —                                                         |
+| Name                                                    | Purpose                                                                    | Scope      | Example (local)                                           |
+| ------------------------------------------------------- | -------------------------------------------------------------------------- | ---------- | --------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`                                  | Absolute URLs for share links, QR codes, OAuth redirects                   | public     | `http://localhost:3000`                                   |
+| `NEXT_PUBLIC_SUPABASE_URL`                              | Supabase API URL                                                           | public     | `http://127.0.0.1:54321`                                  |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`                  | Client key (the older "anon" key); safe because RLS applies                | public     | _(printed by `supabase status`)_                          |
+| `SUPABASE_SECRET_KEY`                                   | Service-role key. **Only** `src/server/privileged`                         | **server** | _(printed by `supabase status`)_                          |
+| `SUPABASE_DB_URL`                                       | Direct Postgres URL for tests/scripts only (never the app)                 | server/CI  | `postgresql://postgres:postgres@127.0.0.1:54322/postgres` |
+| `APP_ENV`                                               | `local` \| `staging` \| `production`; gates mocks and dev routes           | server     | `local`                                                   |
+| `SMS_PROVIDER` / `WHATSAPP_PROVIDER` / `EMAIL_PROVIDER` | Channel provider selection                                                 | server     | `mock`                                                    |
+| `SEND_SMS_HOOK_SECRET`                                  | Verifies Supabase Auth → our SMS hook calls                                | server     | `v1,whsec_…` (from Supabase)                              |
+| `CRON_SECRET`                                           | Bearer secret pg_cron uses to call `/api/internal/jobs/*`                  | server     | `dev-cron-secret`                                         |
+| `DEFAULT_COUNTRY_CODE`                                  | Phone parsing default region; country data lives in the DB                 | server     | `GH`                                                      |
+| `SENTRY_DSN`                                            | Error reporting (Phase 11)                                                 | server     | _(empty)_                                                 |
+| _Vendor keys (later)_                                   | e.g. `SMS_<VENDOR>_API_KEY`, added only when a real provider is integrated | server     | —                                                         |
 
 `.env.example` is committed. `.env.local` is gitignored. CI fails if a server-only name appears in a `NEXT_PUBLIC_` variable or in the client bundle.
 
@@ -110,13 +108,13 @@ pnpm dev                                    # http://localhost:3000 · Studio ht
 
 | Layer                        | Tool                                         | What                                                                                                                                                                                                                                                                                                             | When                           |
 | ---------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
-| Unit                         | Vitest                                       | Pure logic: `availability.ts` (DST, buffers, grid, notice/advance, any-available ordering), money formatting, phone parsing, payment state machine, query parser, Zod schemas                                                                                                                                    | Every commit, < 10 s           |
+| Unit                         | Vitest                                       | Pure logic: `availability.ts` (DST, buffers, grid, notice/advance, any-available ordering), money formatting, phone parsing, query parser, Zod schemas                                                                                                                                                           | Every commit, < 10 s           |
 | DB (constraints & functions) | pgTAP via `supabase test db`                 | Exclusion constraint (overlap/touching/cancelled/buffers), `book_appointment` paths and error codes, `create_blocked_time` vs bookings, status transitions, review eligibility                                                                                                                                   | CI                             |
 | **RLS isolation**            | pgTAP                                        | For **every** table: 2 businesses × personas (anon, customer, staff-A, manager-A, owner-A, owner-B, admin) × select/insert/update/delete, asserting the exact row counts/errors. Plus a meta-test that every public table has RLS enabled and at least one policy (or is on an allowlist, e.g. `payment_events`) | CI, required for any new table |
 | Integration                  | Vitest + local Supabase                      | `src/server` services with real JWTs (sign in seed users), `/api/v1` handlers, webhook idempotency (same event ×3 → one transition), notification outbox and reminders                                                                                                                                           | CI                             |
 | **Concurrency**              | Vitest + `pg` pool                           | 20 parallel `book_appointment` calls on the same slot: 1 staff → exactly 1 success; 3 staff "any" → exactly 3. Block-vs-booking race. Repeated 20 times to shake out flakiness                                                                                                                                   | CI                             |
 | Parity                       | Vitest                                       | Randomised fixtures: every slot the TS generator offers must be accepted by the SQL booking function (and a sample of rejected ones refused)                                                                                                                                                                     | CI                             |
-| E2E                          | Playwright (mobile viewport + desktop)       | Guest books with OTP → confirmation; provider onboarding (solo) → publish → public page; provider marks arrived/completed; customer reviews; cancel within/outside window; deposit via mock pay                                                                                                                  | CI on `main` + before release  |
+| E2E                          | Playwright (mobile viewport + desktop)       | Guest books with OTP → confirmation; provider onboarding (solo) → publish → public page; provider marks arrived/completed; customer reviews; cancel within/outside window; choose how to pay, business marks it paid                                                                                             | CI on `main` + before release  |
 | Accessibility                | axe via Playwright                           | Critical pages have no serious violations                                                                                                                                                                                                                                                                        | CI                             |
 | Performance                  | Lighthouse CI (mobile, throttled 3G profile) | Public pages: JS < 200 KB gz in total, our own code < 30 KB, LCP < 2.5 s                                                                                                                                                                                                                                         | Phase 11, then CI              |
 

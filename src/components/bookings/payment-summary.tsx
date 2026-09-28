@@ -76,7 +76,7 @@ export function PaymentSummary({
         {sendTo && live && left !== 0 ? (
           <div className="grid gap-1 px-4 py-3">
             <dt className="text-small text-ink-muted">
-              Send {left !== null ? money(left) : "the amount"} to · {sendTo.title}
+              Send {left !== null ? money(left) : "the amount"} by {sendTo.title} to
             </dt>
             <dd className="flex items-center justify-between gap-2">
               <span className="min-w-0">

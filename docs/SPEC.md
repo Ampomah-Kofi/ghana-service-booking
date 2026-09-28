@@ -17,7 +17,7 @@ Thousands of independent professionals and businesses self-register and operate 
 
 ## 3. Ghana-first requirements
 
-+233 phone numbers · GHS (GH₵) · Mobile Money-ready payment architecture · SMS and WhatsApp · cash payment · online payments · low-bandwidth use · walk-ins · solo professionals, small and multi-staff businesses · location-based discovery.
++233 phone numbers · GHS (GH₵) · customers pay businesses directly (cash, Mobile Money, bank transfer, card at the shop); the platform never takes payment · SMS and WhatsApp · low-bandwidth use · walk-ins · solo professionals, small and multi-staff businesses · location-based discovery.
 Nothing Ghana-specific may be hard-coded in a way that blocks other countries.
 
 ## 4. Roles
@@ -29,13 +29,13 @@ Nothing Ghana-specific may be hard-coded in a way that blocks other countries.
 
 ## 5. Customer experience
 
-Browse categories; search providers, businesses, services, and locations; view business/professional pages, photos/portfolios, services, prices, durations, ratings and reviews, and available times; choose a staff member or "any available professional"; book (as guest where the business allows); pay deposits where required; receive confirmations and reminders; cancel/reschedule per business policy; view upcoming and past appointments; save favorites; leave verified reviews after completed appointments.
+Browse categories; search providers, businesses, services, and locations; view business/professional pages, photos/portfolios, services, prices, durations, ratings and reviews, and available times; choose a staff member or "any available professional"; book (as guest where the business allows); say how they will pay the business (paid directly to the business); receive confirmations and reminders; cancel/reschedule per business policy; view upcoming and past appointments; save favorites; leave verified reviews after completed appointments.
 
-**Booking flow:** find provider → select service → select staff or "any available" → select date → select time → enter details → pay deposit if required → confirm → receive confirmation.
+**Booking flow:** find provider → select service → select staff or "any available" → select date → select time → enter details and how you'll pay → confirm → receive confirmation.
 
 ## 6. Provider onboarding (self-service)
 
-Create account → verify phone → choose category → business/professional name → description → location → contact info → logo/profile image → portfolio photos → services, prices, durations → staff (skip for solo providers) → business hours → staff schedules → booking rules → payment/deposit preferences → preview → publish.
+Create account → verify phone → choose category → business/professional name → description → location → contact info → logo/profile image → portfolio photos → services, prices, durations → staff (skip for solo providers) → business hours → staff schedules → booking rules → ways to accept payment and Mobile Money/bank details → preview → publish.
 Solo providers must not be pushed through employee-management screens.
 
 Each provider gets a shareable public page, e.g. `/business/kwame-cuts`, with share links for WhatsApp, Instagram, TikTok, Facebook, SMS, and a QR code.
@@ -52,7 +52,7 @@ Dynamic, admin-managed (create, edit, reorder, activate/deactivate). Seed exampl
 
 ## 9. Services and staff
 
-**Service:** name, category, description, price, currency, duration, optional deposit, eligible staff, active flag.
+**Service:** name, category, description, price, currency, duration, eligible staff, active flag.
 **Staff:** name, photo, role, services, working schedule, breaks, days off, calendar, availability.
 
 ## 10. Scheduling engine (critical)
@@ -72,14 +72,18 @@ Country → region → city/town → neighborhood/area; street address; optional
 
 ## 13. Payments
 
-Provider-agnostic payment interface supporting, eventually: Mobile Money, cards, cash at appointment, deposits, full payment.
-Statuses: `pending`, `paid`, `partially_paid`, `failed`, `refunded`.
-Until real credentials exist, use a clearly labeled `MockPaymentProvider` behind the same interface.
+The platform is **not a payment platform** (ADR-0017, product owner 28 Sep 2026): no money moves through the app and there are no deposits.
+
+- Each business chooses the ways it accepts payment: cash, Mobile Money, bank transfer, card at the shop.
+- When booking, the customer says which one they'll use (information only).
+- The business may add its own Mobile Money and/or bank details; they are shown only to customers who booked, on their own booking, with a reference for the transfer.
+- The business marks a booking paid (or refunded) when it has the money. Statuses on a booking: nothing recorded, `partially_paid`, `paid`, `refunded`.
+- Online payments or deposits, if ever wanted, would need a new decision (ADR).
 
 ## 14. Notifications
 
 Vendor-independent interface over channels: SMS, WhatsApp, email, in-app.
-Events: booking confirmation, reminder, cancellation, reschedule, payment confirmation, new-booking alert (provider), upcoming-appointment alert (provider).
+Events: booking confirmation, reminder, cancellation, reschedule, payment receipt (when the business marks it paid), new-booking alert (provider), upcoming-appointment alert (provider).
 
 ## 15. Reviews and favorites
 
@@ -128,7 +132,7 @@ Data minimization; account deletion; business deactivation; customer data deleti
 | 6     | Provider dashboard, calendar, walk-ins, appointment management                         |
 | 7     | Customer accounts, history, favorites, reviews                                         |
 | 8     | Notifications, reminders, SMS/WhatsApp architecture                                    |
-| 9     | Payments, deposits, Mobile Money                                                       |
+| 9     | Payments (paid directly to businesses): ways to pay, payment details, mark paid        |
 | 10    | Admin, moderation, reporting, analytics                                                |
 | 11    | Security review, performance, accessibility, testing, deployment, production readiness |
 

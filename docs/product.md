@@ -9,18 +9,18 @@ A marketplace where anyone in Ghana can find an appointment-based professional (
 
 ## 2. Who it serves
 
-| Role                 | Core job to be done                                                                      | MVP success signal                                          |
-| -------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| Customer             | "Find someone good near me who is free when I am, at a price I can see up front."        | Books without calling or WhatsApp back-and-forth            |
-| Solo professional    | "Stop losing bookings in DMs; share one link; get paid a deposit so no-shows hurt less." | Shares their link and gets bookings through it              |
-| Multi-staff business | "One calendar for my team, walk-ins included, no clashes."                               | Staff calendars run on the platform daily                   |
-| Staff member         | "See my day and mark clients arrived/done."                                              | Uses the day view on their phone                            |
-| Platform admin       | "Keep the marketplace trustworthy."                                                      | Can suspend a bad actor and moderate reviews, fully audited |
+| Role                 | Core job to be done                                                                                | MVP success signal                                          |
+| -------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Customer             | "Find someone good near me who is free when I am, at a price I can see up front."                  | Books without calling or WhatsApp back-and-forth            |
+| Solo professional    | "Stop losing bookings in DMs; share one link; customers pay me directly, the way they already do." | Shares their link and gets bookings through it              |
+| Multi-staff business | "One calendar for my team, walk-ins included, no clashes."                                         | Staff calendars run on the platform daily                   |
+| Staff member         | "See my day and mark clients arrived/done."                                                        | Uses the day view on their phone                            |
+| Platform admin       | "Keep the marketplace trustworthy."                                                                | Can suspend a bad actor and moderate reviews, fully audited |
 
 ## 3. Differentiators (Ghana-first, not Ghana-only)
 
 - **Phone-first identity**: +233 phone and OTP, with WhatsApp and SMS as the main channels. Email is optional.
-- **Cash is first-class**: "pay at appointment" is a normal option, not a fallback. Deposits via Mobile Money come after the MVP (Phase 9).
+- **Paid directly**: customers pay the business in cash, by Mobile Money or bank transfer, or card at the shop. Booker GH never takes payment and there are no deposits (ADR-0017).
 - **Walk-ins are first-class**: they go on the same calendar and follow the same no-overlap rule.
 - **Landmark directions**: "opposite the Shell station, second floor" is a proper field, because street addresses are often not enough.
 - **Low bandwidth**: server-rendered pages, small images, and no heavy client bundles on public pages.
@@ -59,14 +59,14 @@ Criteria: short, easy to say in Twi/Ga/Ewe-speaking Ghana and in English, spella
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Accounts            | Phone + OTP for everyone. Email/password optional for providers. Guest booking where the business allows it                                                                |
 | Provider onboarding | Self-service wizard (SPEC §6). Solo path skips staff screens. Preview → publish. Public page `/business/{slug}` with share links and QR code                               |
-| Catalogue           | Admin-managed categories; services with price (pesewas), duration and optional deposit; staff with services and weekly hours                                               |
+| Catalogue           | Admin-managed categories; services with price (pesewas) and duration; staff with services and weekly hours                                                                 |
 | Scheduling          | Business and staff hours, split shifts (breaks), blocked times, days off, buffers, minimum notice, maximum advance window, "any available"                                 |
 | Booking             | Online booking, provider manual booking, walk-ins, cancel/reschedule within policy, status history. **No double bookings (DB-enforced)**                                   |
 | Discovery           | Homepage sections, category browse, text + location search, "near me", result cards with next available slot                                                               |
 | Customer            | Upcoming/past appointments, favorites, verified reviews                                                                                                                    |
 | Provider dashboard  | Today/upcoming/completed/cancelled/no-show counts, day/week/month calendar, expected revenue                                                                               |
 | Notifications       | Booking confirmation, reminder, cancel/reschedule, and new-booking alerts via SMS + in-app. WhatsApp and email behind the same interface (`Mock*` until credentials exist) |
-| Payments            | Cash at appointment. Deposit/full payment flow on `MockPaymentProvider`, with a real Mobile Money provider plugged in during Phase 9 once credentials and docs exist       |
+| Payments            | Paid directly to the business. Accepted methods, the customer's choice, the business's own MoMo/bank details on the booking, "Mark paid" (ADR-0017)                        |
 | Admin               | Users, businesses, categories, review moderation, suspensions, basic stats. Every action audit-logged                                                                      |
 | Analytics           | Bookings over time, revenue, top services/staff, cancellation and no-show rates, new vs returning customers (SQL views, no BI tool)                                        |
 | Privacy             | Account deletion (anonymises appointment records), business deactivation, consent records for marketing messages                                                           |

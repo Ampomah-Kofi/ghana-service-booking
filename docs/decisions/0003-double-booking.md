@@ -12,7 +12,7 @@ SPEC §10: double bookings must be impossible, including under concurrent reques
 2. `EXCLUDE USING gist (staff_id WITH =, occupied WITH &&) WHERE (status IN ('pending','confirmed','arrived','completed'))` (needs `btree_gist`).
 3. All booking goes through `book_appointment(...)` (SECURITY DEFINER). It takes an **ordered list of candidate staff** and tries each in a sub-transaction, treating `exclusion_violation` as "try the next one". If none succeed it raises `BK409`.
 4. Blocked times vs. appointments: both `book_appointment` and `create_blocked_time` take `pg_advisory_xact_lock('staff:'||id)` and check the other table under the lock. Direct inserts into `blocked_times` aren't granted.
-5. Deposit holds: `pending` + `hold_expires_at`. Expired holds are released lazily in `book_appointment` and by the every-minute job.
+5. ~~Deposit holds~~: dropped with deposits (ADR-0017). A `pending` booking only means "waiting for the business to confirm".
 
 ## Alternatives
 

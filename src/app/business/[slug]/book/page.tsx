@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { formatPhoneLocal } from "@/lib/phone";
 import { acceptedSummary } from "@/lib/payment-methods";
 import Link from "next/link";
 import { PriceTag } from "@/components/business/price-tag";
@@ -281,6 +282,8 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
     }
 
     const profile = await getMyProfile();
+    // Shown as people write it ("020 000 0006"); Supabase keeps auth phones without the "+".
+    const accountPhone = profile?.phoneE164 ?? (user.phone ? `+${user.phone.replace(/^\+/, "")}` : null);
     return (
       <Shell business={business} title="Your details" back={timeHref} step={step}>
         {details}
@@ -292,7 +295,10 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
             startsAt: startsAt.toISOString(),
             idempotencyKey: crypto.randomUUID(),
           }}
-          defaults={{ customerName: profile?.fullName ?? "", customerPhone: profile?.phoneE164 ?? user.phone ?? "" }}
+          defaults={{
+            customerName: profile?.fullName ?? "",
+            customerPhone: accountPhone ? formatPhoneLocal(accountPhone) : "",
+          }}
           summary={summary(when)}
           paymentMethods={setup.rules.acceptedPaymentMethods}
           businessName={business.name}

@@ -90,7 +90,7 @@ Always a text label, never colour alone.
 - Slim step indicator ("Step 2 of 4") plus a bottom summary bar (service · time · price) that holds the main button.
 - Times are shown in a 3-column grid. Unavailable times are not shown at all.
 - An empty day says "No times on Tue. Next available: Thu 10:00 am", with a button to jump there.
-- The confirm screen restates: provider, service, staff, date/time, address + landmark, total, deposit and cancellation policy.
+- The confirm screen restates: provider, service, staff, date/time, address + landmark, total, how they'll pay and cancellation policy.
 
 **Provider cards**
 

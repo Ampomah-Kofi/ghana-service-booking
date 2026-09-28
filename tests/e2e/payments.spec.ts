@@ -44,7 +44,7 @@ async function signIn(page: Page, user: TestUser, next: string) {
 test("customer books, chooses Mobile Money, and sees where to send it", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 780 });
   await signIn(page, customer, `/business/${business.slug}`);
-  await expect(page.getByText(/Pays: Cash · MoMo · Bank/)).toBeVisible();
+  await expect(page.getByText(/directly: Cash · MoMo · Bank/)).toBeVisible();
 
   await page.getByRole("link", { name: "Book an appointment" }).click();
   await page.getByRole("link", { name: /Silk press/ }).click();

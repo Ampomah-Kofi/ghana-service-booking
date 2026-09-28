@@ -291,7 +291,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
         </h2>
         {rules ? (
           <p className="-mt-1 mb-2 text-small text-ink-muted">
-            Pays: {acceptedSummary(rules.accepted_payment_methods)} · paid to {business.name} directly
+            Pay {business.name} directly: {acceptedSummary(rules.accepted_payment_methods)}
           </p>
         ) : null}
         {services.length === 0 ? (

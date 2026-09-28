@@ -1,6 +1,6 @@
 # ADR-0017: Booker GH is not a payment platform
 
-**Status:** Proposed, waiting for approval · **Date:** 2026-09-28 · **Would supersede** ADR-0005 (provider-agnostic online payments) and the first Phase 9 build
+**Status:** Accepted (product owner, 28 Sep: "approve") · **Date:** 2026-09-28 · **Would supersede** ADR-0005 (provider-agnostic online payments) and the first Phase 9 build
 
 ## Current approach
 
