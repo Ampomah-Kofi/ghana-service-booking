@@ -722,6 +722,7 @@ export type Database = {
           logo_path: string | null;
           name: string;
           next_available_at: string | null;
+          notify_new_booking_sms: boolean;
           phone_e164: string | null;
           published_at: string | null;
           rating_avg: number | null;
@@ -753,6 +754,7 @@ export type Database = {
           logo_path?: string | null;
           name: string;
           next_available_at?: string | null;
+          notify_new_booking_sms?: boolean;
           phone_e164?: string | null;
           published_at?: string | null;
           rating_avg?: number | null;
@@ -784,6 +786,7 @@ export type Database = {
           logo_path?: string | null;
           name?: string;
           next_available_at?: string | null;
+          notify_new_booking_sms?: boolean;
           phone_e164?: string | null;
           published_at?: string | null;
           rating_avg?: number | null;
@@ -1026,6 +1029,97 @@ export type Database = {
           {
             foreignKeyName: "favorites_user_id_fkey";
             columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      notifications: {
+        Row: {
+          appointment_id: string | null;
+          attempts: number;
+          business_id: string | null;
+          channel: Database["public"]["Enums"]["notification_channel"];
+          claimed_at: string | null;
+          created_at: string;
+          dedupe_key: string | null;
+          id: string;
+          last_error: string | null;
+          locale: string;
+          payload: NonNullable<Json>;
+          provider: string | null;
+          provider_message_id: string | null;
+          read_at: string | null;
+          recipient_address: string | null;
+          recipient_user_id: string | null;
+          scheduled_for: string;
+          sent_at: string | null;
+          status: Database["public"]["Enums"]["notification_status"];
+          template_key: string;
+        };
+        Insert: {
+          appointment_id?: string | null;
+          attempts?: number;
+          business_id?: string | null;
+          channel: Database["public"]["Enums"]["notification_channel"];
+          claimed_at?: string | null;
+          created_at?: string;
+          dedupe_key?: string | null;
+          id?: string;
+          last_error?: string | null;
+          locale?: string;
+          payload?: NonNullable<Json>;
+          provider?: string | null;
+          provider_message_id?: string | null;
+          read_at?: string | null;
+          recipient_address?: string | null;
+          recipient_user_id?: string | null;
+          scheduled_for?: string;
+          sent_at?: string | null;
+          status?: Database["public"]["Enums"]["notification_status"];
+          template_key: string;
+        };
+        Update: {
+          appointment_id?: string | null;
+          attempts?: number;
+          business_id?: string | null;
+          channel?: Database["public"]["Enums"]["notification_channel"];
+          claimed_at?: string | null;
+          created_at?: string;
+          dedupe_key?: string | null;
+          id?: string;
+          last_error?: string | null;
+          locale?: string;
+          payload?: NonNullable<Json>;
+          provider?: string | null;
+          provider_message_id?: string | null;
+          read_at?: string | null;
+          recipient_address?: string | null;
+          recipient_user_id?: string | null;
+          scheduled_for?: string;
+          sent_at?: string | null;
+          status?: Database["public"]["Enums"]["notification_status"];
+          template_key?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notifications_appointment_id_fkey";
+            columns: ["appointment_id"];
+            isOneToOne: false;
+            referencedRelation: "appointments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_recipient_user_id_fkey";
+            columns: ["recipient_user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
@@ -1651,6 +1745,37 @@ export type Database = {
       };
       business_publish_readiness: { Args: { p_business_id: string }; Returns: string[] };
       cancel_my_appointment: { Args: { p_appointment_id: string; p_reason?: string }; Returns: undefined };
+      claim_notifications: {
+        Args: { p_limit?: number };
+        Returns: {
+          appointment_id: string | null;
+          attempts: number;
+          business_id: string | null;
+          channel: Database["public"]["Enums"]["notification_channel"];
+          claimed_at: string | null;
+          created_at: string;
+          dedupe_key: string | null;
+          id: string;
+          last_error: string | null;
+          locale: string;
+          payload: NonNullable<Json>;
+          provider: string | null;
+          provider_message_id: string | null;
+          read_at: string | null;
+          recipient_address: string | null;
+          recipient_user_id: string | null;
+          scheduled_for: string;
+          sent_at: string | null;
+          status: Database["public"]["Enums"]["notification_status"];
+          template_key: string;
+        }[];
+        SetofOptions: {
+          from: "*";
+          to: "notifications";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
       create_blocked_time: {
         Args: {
           p_business_id: string;
@@ -1689,6 +1814,17 @@ export type Database = {
         Returns: string;
       };
       delete_my_account: { Args: Record<PropertyKey, never>; Returns: undefined };
+      finish_notification: {
+        Args: {
+          p_error: string;
+          p_id: string;
+          p_message_id: string;
+          p_ok: boolean;
+          p_provider: string;
+          p_retryable: boolean;
+        };
+        Returns: undefined;
+      };
       get_busy_intervals: {
         Args: { p_business_id: string; p_from: string; p_to: string };
         Returns: {
@@ -1846,6 +1982,8 @@ export type Database = {
       business_kind: "solo" | "team";
       business_status: "draft" | "published" | "suspended" | "deactivated";
       member_role: "owner" | "manager" | "staff";
+      notification_channel: "sms" | "whatsapp" | "email" | "in_app";
+      notification_status: "queued" | "sending" | "sent" | "failed" | "cancelled";
       payment_status: "pending" | "paid" | "partially_paid" | "failed" | "refunded";
       price_type: "fixed" | "from" | "on_request";
       review_status: "published" | "hidden" | "removed";
@@ -1962,6 +2100,8 @@ export const Constants = {
       business_kind: ["solo", "team"],
       business_status: ["draft", "published", "suspended", "deactivated"],
       member_role: ["owner", "manager", "staff"],
+      notification_channel: ["sms", "whatsapp", "email", "in_app"],
+      notification_status: ["queued", "sending", "sent", "failed", "cancelled"],
       payment_status: ["pending", "paid", "partially_paid", "failed", "refunded"],
       price_type: ["fixed", "from", "on_request"],
       review_status: ["published", "hidden", "removed"],
