@@ -30,7 +30,7 @@ export function DecideForm({ businessId, verified }: { businessId: string; verif
             id={`note-${businessId}`}
             name="note"
             maxLength={300}
-            placeholder="Note to the owner if you decline (optional)"
+            placeholder="Note to owner (optional)"
             className={input}
           />
         </>
