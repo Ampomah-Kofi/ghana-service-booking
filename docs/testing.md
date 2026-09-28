@@ -82,3 +82,9 @@ CI (`.github/workflows/ci.yml`) runs all of these on every PR, plus a check that
 ## Accessibility audit (manual, after the interaction polish)
 There's no axe dependency in the project yet (it would be added with Phase 11). The audit after ADR-0012 ran axe-core 4.13 from a throwaway copy, injected into every main screen at 360 px in light and dark: public pages, the booking steps, bookings, the ticket, account, and the provider's Today, calendar (day/week/month), clients and more. Rules: WCAG 2.0/2.1/2.2 A and AA. It also set the root font size to 200% and checked for sideways scrolling.
 Result: no violations after two fixes (faint other-month days in the month grid; tab labels overflowing at 200% text now truncate).
+
+## Layout overlap check
+`node scripts/dev/overlap-check.mjs <storage-state.json|-> <path…>` (app running on :3000; storage states from `scripts/dev/login-state.mjs`) flags, at 360 and 390 px:
+- in-flow text boxes that overlap each other;
+- the last content on a page ending under a fixed bottom bar (tab bars, booking bar) when scrolled to the bottom.
+Floating layers (title bar, tab bars, sheets, the date grid) are meant to sit over content; they're solid or frosted with a shadow so what's under them never shows through as text-on-text. Last run (after ADR-0012): 23 customer and provider screens, both widths, no findings. The check was also shown to flag a deliberately injected 12 px overlap.
