@@ -30,6 +30,11 @@ export function formatPhoneInternational(e164: string): string {
   return parsePhoneNumberFromString(e164)?.formatInternational() ?? e164;
 }
 
+/** Formats an E.164 number the way people write it at home, e.g. "024 123 4567" (prefills forms). */
+export function formatPhoneLocal(e164: string): string {
+  return parsePhoneNumberFromString(e164)?.formatNational() ?? e164;
+}
+
 /** Supabase Auth stores phones without the leading "+". */
 export function e164ToAuthPhone(e164: string): string {
   return e164.startsWith("+") ? e164.slice(1) : e164;

@@ -31,6 +31,8 @@ export type AppointmentView = {
   customerPhone: string | null;
   note: string | null;
   cancellationReason: string | null;
+  /** Waiting for a deposit (Phase 9): the slot is held until this time. */
+  holdExpiresAt: string | null;
   business: {
     id: string;
     name: string | null;
@@ -39,6 +41,10 @@ export type AppointmentView = {
     phone: string | null;
     whatsapp: string | null;
     cancellationWindowHours: number | null;
+    /** Customers may pay the whole price online (Phase 9). */
+    allowFullPaymentOnline: boolean;
+    /** No-shows get their deposit back (otherwise the business keeps it). */
+    refundDepositOnNoShow: boolean;
   };
 };
 
@@ -47,10 +53,10 @@ export type AppointmentView = {
 const appointmentSelect = `
   id, status, source, starts_at, ends_at, service_id, service_name, staff_id, price_minor, price_type,
   currency_code, deposit_minor, payment_status, customer_user_id, client_id, final_price_minor, created_at, customer_name, customer_phone_e164, customer_note,
-  cancellation_reason, business_id,
+  cancellation_reason, business_id, hold_expires_at,
   currencies ( code, symbol, minor_unit ),
   staff ( display_name ),
-  businesses ( name, slug, timezone, phone_e164, whatsapp_e164, booking_rules ( cancellation_window_hours ) )
+  businesses ( name, slug, timezone, phone_e164, whatsapp_e164, booking_rules ( cancellation_window_hours, allow_full_payment_online, refund_deposit_on_no_show ) )
 ` as const;
 
 type AppointmentRow = {
@@ -76,6 +82,7 @@ type AppointmentRow = {
   customer_note: string | null;
   cancellation_reason: string | null;
   business_id: string;
+  hold_expires_at: string | null;
   currencies: { code: string; symbol: string; minor_unit: number } | null;
   staff: { display_name: string } | null;
   businesses: {
@@ -84,7 +91,11 @@ type AppointmentRow = {
     timezone: string;
     phone_e164: string | null;
     whatsapp_e164: string | null;
-    booking_rules: { cancellation_window_hours: number } | null;
+    booking_rules: {
+      cancellation_window_hours: number;
+      allow_full_payment_online: boolean;
+      refund_deposit_on_no_show: boolean;
+    } | null;
   } | null;
 };
 
@@ -118,6 +129,7 @@ function toView(row: AppointmentRow): AppointmentView {
     customerPhone: row.customer_phone_e164,
     note: row.customer_note,
     cancellationReason: row.cancellation_reason,
+    holdExpiresAt: row.hold_expires_at,
     business: {
       id: row.business_id,
       name: row.businesses?.name ?? null,
@@ -126,6 +138,8 @@ function toView(row: AppointmentRow): AppointmentView {
       phone: row.businesses?.phone_e164 ?? null,
       whatsapp: row.businesses?.whatsapp_e164 ?? null,
       cancellationWindowHours: row.businesses?.booking_rules?.cancellation_window_hours ?? null,
+      allowFullPaymentOnline: row.businesses?.booking_rules?.allow_full_payment_online ?? false,
+      refundDepositOnNoShow: row.businesses?.booking_rules?.refund_deposit_on_no_show ?? false,
     },
   };
 }

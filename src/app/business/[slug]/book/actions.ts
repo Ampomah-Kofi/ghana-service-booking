@@ -24,6 +24,7 @@ export async function bookAction(slug: string, _prev: FormState, formData: FormD
   if (!parsed.success) return fieldErrorsFrom(parsed.error, formData);
 
   let appointmentId: string;
+  let needsPayment = false;
   try {
     await requireUser();
     const db = await createUserClient();
@@ -41,11 +42,13 @@ export async function bookAction(slug: string, _prev: FormState, formData: FormD
       note: input.note,
       idempotencyKey: input.idempotencyKey,
     });
+    // A deposit collected online holds the slot: go straight to paying (Phase 9).
+    needsPayment = (await getAppointment(db, appointmentId))?.holdExpiresAt != null;
   } catch (error) {
     return formError(error, formData);
   }
   revalidatePath("/bookings");
-  redirect(`/bookings/${appointmentId}?booked=1`);
+  redirect(needsPayment ? `/bookings/${appointmentId}/pay` : `/bookings/${appointmentId}?booked=1`);
 }
 
 export async function rescheduleAction(_prev: FormState, formData: FormData): Promise<FormState> {

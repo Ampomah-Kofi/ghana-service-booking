@@ -22,13 +22,15 @@ export type PaymentView = {
   network: MomoNetwork | null;
   failureReason: string | null;
   note: string | null;
+  /** Our merchant reference for the attempt (shown to the payer and the business for support). */
+  reference: string | null;
   paidAt: string | null;
   refundedAt: string | null;
   createdAt: string;
 };
 
 const select =
-  "id, appointment_id, kind, method, provider, status, amount_minor, currency_code, momo_network, failure_reason, note, paid_at, refunded_at, created_at";
+  "id, appointment_id, kind, method, provider, status, amount_minor, currency_code, momo_network, failure_reason, note, provider_reference, paid_at, refunded_at, created_at";
 
 type Row = {
   id: string;
@@ -42,6 +44,7 @@ type Row = {
   momo_network: string | null;
   failure_reason: string | null;
   note: string | null;
+  provider_reference: string | null;
   paid_at: string | null;
   refunded_at: string | null;
   created_at: string;
@@ -59,6 +62,7 @@ const toView = (r: Row): PaymentView => ({
   network: (r.momo_network as MomoNetwork | null) ?? null,
   failureReason: r.failure_reason,
   note: r.note,
+  reference: r.provider_reference,
   paidAt: r.paid_at,
   refundedAt: r.refunded_at,
   createdAt: r.created_at,

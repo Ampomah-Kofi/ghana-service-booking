@@ -21,6 +21,8 @@ import { requireUserOrRedirect } from "@/server/auth/session";
 import { customerCanChange, getAppointment } from "@/server/bookings/appointments";
 import { createUserClient } from "@/server/db/supabase-server";
 import { CancelBookingForm } from "./cancel-form";
+import { PaymentSummary } from "@/components/bookings/payment-summary";
+import { listAppointmentPayments } from "@/server/payments/service";
 
 export const metadata: Metadata = { title: "Booking" };
 
@@ -39,7 +41,8 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
     formatMoney({ amountMinor, currency: a.price.currency.code }, a.price.currency);
   const canChange = customerCanChange(a);
   const live = a.status === "pending" || a.status === "confirmed" || a.status === "arrived";
-  const justBooked = sp.booked === "1";
+  const justBooked = sp.booked === "1" || sp.payment === "paid";
+  const payments = await listAppointmentPayments(db, a.id);
   const business = a.business.slug ? await getBusinessBySlug(db, a.business.slug) : null;
   const loc = business?.location ?? null;
   const where = [loc?.addressLine, formatPlace(loc)].filter(Boolean).join(", ") || null;
@@ -138,11 +141,6 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
 
         <dl className="ios-list">
           <Row label="Price">{formatPrice(a.price.amountMinor, a.price.type, a.price.currency)}</Row>
-          {a.depositMinor ? (
-            <Row label="Deposit">
-              {money(a.depositMinor)} · {a.paymentStatus === "paid" ? "paid" : "the business will tell you how to pay"}
-            </Row>
-          ) : null}
           <Row label="Booked as">
             <span className="block">{a.customerName}</span>
             {a.customerPhone ? (
@@ -206,6 +204,22 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
           ) : null}
         </nav>
       </article>
+
+      {sp.payment === "failed" ? (
+        <p role="alert" className="mb-4 rounded-control bg-danger/10 px-3 py-2 text-small text-danger">
+          The payment didn&apos;t go through. You can try again below.
+        </p>
+      ) : null}
+      <PaymentSummary
+        appointmentId={a.id}
+        payments={payments}
+        priceMinor={a.finalPriceMinor ?? a.price.amountMinor}
+        depositMinor={a.depositMinor}
+        holdExpiresAt={a.holdExpiresAt}
+        canPayRest={a.business.allowFullPaymentOnline && a.price.type === "fixed"}
+        live={a.status === "pending" || a.status === "confirmed"}
+        money={money}
+      />
 
       {a.status === "completed" ? (
         <section

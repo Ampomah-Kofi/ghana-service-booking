@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { e164ToAuthPhone, formatPhoneInternational, parsePhone } from "@/lib/phone";
+import { e164ToAuthPhone, formatPhoneInternational, formatPhoneLocal, parsePhone } from "@/lib/phone";
 
 describe("parsePhone", () => {
   it.each([
@@ -29,6 +29,9 @@ describe("parsePhone", () => {
 describe("phone helpers", () => {
   it("formats E.164 for display", () => {
     expect(formatPhoneInternational("+233241234567")).toBe("+233 24 123 4567");
+  });
+  it("formats numbers the way people write them at home (prefills Mobile Money)", () => {
+    expect(formatPhoneLocal("+233241234567")).toBe("024 123 4567");
   });
   it("strips + for Supabase Auth", () => {
     expect(e164ToAuthPhone("+233241234567")).toBe("233241234567");
