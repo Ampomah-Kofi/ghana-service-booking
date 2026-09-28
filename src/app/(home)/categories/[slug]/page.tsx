@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StoreIcon } from "@/components/ui/icons";
 import { LargeTitle } from "@/components/ui/large-title";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -77,13 +79,12 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
         </p>
       ) : null}
       {result.results.length === 0 ? (
-        <div className="rounded-card bg-card p-6 text-center lift">
-          <p className="text-title font-semibold">No {category.name.toLowerCase()} yet</p>
-          <p className="mt-2 text-body text-ink-muted">New professionals join every week.</p>
-          <Link href="/onboarding" className="mt-3 inline-flex min-h-11 items-center font-medium text-primary">
-            Are you one? List your business
-          </Link>
-        </div>
+        <EmptyState
+          icon={StoreIcon}
+          title={`No ${category.name.toLowerCase()} yet`}
+          body="New professionals join every week."
+          action={{ href: "/onboarding", label: "Are you one? List your business" }}
+        />
       ) : (
         <ResultList
           cards={result.results}

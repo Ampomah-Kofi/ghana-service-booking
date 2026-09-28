@@ -427,8 +427,20 @@ input[type="checkbox"][role="switch"]:disabled {
   opacity: 0;
 }
 
-/* Section titles that stay pinned under the status bar while their list scrolls. */
+/* Section titles that stay pinned while their list scrolls: under the compact title bar on phones
+   (<LargeTitle>), under the header from md. `sticky-head-top` is for screens without a title bar. */
 @utility sticky-head {
+  position: sticky;
+  top: calc(max(0.75rem, env(safe-area-inset-top)) + 2rem);
+  z-index: 5;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  @media (width >= 48rem) {
+    top: 3.5rem;
+  }
+}
+@utility sticky-head-top {
   position: sticky;
   top: 0;
   z-index: 5;
@@ -436,4 +448,8 @@ input[type="checkbox"][role="switch"]:disabled {
   background: color-mix(in srgb, var(--surface) 88%, transparent);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
+  @media (width >= 48rem) {
+    top: 3.5rem;
+    padding-top: 0.5rem;
+  }
 }

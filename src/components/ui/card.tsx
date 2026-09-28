@@ -4,15 +4,24 @@ import type { ReactNode } from "react";
 export function GroupedSection({
   title,
   footer,
+  sticky = false,
   children,
 }: {
   title?: string;
+  /** Pin the title while the list scrolls (long lists under a <LargeTitle>). */
+  sticky?: boolean;
   footer?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <section className="mb-8">
-      {title ? <h2 className="mb-1.5 px-4 text-small font-medium text-ink-muted">{title}</h2> : null}
+      {title ? (
+        <h2
+          className={`mb-1.5 text-small font-medium text-ink-muted ${sticky ? "sticky-head -mx-5 px-9 py-1.5" : "px-4"}`}
+        >
+          {title}
+        </h2>
+      ) : null}
       <div className="overflow-hidden ios-list rounded-card bg-card lift">{children}</div>
       {footer ? <p className="mt-2 px-4 text-small text-ink-muted">{footer}</p> : null}
     </section>

@@ -7,7 +7,15 @@ import { BookingBar, StepIndicator, type BookingSummary } from "@/components/boo
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 import { formatDuration } from "@/lib/hours";
 import { formatMoney, formatPrice } from "@/lib/money";
-import { dayPill, formatDateShort, formatLocalDate, formatLocalDateShort, formatTime } from "@/lib/datetime";
+import {
+  dayPill,
+  formatDateShort,
+  formatLocalDate,
+  formatLocalDateShort,
+  formatMonthYear,
+  formatTime,
+} from "@/lib/datetime";
+import { CenterSelected } from "@/components/booking/center-selected";
 import { addDays, groupByPartOfDay } from "@/lib/availability";
 import { localDateSchema } from "@/schemas/booking";
 import { getCurrentUser } from "@/server/auth/session";
@@ -331,58 +339,88 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
       step={{ step: totalSteps - 1, of: totalSteps }}
     >
       <nav aria-label="Dates" className="mb-4">
-        <ul className="-mx-5 flex snap-x gap-2 overflow-x-auto px-5 pb-2 [scrollbar-width:none]">
+        {/* Month, a jump back to today, and paging, like the iOS calendar header. */}
+        <div className="mb-2 flex items-center gap-1">
+          <p className="flex-1 text-heading font-semibold">{formatMonthYear(selected?.date ?? from)}</p>
+          {from !== today || (selected && selected.date !== today) ? (
+            <Link
+              href={bookHref(slug, { ...withStaff })}
+              className="pressable mr-1 inline-flex min-h-9 items-center rounded-full bg-primary-soft px-3.5 text-small font-semibold text-primary"
+            >
+              Today
+            </Link>
+          ) : null}
+          {earlier ? (
+            <Link
+              href={bookHref(slug, { ...withStaff, from: earlier === today ? undefined : earlier })}
+              aria-label="Earlier dates"
+              className="pressable flex size-11 items-center justify-center rounded-full text-primary hover:bg-fill"
+            >
+              <ChevronLeftIcon />
+            </Link>
+          ) : (
+            <span aria-hidden="true" className="flex size-11 items-center justify-center text-ink-muted/40">
+              <ChevronLeftIcon />
+            </span>
+          )}
+          {later ? (
+            <Link
+              href={bookHref(slug, { ...withStaff, from: later })}
+              aria-label="Later dates"
+              className="pressable flex size-11 items-center justify-center rounded-full text-primary hover:bg-fill"
+            >
+              <ChevronRightIcon />
+            </Link>
+          ) : (
+            <span aria-hidden="true" className="flex size-11 items-center justify-center text-ink-muted/40">
+              <ChevronRightIcon />
+            </span>
+          )}
+        </div>
+        <ul id="day-strip" className="rail -mx-5 flex gap-1 overflow-x-auto px-5 pb-1">
           {days.map((d) => {
             const pill = dayPill(d.date);
             const isSelected = d.date === selected?.date;
+            const isToday = d.date === today;
             const open = d.slots.length > 0;
             const label = `${formatLocalDate(d.date)}${open ? `, ${d.slots.length} times` : ", no times"}`;
             return (
-              <li key={d.date} className="shrink-0 snap-start">
+              <li key={d.date} className="shrink-0">
                 <Link
                   prefetch={false}
                   href={bookHref(slug, { ...withStaff, from: fromParam, date: d.date })}
                   aria-current={isSelected ? "date" : undefined}
                   aria-label={label}
-                  className={`flex w-14 flex-col items-center rounded-card border py-2 text-center transition-colors ${
-                    isSelected
-                      ? "border-primary bg-primary text-on-primary"
-                      : open
-                        ? "border-border bg-card hover:bg-fill"
-                        : "border-transparent text-ink-muted"
-                  }`}
+                  className="pressable flex w-12 flex-col items-center gap-1 py-1 text-center"
                 >
-                  <span className="text-caption">{d.date === today ? "Today" : pill.weekday}</span>
-                  <span className="text-title font-semibold tabular-nums">{pill.day}</span>
+                  <span
+                    className={`text-caption font-semibold uppercase ${open ? "text-ink-muted" : "text-ink-muted/50"}`}
+                  >
+                    {pill.weekday}
+                  </span>
+                  <span
+                    className={`flex size-11 items-center justify-center rounded-full text-title font-semibold tabular-nums transition-colors ${
+                      isSelected
+                        ? "bg-primary text-on-primary"
+                        : isToday
+                          ? "text-primary"
+                          : open
+                            ? "text-ink hover:bg-fill"
+                            : "text-ink-muted/50"
+                    }`}
+                  >
+                    {pill.day}
+                  </span>
                   <span
                     aria-hidden="true"
-                    className={`mt-0.5 size-1.5 rounded-full ${open && !isSelected ? "bg-primary" : "bg-transparent"}`}
+                    className={`size-1.5 rounded-full ${open && !isSelected ? "bg-primary" : "bg-transparent"}`}
                   />
                 </Link>
               </li>
             );
           })}
         </ul>
-        <div className="flex justify-between text-small">
-          {earlier ? (
-            <Link
-              href={bookHref(slug, { ...withStaff, from: earlier === today ? undefined : earlier })}
-              className="inline-flex min-h-11 items-center gap-1 font-medium text-primary"
-            >
-              <ChevronLeftIcon /> Earlier
-            </Link>
-          ) : (
-            <span />
-          )}
-          {later ? (
-            <Link
-              href={bookHref(slug, { ...withStaff, from: later })}
-              className="inline-flex min-h-11 items-center gap-1 font-medium text-primary"
-            >
-              Later dates <ChevronRightIcon />
-            </Link>
-          ) : null}
-        </div>
+        <CenterSelected listId="day-strip" />
       </nav>
 
       {selected ? (
@@ -410,7 +448,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
           ) : (
             groupByPartOfDay(selected.slots, setup.timezone).map(([part, slots]) => (
               <div key={part} className="mb-5">
-                <h3 className="mb-2 text-small font-medium text-ink-muted">{part}</h3>
+                <h3 className="sticky-head-top -mx-5 mb-2 px-5 pb-2 text-small font-medium text-ink-muted">{part}</h3>
                 <ul className="grid grid-cols-3 gap-2">
                   {slots.map((slot) => (
                     <li key={slot.start.toISOString()}>

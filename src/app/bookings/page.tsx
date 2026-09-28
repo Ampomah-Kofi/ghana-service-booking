@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { EmptyState } from "@/components/ui/empty-state";
+import { TicketIcon } from "@/components/ui/icons";
 import { LargeTitle } from "@/components/ui/large-title";
 import Link from "next/link";
 import { AppointmentRow } from "@/components/bookings/appointment-row";
@@ -17,29 +19,38 @@ export default async function BookingsPage() {
   return (
     <>
       <LargeTitle title="Bookings" className="mb-6" />
-      <GroupedSection title="Upcoming">
-        {upcoming.length === 0 ? (
-          <p className="px-4 py-3 text-body text-ink-muted">
-            Nothing booked yet.{" "}
-            <Link href="/" className="font-medium text-primary">
-              Find a professional
-            </Link>
-          </p>
-        ) : (
-          <ul className="ios-list">
-            {upcoming.map((a) => (
-              <AppointmentRow
-                key={a.id}
-                appointment={a}
-                href={`/bookings/${a.id}`}
-                who={a.business.name ?? "Business"}
-              />
-            ))}
-          </ul>
-        )}
-      </GroupedSection>
+      {upcoming.length === 0 && past.length === 0 ? (
+        <EmptyState
+          icon={TicketIcon}
+          title="No bookings yet"
+          body="When you book a barber, braider or anyone else, it shows up here."
+          action={{ href: "/", label: "Find a professional", primary: true }}
+        />
+      ) : (
+        <GroupedSection title="Upcoming" sticky>
+          {upcoming.length === 0 ? (
+            <p className="px-4 py-3 text-body text-ink-muted">
+              Nothing booked yet.{" "}
+              <Link href="/" className="font-medium text-primary">
+                Find a professional
+              </Link>
+            </p>
+          ) : (
+            <ul className="ios-list">
+              {upcoming.map((a) => (
+                <AppointmentRow
+                  key={a.id}
+                  appointment={a}
+                  href={`/bookings/${a.id}`}
+                  who={a.business.name ?? "Business"}
+                />
+              ))}
+            </ul>
+          )}
+        </GroupedSection>
+      )}
       {past.length > 0 ? (
-        <GroupedSection title="Past and cancelled">
+        <GroupedSection title="Past and cancelled" sticky>
           <ul className="ios-list">
             {past.map((a) => (
               <AppointmentRow

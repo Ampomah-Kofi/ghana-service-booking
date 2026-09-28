@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ClockIcon, SearchIcon } from "@/components/ui/icons";
 import Link from "next/link";
 import { ResultList } from "@/components/marketplace/result-list";
 import { SearchForm } from "@/components/marketplace/search-form";
@@ -100,25 +102,19 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
       ) : null}
 
       {todayOnly && cards.length === 0 && result.results.length > 0 ? (
-        <div className="rounded-card bg-card p-6 text-center lift">
-          <p className="text-title font-semibold">Nothing free today</p>
-          <p className="mt-2 text-body text-ink-muted">
-            These places are fully booked or closed for the rest of today.
-          </p>
-          <Link href={filterHref(false)} className="mt-3 inline-flex min-h-11 items-center font-medium text-primary">
-            See other days
-          </Link>
-        </div>
+        <EmptyState
+          icon={ClockIcon}
+          title="Nothing free today"
+          body="These places are fully booked or closed for the rest of today."
+          action={{ href: filterHref(false), label: "See other days" }}
+        />
       ) : result.results.length === 0 ? (
-        <div className="rounded-card bg-card p-6 text-center lift">
-          <p className="text-title font-semibold">No matches yet</p>
-          <p className="mt-2 text-body text-ink-muted">
-            Try a category like “barber” or “nails”, or a bigger town like Accra or Kumasi.
-          </p>
-          <Link href="/" className="mt-3 inline-flex min-h-11 items-center font-medium text-primary">
-            Browse all categories
-          </Link>
-        </div>
+        <EmptyState
+          icon={SearchIcon}
+          title="No matches yet"
+          body="Try a category like “barber” or “nails”, or a bigger town like Accra or Kumasi."
+          action={{ href: "/", label: "Browse all categories" }}
+        />
       ) : (
         <ResultList
           cards={cards}

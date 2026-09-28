@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { EmptyState } from "@/components/ui/empty-state";
+import { SunIcon } from "@/components/ui/icons";
 import { LargeTitle } from "@/components/ui/large-title";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -123,15 +125,13 @@ export default async function TodayPage({ params }: PageProps<"/dashboard/[busin
           </Link>
         </div>
         {summary.appointments.length === 0 ? (
-          <div className="rounded-card bg-card p-5 text-center lift">
-            <p className="mb-3 text-body text-ink-muted">No appointments today. Add a walk-in when someone arrives.</p>
-            <Link
-              href={`${base}/appointments/new?walkIn=1`}
-              className="inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-5 font-semibold text-on-primary hover:bg-primary-hover"
-            >
-              Add walk-in
-            </Link>
-          </div>
+          <EmptyState
+            icon={SunIcon}
+            title="No appointments today"
+            body="Add a walk-in when someone arrives."
+            action={{ href: `${base}/appointments/new?walkIn=1`, label: "Add walk-in", primary: true }}
+            className="rounded-card bg-card py-8 lift"
+          />
         ) : (
           <ul className="ios-list overflow-hidden rounded-card bg-card lift">
             {summary.appointments.map((a) => (

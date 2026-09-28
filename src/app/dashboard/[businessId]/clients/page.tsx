@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { EmptyState } from "@/components/ui/empty-state";
+import { UsersIcon } from "@/components/ui/icons";
 import { LargeTitle } from "@/components/ui/large-title";
 import Link from "next/link";
 import { ChevronRightIcon } from "@/components/ui/icons";
@@ -36,11 +38,14 @@ export default async function ClientsPage({ params, searchParams }: PageProps<"/
       </form>
 
       {clients.length === 0 ? (
-        <p className="mb-6 rounded-card bg-card p-5 text-body text-ink-muted lift">
-          {q
-            ? `No clients match "${q}".`
-            : "No clients yet. They're added automatically when someone books, or you can add one below."}
-        </p>
+        <EmptyState
+          icon={UsersIcon}
+          title={q ? `No clients match “${q}”` : "No clients yet"}
+          body={
+            q ? "Check the spelling, or search by phone number." : "They're added when someone books, or add one below."
+          }
+          className="mb-6 py-8"
+        />
       ) : (
         <ul className="mb-6 ios-list overflow-hidden rounded-card bg-card lift">
           {clients.map((c) => (

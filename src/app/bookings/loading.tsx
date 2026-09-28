@@ -1,9 +1,13 @@
+import { Bone, SkeletonList, SkeletonScreen, SkeletonTitle } from "@/components/ui/skeleton";
+
 export default function Loading() {
   return (
-    <div aria-busy="true" aria-label="Loading your bookings" className="animate-pulse">
-      <div className="mb-6 h-9 w-1/2 rounded-control bg-fill" />
-      <div className="mb-8 h-40 rounded-card bg-fill" />
-      <div className="h-24 rounded-card bg-fill" />
-    </div>
+    <SkeletonScreen label="Loading your bookings">
+      <SkeletonTitle />
+      <Bone className="mb-2 ml-4 h-4 w-20" />
+      <SkeletonList rows={2} />
+      <Bone className="mb-2 ml-4 h-4 w-32" />
+      <SkeletonList rows={3} />
+    </SkeletonScreen>
   );
 }

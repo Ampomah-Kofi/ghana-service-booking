@@ -53,3 +53,9 @@ export function formatLocalDate(date: string): string {
 export function formatLocalDateShort(date: string): string {
   return formatDateShort(noon(date), "UTC");
 }
+
+/** "October 2026" from a local date. */
+export function formatMonthYear(date: string): string {
+  const p = parts(noon(date), "UTC", { month: "long", year: "numeric" });
+  return `${p.month} ${p.year}`;
+}
