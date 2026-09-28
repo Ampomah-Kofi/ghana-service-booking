@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LargeTitle } from "@/components/ui/large-title";
 import Link from "next/link";
 import { ChevronRightIcon } from "@/components/ui/icons";
 import { formatDateShort } from "@/lib/datetime";
@@ -19,7 +20,7 @@ export default async function ClientsPage({ params, searchParams }: PageProps<"/
 
   return (
     <>
-      <h1 className="mb-4 text-display font-bold">Clients</h1>
+      <LargeTitle title="Clients" className="mb-4" />
       <form role="search" className="mb-4">
         <label htmlFor="q" className="sr-only">
           Search clients

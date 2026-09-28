@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LargeTitle } from "@/components/ui/large-title";
 import Link from "next/link";
 import { GroupedRow, GroupedSection } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ export default async function AccountPage() {
 
   return (
     <>
-      <h1 className="mb-6 text-display font-bold">{profile?.fullName ?? "Your account"}</h1>
+      <LargeTitle title={profile?.fullName ?? "Your account"} eyebrow="Account" className="mb-6" />
 
       <GroupedSection title="Profile">
         <GroupedRow label="Phone" value={user.phone ? formatPhoneInternational(user.phone) : "Not set"} />

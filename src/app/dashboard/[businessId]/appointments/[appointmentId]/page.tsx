@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
+import { Toast } from "@/components/ui/toast";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { SourceBadge, STATUS, StatusBadge } from "@/components/bookings/status-badge";
-import { FormMessage } from "@/components/ui/field";
 import { ChatIcon, ChevronLeftIcon, ChevronRightIcon, PhoneIcon } from "@/components/ui/icons";
 import { localDateOf } from "@/lib/availability";
 import { formatDateShort, formatDateTime, formatTime } from "@/lib/datetime";
@@ -49,7 +49,7 @@ export default async function AppointmentPage({
       >
         <ChevronLeftIcon /> Calendar
       </Link>
-      {sp.moved === "1" ? <FormMessage tone="notice" message="Appointment moved." /> : null}
+      {sp.moved === "1" ? <Toast message="Appointment moved" param="moved" /> : null}
 
       <article className="overflow-hidden rounded-card bg-card lift">
         <div aria-hidden="true" className={`h-1.5 ${STATUS[a.status].bar}`} />

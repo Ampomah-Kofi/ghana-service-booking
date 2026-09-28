@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LargeTitle } from "@/components/ui/large-title";
 import type { ReactNode } from "react";
 import { BusinessCard } from "@/components/marketplace/business-card";
 import { Cover } from "@/components/marketplace/cover";
@@ -51,6 +52,9 @@ export default async function HomePage() {
   }
   const categoryRows = categories.filter((c) => byCategory.has(c.slug)).slice(0, 4);
 
+  // A business can appear in several rows; only its first card may morph into the page cover.
+  const morphed = new Set<string>();
+  const firstShown = (id: string) => (morphed.has(id) ? false : (morphed.add(id), true));
   const row = (cards: Card[], eagerFirst = false) => (
     <ul className="rail -mx-5 flex gap-3 overflow-x-auto px-5 pb-1">
       {cards.map((card, i) => (
@@ -62,6 +66,7 @@ export default async function HomePage() {
             compact
             eager={eagerFirst && i < 2}
             next={next.get(card.id)?.label}
+            morph={firstShown(card.id)}
           />
         </li>
       ))}
@@ -74,21 +79,20 @@ export default async function HomePage() {
         aria-hidden="true"
         className="aurora bleed-top pointer-events-none absolute -right-5 -left-5 -z-10 h-80 md:mt-0"
       />
-      <header className="mb-4 flex items-end justify-between gap-3 pt-3">
-        <div className="min-w-0">
-          <p className="text-caption font-semibold tracking-wide text-ink-muted uppercase">
-            {formatDayLong(new Date(), timezone)}
-          </p>
-          <h1 className="text-display font-bold">Explore</h1>
-        </div>
-        <Link
-          href={user ? "/account" : "/sign-in"}
-          aria-label={user ? "Your account" : "Sign in"}
-          className="pressable mb-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary"
-        >
-          <UserIcon className="size-5" />
-        </Link>
-      </header>
+      <LargeTitle
+        title="Explore"
+        eyebrow={formatDayLong(new Date(), timezone)}
+        className="mb-4"
+        trailing={
+          <Link
+            href={user ? "/account" : "/sign-in"}
+            aria-label={user ? "Your account" : "Sign in"}
+            className="pressable mb-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary"
+          >
+            <UserIcon className="size-5" />
+          </Link>
+        }
+      />
 
       <section className="mb-7" aria-label="Search">
         <SearchForm />
@@ -120,9 +124,7 @@ export default async function HomePage() {
 
       <Section title="Categories" id="categories">
         {categories.length === 0 ? (
-          <p className="rounded-card bg-card p-4 text-body text-ink-muted lift">
-            No categories yet. Check back soon.
-          </p>
+          <p className="rounded-card bg-card p-4 text-body text-ink-muted lift">No categories yet. Check back soon.</p>
         ) : (
           <ul className="rail -mx-5 flex gap-3 overflow-x-auto px-5 pb-1">
             {categories.map((category) => (

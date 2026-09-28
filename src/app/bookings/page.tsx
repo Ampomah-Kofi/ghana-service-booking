@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LargeTitle } from "@/components/ui/large-title";
 import Link from "next/link";
 import { AppointmentRow } from "@/components/bookings/appointment-row";
 import { GroupedSection } from "@/components/ui/card";
@@ -15,7 +16,7 @@ export default async function BookingsPage() {
 
   return (
     <>
-      <h1 className="mb-6 text-display font-bold">Your bookings</h1>
+      <LargeTitle title="Bookings" className="mb-6" />
       <GroupedSection title="Upcoming">
         {upcoming.length === 0 ? (
           <p className="px-4 py-3 text-body text-ink-muted">

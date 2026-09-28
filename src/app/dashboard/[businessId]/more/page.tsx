@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LargeTitle } from "@/components/ui/large-title";
 import Link from "next/link";
 import { GroupedSection } from "@/components/ui/card";
 import { ChevronRightIcon } from "@/components/ui/icons";
@@ -90,7 +91,7 @@ export default async function MorePage({ params }: PageProps<"/dashboard/[busine
 
   return (
     <>
-      <h1 className="mb-1 text-display font-bold">More</h1>
+      <LargeTitle title="More" className="mb-1" />
       <p className="mb-6 text-body text-ink-muted">
         {published
           ? "Your page is live. Customers can book you online."

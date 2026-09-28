@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { MorphCover } from "@/components/marketplace/business-card";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
@@ -106,13 +107,17 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
     <article>
       <header className="mb-5">
         <div className="bleed-top relative -mx-5 aspect-4/3 overflow-hidden bg-fill sm:mx-0 sm:rounded-card md:mt-0 md:aspect-video">
-          <Cover
-            imageUrl={cover ? media(cover.pathLarge) : null}
-            categorySlug={business.category?.slug ?? null}
-            seed={business.id}
-            eager
-            iconScale={1.15}
-          />
+          <MorphCover id={business.id}>
+            <div className="absolute inset-0">
+              <Cover
+                imageUrl={cover ? media(cover.pathLarge) : null}
+                categorySlug={business.category?.slug ?? null}
+                seed={business.id}
+                eager
+                iconScale={1.15}
+              />
+            </div>
+          </MorphCover>
           <div className="absolute inset-x-0 top-0 flex justify-between p-3 pt-safe-sm">
             <Link
               href="/"
@@ -216,9 +221,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
           Services
         </h2>
         {services.length === 0 ? (
-          <p className="rounded-card bg-card p-4 text-body text-ink-muted lift">
-            Services coming soon.
-          </p>
+          <p className="rounded-card bg-card p-4 text-body text-ink-muted lift">Services coming soon.</p>
         ) : (
           <ul className="ios-list overflow-hidden rounded-card bg-card lift">
             {services.map((s) => (

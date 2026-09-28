@@ -63,7 +63,7 @@ test("customer books any available professional, then cancels", async ({ page })
   await expect(page.getByText(chosenTime).first()).toBeVisible();
 
   await page.goto("/bookings");
-  await expect(page.getByRole("heading", { level: 1, name: "Your bookings" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Bookings" })).toBeVisible();
   await page
     .getByRole("link", { name: /Ama Braids Studio/ })
     .first()
@@ -72,7 +72,7 @@ test("customer books any available professional, then cancels", async ({ page })
   await page.getByRole("button", { name: "Cancel booking" }).click();
   await page.getByLabel("Reason (optional)").fill("Plans changed");
   await page.getByRole("button", { name: "Yes, cancel it" }).click();
-  await expect(page.getByText("Your booking is cancelled.")).toBeVisible();
+  await expect(page.getByText("Your booking is cancelled")).toBeVisible();
   await page.reload();
   await expect(page.getByText("Cancelled", { exact: true })).toBeVisible();
 

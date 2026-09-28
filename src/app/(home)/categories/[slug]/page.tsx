@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LargeTitle } from "@/components/ui/large-title";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ResultList } from "@/components/marketplace/result-list";
@@ -45,7 +46,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
 
   return (
     <>
-      <h1 className="text-display font-bold">{category.name}</h1>
+      <LargeTitle title={category.name} className="" />
       <p className="mb-4 mt-1 text-small text-ink-muted">
         {result.total === 1 ? "1 professional" : `${result.total} professionals`}
         {result.interpretation.place ? ` in ${result.interpretation.place}` : ""}

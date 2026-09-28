@@ -25,7 +25,10 @@ export function SearchForm({ defaultQuery = "", autoFocus = false }: { defaultQu
           className="min-h-12 w-full rounded-full bg-fill pr-4 pl-11 text-body outline-none placeholder:text-ink-muted focus:bg-card focus:ring-2 focus:ring-primary"
         />
         {/* The keyboard's Search key submits; the button stays for screen readers and keyboards. */}
-        <button type="submit" className="sr-only focus:not-sr-only focus:absolute focus:top-1.5 focus:right-1.5 focus:bottom-1.5 focus:rounded-full focus:bg-primary focus:px-4 focus:text-small focus:font-semibold focus:text-on-primary">
+        <button
+          type="submit"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-1.5 focus:right-1.5 focus:bottom-1.5 focus:rounded-full focus:bg-primary focus:px-4 focus:text-small focus:font-semibold focus:text-on-primary"
+        >
           Search
         </button>
       </form>

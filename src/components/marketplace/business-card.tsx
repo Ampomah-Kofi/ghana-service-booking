@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ViewTransition } from "react";
 import { publicMediaUrl } from "@/lib/images";
 import { formatMoney } from "@/lib/money";
 import type { BusinessCard as Card } from "@/server/search/marketplace";
@@ -17,6 +18,7 @@ export function BusinessCard({
   compact = false,
   eager = false,
   next = null,
+  morph = true,
 }: {
   card: Card;
   supabaseUrl: string;
@@ -25,6 +27,8 @@ export function BusinessCard({
   eager?: boolean;
   /** "Today 2:30 pm" when there's still a free time today (SPEC §11: next available). */
   next?: string | null;
+  /** Grow this cover into the business page's cover on tap. Only one card per business on a page may morph. */
+  morph?: boolean;
 }) {
   const image = card.imagePath ?? card.logoPath;
   const currency = card.startingPrice ? currencies.get(card.startingPrice.currency) : undefined;
@@ -38,21 +42,23 @@ export function BusinessCard({
 
   return (
     <Link href={`/business/${card.slug}`} className="pressable group block">
-      <div className={`relative overflow-hidden rounded-card bg-fill ${compact ? "aspect-4/3" : "aspect-video"}`}>
-        <Cover
-          imageUrl={image ? publicMediaUrl(supabaseUrl, image) : null}
-          categorySlug={card.categorySlug}
-          seed={card.id}
-          iconScale={compact ? 0.9 : 1}
-          eager={eager}
-          className="transition-transform duration-300 group-hover:scale-102"
-        />
-        {card.rating ? null : (
-          <span className="glass absolute top-2.5 left-2.5 rounded-full px-2.5 py-1 text-caption font-semibold text-ink">
-            New
-          </span>
-        )}
-      </div>
+      <MorphCover id={card.id} enabled={morph}>
+        <div className={`relative overflow-hidden rounded-card bg-fill ${compact ? "aspect-4/3" : "aspect-video"}`}>
+          <Cover
+            imageUrl={image ? publicMediaUrl(supabaseUrl, image) : null}
+            categorySlug={card.categorySlug}
+            seed={card.id}
+            iconScale={compact ? 0.9 : 1}
+            eager={eager}
+            className="transition-transform duration-300 group-hover:scale-102"
+          />
+          {card.rating ? null : (
+            <span className="glass absolute top-2.5 left-2.5 rounded-full px-2.5 py-1 text-caption font-semibold text-ink">
+              New
+            </span>
+          )}
+        </div>
+      </MorphCover>
       <div className="px-0.5 pt-2.5">
         <div className="flex items-baseline justify-between gap-2">
           <h3 className="min-w-0 truncate text-heading font-semibold">{card.name}</h3>
@@ -81,5 +87,23 @@ export function BusinessCard({
         </p>
       </div>
     </Link>
+  );
+}
+
+/** Shared-element transition into the business page cover (ADR-0012); plain content when off. */
+export function MorphCover({
+  id,
+  enabled = true,
+  children,
+}: {
+  id: string;
+  enabled?: boolean;
+  children: React.ReactNode;
+}) {
+  if (!enabled) return children;
+  return (
+    <ViewTransition name={`cover-${id}`} share="morph" default="none">
+      {children}
+    </ViewTransition>
   );
 }

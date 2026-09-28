@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import { Toast } from "@/components/ui/toast";
 import Link from "next/link";
-import { FormMessage } from "@/components/ui/field";
 import { Fab } from "@/components/ui/fab";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 import { Segmented } from "@/components/ui/segmented";
@@ -122,7 +122,7 @@ export default async function CalendarPage({ params, searchParams }: PageProps<"
 
   return (
     <>
-      {typeof sp.added === "string" ? <FormMessage tone="notice" message="Appointment added." /> : null}
+      {typeof sp.added === "string" ? <Toast message="Appointment added" param="added" /> : null}
 
       <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">

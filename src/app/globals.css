@@ -272,7 +272,7 @@ input[type="checkbox"][role="switch"]:disabled {
 /* ── Glass (ADR-0010): navigation and controls only; content stays solid ─────── */
 :root {
   --glass: rgb(255 255 255 / 0.6);
-  --glass-strong: rgb(250 248 244 / 0.86);
+  --glass-strong: rgb(246 244 240 / 0.86);
   --glass-rim: rgb(255 255 255 / 0.75);
   --glass-line: rgb(20 32 27 / 0.08);
   --glass-shadow: 0 10px 30px rgb(20 32 27 / 0.14), 0 1px 3px rgb(20 32 27 / 0.08);
@@ -354,4 +354,86 @@ input[type="checkbox"][role="switch"]:disabled {
   .lift {
     box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
   }
+}
+
+/* ── Polish (ADR-0012) ─────────────────────────────────────────────────────── */
+
+/* Large titles shrink away and a compact glass title bar fades in as you scroll (iOS navigation bar).
+   Scroll-driven CSS only: no JavaScript; browsers without it keep the plain large title. */
+.compact-bar {
+  opacity: 0;
+  visibility: hidden;
+}
+@supports (animation-timeline: scroll()) {
+  .compact-bar {
+    visibility: visible;
+    animation: compact-in linear both;
+    animation-timeline: scroll(root);
+    animation-range: 56px 96px;
+  }
+  .large-title {
+    transform-origin: left bottom;
+    animation: large-title-out linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 72px;
+  }
+}
+@keyframes compact-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes large-title-out {
+  to {
+    opacity: 0.2;
+    transform: scale(0.94);
+  }
+}
+
+/* Card cover → business page cover (React <ViewTransition>, Chromium/Safari; others just navigate). */
+::view-transition-group(.morph) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Banner that slides down from the top and leaves by itself (src/components/ui/toast.tsx). */
+@keyframes toast {
+  0% {
+    opacity: 0;
+    transform: translateY(-120%);
+  }
+  8%,
+  88% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-120%);
+  }
+}
+.toast {
+  animation: toast 4s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+/* The customer tab bar tucks away while scrolling down (customer-tabs.tsx). */
+.tabs-away {
+  transform: translateY(calc(100% + 1rem));
+  opacity: 0;
+}
+
+/* Section titles that stay pinned under the status bar while their list scrolls. */
+@utility sticky-head {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
 }

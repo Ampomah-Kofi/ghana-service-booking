@@ -38,7 +38,7 @@ test("provider adds a walk-in and completes it", async () => {
   await page.getByRole("button", { name: "Start walk-in" }).click();
 
   await expect(page).toHaveURL(/\/calendar\?date=.*&added=/);
-  await expect(page.getByText("Appointment added.")).toBeVisible();
+  await expect(page.getByText("Appointment added")).toBeVisible();
   const id = new URL(page.url()).searchParams.get("added");
   await page.goto(`${KWAME_CUTS}/appointments/${id}`);
 

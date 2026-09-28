@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
+import { Toast } from "@/components/ui/toast";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { StatusBadge } from "@/components/bookings/status-badge";
-import { FormMessage } from "@/components/ui/field";
 import { formatDateShort, formatTime } from "@/lib/datetime";
 import { formatMoney, formatPrice } from "@/lib/money";
 import { formatPhoneInternational } from "@/lib/phone";
@@ -51,9 +51,7 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
               strokeLinejoin="round"
             />
           </svg>
-          <h2 className="text-display font-bold">
-            {a.status === "confirmed" ? "You're booked!" : "Request sent"}
-          </h2>
+          <h2 className="text-display font-bold">{a.status === "confirmed" ? "You're booked!" : "Request sent"}</h2>
           <p className="mt-1 text-body opacity-90">
             {a.status === "confirmed"
               ? `${formatDateShort(a.startsAt, tz)} at ${formatTime(a.startsAt, tz)}. See you then.`
@@ -61,9 +59,9 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
           </p>
         </section>
       ) : sp.rescheduled === "1" ? (
-        <FormMessage tone="notice" message="Your booking has been moved." />
+        <Toast message="Your booking has been moved" param="rescheduled" />
       ) : sp.cancelled === "1" ? (
-        <FormMessage tone="notice" message="Your booking is cancelled." />
+        <Toast message="Your booking is cancelled" param="cancelled" />
       ) : null}
 
       <div className="mb-2">

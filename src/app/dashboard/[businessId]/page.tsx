@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LargeTitle } from "@/components/ui/large-title";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { SourceBadge, STATUS, StatusBadge } from "@/components/bookings/status-badge";
@@ -31,10 +32,7 @@ export default async function TodayPage({ params }: PageProps<"/dashboard/[busin
 
   return (
     <>
-      <header className="mb-5">
-        <h1 className="text-display font-bold">Today</h1>
-        <p className="text-body text-ink-muted">{formatLocalDateShort(summary.date)}</p>
-      </header>
+      <LargeTitle title="Today" eyebrow={formatLocalDateShort(summary.date)} />
 
       {canManage && business.status === "draft" ? (
         <Link
@@ -50,10 +48,7 @@ export default async function TodayPage({ params }: PageProps<"/dashboard/[busin
       ) : null}
 
       {next ? (
-        <section
-          aria-labelledby="next-heading"
-          className="mb-5 overflow-hidden rounded-card bg-card lift"
-        >
+        <section aria-labelledby="next-heading" className="mb-5 overflow-hidden rounded-card bg-card lift">
           <div className={`h-1 ${STATUS[next.status].bar}`} aria-hidden="true" />
           <div className="p-4">
             <div className="mb-2 flex items-center justify-between gap-3">

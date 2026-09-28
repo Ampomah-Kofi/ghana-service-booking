@@ -48,10 +48,7 @@ export default async function EditServicePage({
         <input type="hidden" name="businessId" value={business.id} />
         <input type="hidden" name="serviceId" value={service.id} />
         <input type="hidden" name="returnTo" value={back} />
-        <button
-          type="submit"
-          className="min-h-11 w-full rounded-card bg-card text-body text-danger lift"
-        >
+        <button type="submit" className="min-h-11 w-full rounded-card bg-card text-body text-danger lift">
           Delete service
         </button>
         <p className="mt-2 text-center text-small text-ink-muted">Past bookings keep their details.</p>
