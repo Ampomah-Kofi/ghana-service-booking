@@ -1,4 +1,5 @@
-// Layout check: in-flow text overlapping other text, and content hidden under fixed bottom bars.
+// Layout check: in-flow text overlapping other text, content hidden under fixed bottom bars, and fixed
+// elements trapped by a transformed/filtered ancestor (they then scroll with the page instead of staying put).
 // node scripts/dev/overlap-check.mjs <storage-state.json | -> <path...>   (app running on :3000)
 // Checks 360 and 390 px widths. Sticky/fixed layers (tab bars, title bars, sheets) are excluded from the text check by design.
 import { chromium } from "@playwright/test";
@@ -7,7 +8,7 @@ const b = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIU
 for (const width of [360, 390]) {
   const ctx = await b.newContext({
     viewport: { width, height: 740 },
-    reducedMotion: "reduce",
+    // Normal motion on purpose: a page animation's leftover transform is exactly what traps fixed bars.
     storageState: storage === "-" ? undefined : storage,
   });
   const p = await ctx.newPage();
@@ -39,6 +40,27 @@ for (const width of [360, 390]) {
           )
         );
       };
+      // 0) position: fixed must mean "fixed to the screen": no ancestor may create a containing block.
+      const trapped = [];
+      for (const el of document.querySelectorAll("body *")) {
+        if (getComputedStyle(el).position !== "fixed" || !visible(el)) continue;
+        for (let e = el.parentElement; e && e !== document.body; e = e.parentElement) {
+          const s = getComputedStyle(e);
+          if (
+            s.transform !== "none" ||
+            s.backdropFilter !== "none" ||
+            s.filter !== "none" ||
+            s.perspective !== "none" ||
+            /paint|layout|strict|content/.test(s.contain) ||
+            /transform|filter/.test(s.willChange)
+          ) {
+            trapped.push(
+              `${el.tagName.toLowerCase()}[${el.getAttribute("aria-label") ?? el.className.toString().slice(0, 30)}] inside .${e.className.toString().split(" ")[0]}`,
+            );
+            break;
+          }
+        }
+      }
       // 1) In-flow text overlapping other in-flow text.
       const leaves = [...document.querySelectorAll("main *")].filter(
         (el) => visible(el) && !isFixed(el) && [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()),
@@ -62,7 +84,7 @@ for (const width of [360, 390]) {
             }
         }
       // 2) Scrolled to the bottom, the last content must end above any fixed bottom bar.
-      window.scrollTo(0, document.documentElement.scrollHeight);
+      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
       await new Promise((r) => setTimeout(r, 400));
       const bars = [...document.querySelectorAll("body *")]
         .filter((el) => getComputedStyle(el).position === "fixed" && visible(el))
@@ -92,11 +114,11 @@ for (const width of [360, 390]) {
         (el) => visible(el) && !isFixed(el) && el.children.length === 0,
       );
       const lastBottom = Math.max(...content.map((el) => el.getBoundingClientRect().bottom));
-      return { hits: [...new Set(hits)].slice(0, 6), hidden: Math.round(lastBottom - barTop) };
+      return { hits: [...new Set(hits)].slice(0, 6), hidden: Math.round(lastBottom - barTop), trapped };
     });
-    const bad = r.hits.length || r.hidden > 0;
+    const bad = r.hits.length || r.hidden > 0 || r.trapped.length;
     console.log(
-      `${bad ? "✗" : "✓"} ${width} ${path}${r.hidden > 0 ? `  last content ${r.hidden}px under bottom bar` : ""}${r.hits.length ? "\n    " + r.hits.join("\n    ") : ""}`,
+      `${bad ? "✗" : "✓"} ${width} ${path}${r.hidden > 0 ? `  last content ${r.hidden}px under bottom bar` : ""}${r.hits.length ? "\n    " + r.hits.join("\n    ") : ""}${r.trapped.length ? "\n    fixed but trapped: " + r.trapped.join(", ") : ""}`,
     );
   }
   await ctx.close();

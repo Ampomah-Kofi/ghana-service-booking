@@ -29,7 +29,9 @@
 | `star` | `#E0A526` | same | Stars only, next to the number |
 | `whatsapp` | `#1F7A45` | `#4CC07A` | The WhatsApp button only |
 
-- **Type:** system font stack, zero downloads. `display` 34/40 bold (large titles), `title` 22/28, `heading` 17/22, `body` 17/24, `small` 15/20, `caption` 12/16. Display, title and heading carry their own negative tracking (ADR-0011); don't add `tracking-*` per screen.
+- **Type (ADR-0014, phone first):** system font stack, zero downloads. `display` 28/34 bold (large titles), `title` 20/26, `heading` 17/22, `body` 16/24, `small` 14/20, `caption` 12/16; from 640 px `display` 32/40 and `title` 22/28. Display, title and heading carry their own negative tracking (ADR-0011); don't add `tracking-*` or per-screen font sizes.
+- **Prices in lists:** always `PriceTag` (amount at body size, "from" as a caption above, "Price on request" quiet and wrapping).
+- **Motion rule:** never animate `transform`/`filter` on a wrapper that contains `position: fixed` elements (it traps them); page transitions are opacity-only.
 - **Radii:** `chip` 6 px, `control` 10 px, `card` 20 px. Buttons, chips, search and avatars are full-round capsules.
 - **Spacing:** 4 px grid; gutters 20 px on phones.
 - **Depth (ADR-0011):** cards have **no outline**; `.lift` (a very soft shadow, a hairline rim in dark mode) separates them from `surface`. Lists use `.ios-list` (separators inset 16 px). `shadow-sheet` for sheets and sticky bars, `shadow-pop` for menus and the floating "+". Blur only on the navigation layer (ADR-0010).

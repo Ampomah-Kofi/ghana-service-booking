@@ -70,7 +70,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
   const row = (cards: Card[], eagerFirst = false) => (
     <ul className="rail -mx-5 flex gap-3 overflow-x-auto px-5 pb-1">
       {cards.map((card, i) => (
-        <li key={card.id} className="w-3/4 max-w-72 shrink-0">
+        <li key={card.id} className="w-[64%] max-w-64 shrink-0">
           <BusinessCard
             card={card}
             supabaseUrl={supabaseUrl}
@@ -131,7 +131,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         <Section title="Your places" id="places">
           <ul className="rail -mx-5 flex gap-3 overflow-x-auto px-5 pb-1">
             {places.map((place) => (
-              <li key={place.businessId} className="w-3/4 max-w-72 shrink-0">
+              <li key={place.businessId} className="w-[64%] max-w-64 shrink-0">
                 <PlaceCard place={place} supabaseUrl={supabaseUrl} />
               </li>
             ))}

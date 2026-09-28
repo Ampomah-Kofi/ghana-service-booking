@@ -48,8 +48,8 @@ export function SkeletonCardRow({ className = "mb-8" }: { className?: string }) 
       <Bone className="mb-3 h-6 w-44" />
       <div className="-mx-5 flex gap-3 overflow-hidden px-5">
         {[0, 1].map((i) => (
-          <div key={i} className="w-3/4 max-w-72 shrink-0">
-            <Bone className="mb-2.5 aspect-4/3 rounded-card" />
+          <div key={i} className="w-[64%] max-w-64 shrink-0">
+            <Bone className="mb-2.5 aspect-3/2 rounded-card" />
             <Bone className="mb-1.5 h-4 w-3/4" />
             <Bone className="h-3 w-1/2" />
           </div>
@@ -59,15 +59,18 @@ export function SkeletonCardRow({ className = "mb-8" }: { className?: string }) 
   );
 }
 
-/** Full-width result cards, one under another. */
+/** Result rows (picture left, details right), one under another. */
 export function SkeletonResults({ count = 3 }: { count?: number }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {Array.from({ length: count }, (_, i) => (
-        <div key={i}>
-          <Bone className="mb-2.5 aspect-video rounded-card" />
-          <Bone className="mb-1.5 h-4 w-2/3" />
-          <Bone className="h-3 w-1/2" />
+        <div key={i} className="flex items-center gap-3 rounded-card bg-card p-2.5">
+          <Bone className="size-22 shrink-0 rounded-control" />
+          <div className="min-w-0 flex-1">
+            <Bone className="mb-2 h-4 w-2/3" />
+            <Bone className="mb-2 h-3 w-1/2" />
+            <Bone className="h-3 w-1/3" />
+          </div>
         </div>
       ))}
     </div>

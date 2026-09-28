@@ -57,13 +57,13 @@ export function CustomerTabs() {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }
                 }}
-                className={`pressable relative isolate flex min-h-13 flex-col items-center justify-center gap-0.5 rounded-full text-caption transition-colors ${
-                  active ? "font-semibold text-primary" : "text-ink-muted"
+                className={`pressable relative isolate flex min-h-13 flex-col items-center justify-center gap-0.5 rounded-full text-caption font-medium tracking-tight transition-colors ${
+                  active ? "text-primary" : "text-ink-muted"
                 }`}
               >
                 {active ? <TabLens name="customer-tab-lens" /> : null}
                 <Icon className="size-6" />
-                <span className="max-w-full truncate px-1">{label}</span>
+                <span className="max-w-full truncate px-0.5">{label}</span>
               </Link>
             </li>
           ))}

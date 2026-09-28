@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PriceTag } from "@/components/business/price-tag";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { cache } from "react";
@@ -119,9 +120,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
                       <span className="block text-small text-warning">{money(s.depositMinor)} deposit to book</span>
                     ) : null}
                   </span>
-                  <span className="shrink-0 text-heading font-semibold tabular-nums">
-                    {formatPrice(s.priceMinor, s.priceType, business.currency)}
-                  </span>
+                  <PriceTag price={formatPrice(s.priceMinor, s.priceType, business.currency)} />
                   <ChevronRightIcon className="shrink-0 text-ink-muted" />
                 </Link>
               </li>

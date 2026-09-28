@@ -17,13 +17,14 @@ export function ResultList({
   favorites?: Set<string> | null;
 }) {
   return (
-    <ul className="grid grid-cols-[minmax(0,1fr)] gap-x-4 gap-y-6 sm:grid-cols-2">
+    <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2">
       {cards.map((card, i) => (
         <li key={card.id} className="min-w-0">
           <BusinessCard
             card={card}
             supabaseUrl={supabaseUrl}
             currencies={currencies}
+            row
             eager={i < 2}
             next={next?.get(card.id)?.label}
             favorite={favorites === undefined ? undefined : favorites === null ? null : favorites.has(card.id)}

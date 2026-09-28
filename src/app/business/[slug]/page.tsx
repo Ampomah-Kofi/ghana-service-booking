@@ -122,7 +122,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
   return (
     <article>
       <header className="mb-5">
-        <div className="bleed-top relative -mx-5 aspect-4/3 overflow-hidden bg-fill sm:mx-0 sm:rounded-card md:mt-0 md:aspect-video">
+        <div className="bleed-top relative -mx-5 aspect-16/10 overflow-hidden bg-fill sm:mx-0 sm:rounded-card md:mt-0 md:aspect-video">
           <MorphCover id={business.id}>
             <div className="absolute inset-0">
               <Cover
@@ -464,7 +464,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
 function Stat({ label, value, tone }: { label: string; value: string; tone?: string }) {
   return (
     <div className="flex min-w-0 flex-col-reverse px-1">
-      <dt className="truncate text-caption text-ink-muted">{label}</dt>
+      <dt className="line-clamp-2 text-caption leading-tight text-ink-muted">{label}</dt>
       <dd className={`text-heading font-bold ${tone ?? ""}`}>{value}</dd>
     </div>
   );

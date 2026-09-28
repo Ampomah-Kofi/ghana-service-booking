@@ -15,8 +15,9 @@ Changing an accepted decision means writing a new ADR (see CLAUDE.md §Architect
 | [0008](0008-design-language.md) | Apple-inspired design language | Accepted, amended by 0009 |
 | [0009](0009-combined-design-system.md) | Combined design system (Apple principles + owner DESIGN.md) | Accepted, amended by 0010 and 0011 |
 | [0010](0010-glass-navigation-layer.md) | Glass for the navigation layer | Accepted |
-| [0011](0011-ios-refinement.md) | iOS-grade refinement of type, depth and controls | Accepted |
+| [0011](0011-ios-refinement.md) | iOS-grade refinement of type, depth and controls | Accepted, type amended by 0014 |
 | [0012](0012-interaction-polish.md) | Interaction polish (iOS patterns on the web) | Accepted |
 | [0013](0013-notification-channels.md) | Notification channels, preferences and templates | Accepted |
+| [0014](0014-compact-mobile-type.md) | Compact phone type scale and denser lists | Accepted |
 
 Accepted 2026-09-27 with Phase 0 approval.

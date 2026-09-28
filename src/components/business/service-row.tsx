@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Sheet } from "@/components/ui/sheet";
 import { ChevronRightIcon, InfoIcon } from "@/components/ui/icons";
+import { PriceTag } from "./price-tag";
 
 /**
  * A service in a price list. The row books; when there's more to say (description, deposit),
@@ -28,8 +29,6 @@ export function ServiceRow({
 }) {
   const hasDetails = Boolean(description || deposit || photos.length > 0);
   const sheetId = `service-${id}`;
-  // "Price on request" is words, not a figure: smaller and allowed to wrap, so it never squeezes the name.
-  const worded = !/\d/.test(price);
   const body = (
     <>
       <span className="min-w-0 flex-1">
@@ -61,15 +60,7 @@ export function ServiceRow({
           </span>
         ) : null}
       </span>
-      <span
-        className={
-          worded
-            ? "max-w-[7.5rem] shrink-0 text-right text-small leading-tight font-medium text-ink-muted"
-            : "shrink-0 text-heading font-semibold tabular-nums"
-        }
-      >
-        {price}
-      </span>
+      <PriceTag price={price} />
       {href && !hasDetails ? <ChevronRightIcon className="shrink-0 text-ink-muted" /> : null}
     </>
   );
