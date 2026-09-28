@@ -26,6 +26,10 @@ import {
   reviewBody,
   reviewResponse,
   reviewsQuery,
+  markReadBody,
+  notificationPreferences,
+  notificationPreferencesResponse,
+  notificationsResponse,
 } from "@/schemas/api-v1";
 
 const schema = (s: z.ZodType) => z.toJSONSchema(s, { target: "openapi-3.0", io: "output", unrepresentable: "any" });
@@ -75,6 +79,8 @@ export function buildOpenApiDocument(serverUrl: string) {
         Review: schema(reviewResponse),
         BusinessReviews: schema(businessReviewsResponse),
         MyReviews: schema(myReviewsResponse),
+        Notifications: schema(notificationsResponse),
+        NotificationPreferences: schema(notificationPreferencesResponse),
       },
     },
     paths: {
@@ -340,6 +346,44 @@ export function buildOpenApiDocument(serverUrl: string) {
             "404": errorResponse("Review not found"),
             "409": errorResponse("Already reported by you"),
             "422": errorResponse("Your own review, or invalid input"),
+          },
+        },
+      },
+      "/me/notifications": {
+        get: {
+          summary: "Your in-app notifications",
+          description: "Due messages only (reminders appear at their time), newest first, with `meta.unread`.",
+          security: [{ bearer: [] }],
+          responses: {
+            "200": { description: "Notifications", content: json("Notifications") },
+            "401": errorResponse("Not signed in"),
+          },
+        },
+      },
+      "/me/notifications/read": {
+        post: {
+          summary: "Mark notifications read",
+          description: "Omit `ids` to mark everything read.",
+          security: [{ bearer: [] }],
+          requestBody: { required: false, content: { "application/json": { schema: body(markReadBody) } } },
+          responses: { "200": { description: "Done" }, "401": errorResponse("Not signed in") },
+        },
+      },
+      "/me/notification-preferences": {
+        get: {
+          summary: "How we text and email you",
+          security: [{ bearer: [] }],
+          responses: { "200": { description: "Preferences", content: json("NotificationPreferences") } },
+        },
+        put: {
+          summary: "Change how we text and email you",
+          description:
+            "One text channel per message: `sms` (default), `whatsapp` or `none`. In-app messages always arrive.",
+          security: [{ bearer: [] }],
+          requestBody: { required: true, content: { "application/json": { schema: body(notificationPreferences) } } },
+          responses: {
+            "200": { description: "Saved", content: json("NotificationPreferences") },
+            "422": errorResponse("Invalid input"),
           },
         },
       },

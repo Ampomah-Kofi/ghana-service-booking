@@ -62,6 +62,12 @@ test("customer books any available professional, then cancels", async ({ page })
   await expect(page.getByRole("heading", { level: 1, name: "Twists" })).toBeVisible();
   await expect(page.getByText(chosenTime).first()).toBeVisible();
 
+  // Phase 8: the confirmation waits in the inbox, with a count on the bell.
+  await page.goto("/");
+  await page.getByRole("link", { name: /^Notifications, \d+ unread$/ }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Notifications" })).toBeVisible();
+  await expect(page.getByText("You're booked", { exact: true })).toBeVisible();
+
   await page.goto("/bookings");
   await expect(page.getByRole("heading", { level: 1, name: "Bookings" })).toBeVisible();
   await page
@@ -87,6 +93,9 @@ test("customer books any available professional, then cancels", async ({ page })
 });
 
 test("the booking API needs a signed-in caller; availability is public", async ({ request }) => {
+  // Internal jobs and personal endpoints refuse anonymous callers.
+  expect((await request.post("/api/internal/jobs/dispatch")).status()).toBe(401);
+  expect((await request.get("/api/v1/me/notifications")).status()).toBe(401);
   const profile = await (await request.get("/api/v1/businesses/kwame-cuts")).json();
   const lowCut = profile.data.services.find((s: { name: string }) => s.name === "Low cut");
   const availability = await request.get(`/api/v1/businesses/kwame-cuts/availability?service_id=${lowCut.id}&days=7`);

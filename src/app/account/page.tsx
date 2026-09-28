@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { DeleteAccountSheet, EditNameSheet } from "./account-forms";
+import { DeleteAccountSheet, EditNameSheet, MessagePreferencesForm } from "./account-forms";
+import { getMessagePreferences } from "@/server/notifications/inbox";
 import { Stars } from "@/components/reviews/stars";
 import { accountDeletionBlocker } from "@/server/account/account";
 import { listMyReviews } from "@/server/reviews/reviews";
@@ -28,6 +29,7 @@ export default async function AccountPage() {
     listMyReviews(db, user.id),
     accountDeletionBlocker(db),
   ]);
+  const prefs = await getMessagePreferences(db, user.id);
 
   return (
     <>
@@ -55,6 +57,10 @@ export default async function AccountPage() {
         <Link href="/bookings" className="block hover:bg-fill">
           <GroupedRow label="Your bookings" value="›" />
         </Link>
+      </GroupedSection>
+
+      <GroupedSection title="Messages" footer="Reminders go out 24 hours and 2 hours before each booking.">
+        <MessagePreferencesForm text={prefs.text} email={prefs.email} hasEmail={Boolean(user.email)} />
       </GroupedSection>
 
       {reviews.length > 0 ? (

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { unreadCount } from "@/server/notifications/inbox";
+import { NotificationBell } from "@/components/ui/notification-bell";
 import { Toast } from "@/components/ui/toast";
 import { heartsFor } from "@/server/favorites/favorites";
 import { toSuggestions } from "@/server/catalog/suggestions";
@@ -47,6 +49,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
   ]);
   // Live "next free time today" for everything shown, in one batch (same engine as booking).
   const ids = recent.map((c) => c.id);
+  const unread = user ? await unreadCount(db) : 0;
   const [next, favorites] = await Promise.all([nextAvailableToday(db, ids), heartsFor(db, user?.id ?? null, ids)]);
   const availableToday = recent
     .filter((c) => next.has(c.id))
@@ -95,13 +98,16 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         eyebrow={formatDayLong(new Date(), timezone)}
         className="mb-4"
         trailing={
-          <Link
-            href={user ? "/account" : "/sign-in"}
-            aria-label={user ? "Your account" : "Sign in"}
-            className="pressable mb-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary"
-          >
-            <UserIcon className="size-5" />
-          </Link>
+          <div className="mb-0.5 flex items-center gap-2">
+            {user ? <NotificationBell unread={unread} /> : null}
+            <Link
+              href={user ? "/account" : "/sign-in"}
+              aria-label={user ? "Your account" : "Sign in"}
+              className="pressable flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary"
+            >
+              <UserIcon className="size-5" />
+            </Link>
+          </div>
         }
       />
 

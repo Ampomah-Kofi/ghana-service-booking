@@ -8,6 +8,7 @@ import { Toast } from "@/components/ui/toast";
 import { valueOf } from "@/lib/form-values";
 import type { FormState } from "@/server/actions";
 import { deleteAccountAction, updateNameAction } from "./actions";
+import { saveMessagePreferencesAction } from "@/app/notifications/actions";
 
 export function EditNameSheet({ current }: { current: string }) {
   const [state, formAction] = useActionState<FormState, FormData>(updateNameAction, {});
@@ -71,5 +72,62 @@ export function DeleteAccountSheet({ blocker }: { blocker: string | null }) {
         </form>
       )}
     </Sheet>
+  );
+}
+
+/** How we reach you (Phase 8): one text channel (SMS, WhatsApp or none) plus email. */
+export function MessagePreferencesForm({
+  text,
+  email,
+  hasEmail,
+}: {
+  text: "sms" | "whatsapp" | "none";
+  email: boolean;
+  hasEmail: boolean;
+}) {
+  const [state, formAction] = useActionState<FormState, FormData>(saveMessagePreferencesAction, {});
+  const current = valueOf(state.values, "text", text);
+  return (
+    <form action={formAction}>
+      {state.ok ? <Toast message={state.notice ?? "Saved"} /> : null}
+      <fieldset className="ios-list">
+        <legend className="sr-only">Text me by</legend>
+        {(
+          [
+            ["sms", "SMS", "Works on every phone"],
+            ["whatsapp", "WhatsApp", "If you use WhatsApp on this number"],
+            ["none", "Don't text me", "You'll still see everything in the app"],
+          ] as const
+        ).map(([value, label, hint]) => (
+          <label key={value} className="flex min-h-14 cursor-pointer items-center justify-between gap-4 px-4 py-3">
+            <span className="min-w-0">
+              <span className="block text-body">{label}</span>
+              <span className="block text-small text-ink-muted">{hint}</span>
+            </span>
+            <input
+              type="radio"
+              name="text"
+              value={value}
+              defaultChecked={current === value}
+              className="size-5 accent-primary"
+            />
+          </label>
+        ))}
+        <label className="flex min-h-14 items-center justify-between gap-4 px-4 py-3">
+          <span className="min-w-0">
+            <span className="block text-body">Email me confirmations</span>
+            <span className="block text-small text-ink-muted">
+              {hasEmail ? "Booked, moved and cancelled" : "Add an email to your account first"}
+            </span>
+          </span>
+          <input type="checkbox" role="switch" name="email" defaultChecked={email} disabled={!hasEmail} />
+        </label>
+      </fieldset>
+      <div className="border-t border-border px-4 py-3">
+        <SubmitButton pendingLabel="Saving…" variant="secondary">
+          Save
+        </SubmitButton>
+      </div>
+    </form>
   );
 }

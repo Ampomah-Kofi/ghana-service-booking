@@ -279,3 +279,26 @@ export const reportBody = z.object({
   reason: z.enum(["spam", "offensive", "not_genuine", "private_info", "other"]),
   details: z.string().trim().max(500).nullable().optional(),
 });
+
+// ── Phase 8: notifications ──────────────────────────────────────────────────
+
+export const notificationItem = z.object({
+  id: z.uuid(),
+  template: z.string().describe("e.g. booking.confirmed, reminder.soon, provider.new_booking"),
+  title: z.string(),
+  body: z.string(),
+  href: z.string().describe("Path in the web app; mobile apps map it to a screen"),
+  audience: z.enum(["customer", "business"]),
+  at: z.iso.datetime({ offset: true }),
+  read: z.boolean(),
+});
+export const notificationsResponse = z.object({
+  data: z.array(notificationItem),
+  meta: z.object({ unread: z.number().int() }),
+});
+export const markReadBody = z.object({ ids: z.array(z.uuid()).max(200).optional() });
+export const notificationPreferences = z.object({
+  text: z.enum(["sms", "whatsapp", "none"]).describe("One text channel per message"),
+  email: z.boolean(),
+});
+export const notificationPreferencesResponse = z.object({ data: notificationPreferences });

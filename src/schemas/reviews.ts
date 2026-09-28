@@ -47,3 +47,8 @@ export const moderationInputSchema = z.object({
 export const profileNameSchema = z.object({
   fullName: z.string().trim().min(2, "Enter your name.").max(120, "Keep your name under 120 characters."),
 });
+
+export const messagePreferencesSchema = z.object({
+  text: z.enum(["sms", "whatsapp", "none"]),
+  email: z.union([z.literal("on"), z.boolean(), z.undefined(), z.null()]).transform((v) => v === "on" || v === true),
+});

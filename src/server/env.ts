@@ -19,18 +19,27 @@ export const serverEnvSchema = z
       .string()
       .regex(/^v1,whsec_[A-Za-z0-9+/=]+$/, "expected Standard Webhooks format v1,whsec_<base64>"),
     SMS_PROVIDER: providerName,
+    // Phase 8 channels. Optional locally (default mock); production must name a real provider.
+    WHATSAPP_PROVIDER: providerName.default("mock"),
+    EMAIL_PROVIDER: providerName.default("mock"),
+    // Bearer secret for /api/internal/jobs/dispatch (pg_cron → pg_net). Unset = the dispatcher refuses.
+    CRON_SECRET: z.string().min(32, "use at least 32 random characters").optional(),
     DEFAULT_COUNTRY_CODE: z.custom<CountryCode>(
       (v) => typeof v === "string" && isSupportedCountry(v),
       "expected an ISO 3166-1 alpha-2 code supported by libphonenumber",
     ),
   })
   .superRefine((env, ctx) => {
-    if (env.APP_ENV === "production" && env.SMS_PROVIDER === "mock") {
-      ctx.addIssue({
-        code: "custom",
-        path: ["SMS_PROVIDER"],
-        message: "Mock providers are not allowed when APP_ENV=production",
-      });
+    if (env.APP_ENV === "production") {
+      for (const key of ["SMS_PROVIDER", "WHATSAPP_PROVIDER", "EMAIL_PROVIDER"] as const) {
+        if (env[key] === "mock") {
+          ctx.addIssue({
+            code: "custom",
+            path: [key],
+            message: "Mock providers are not allowed when APP_ENV=production",
+          });
+        }
+      }
     }
     if (env.SUPABASE_SECRET_KEY === env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
       ctx.addIssue({
