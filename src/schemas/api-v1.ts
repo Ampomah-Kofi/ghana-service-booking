@@ -91,13 +91,23 @@ export const businessProfile = z.object({
       }),
     ),
     rating: z.object({ average: z.number(), count: z.number().int() }).nullable(),
+    social: z
+      .object({
+        instagram: z.url().nullable(),
+        tiktok: z.url().nullable(),
+        x: z.url().nullable(),
+        facebook: z.url().nullable(),
+        youtube: z.url().nullable(),
+        website: z.url().nullable(),
+      })
+      .describe("Profile links, or null"),
     services: z.array(
       z.object({
         id: z.uuid(),
         name: z.string(),
         description: z.string().nullable(),
         price: money,
-        price_type: z.enum(["fixed", "from"]),
+        price_type: z.enum(["fixed", "from", "on_request"]).describe("on_request: no amount; agreed with the business"),
         duration_minutes: z.number().int(),
         staff_ids: z.array(z.uuid()),
       }),
@@ -152,7 +162,7 @@ export const appointment = z.object({
   }),
   service: z.object({ id: z.uuid(), name: z.string() }),
   staff: z.object({ id: z.uuid(), display_name: z.string().nullable() }),
-  price: money.extend({ type: z.enum(["fixed", "from"]) }),
+  price: money.extend({ type: z.enum(["fixed", "from", "on_request"]) }),
   deposit: money.nullable(),
   final_price: money.nullable().describe("What was actually charged, recorded when completing"),
   payment_status: z.enum(["pending", "paid", "partially_paid", "failed", "refunded"]).nullable(),

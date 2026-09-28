@@ -118,7 +118,7 @@ export default async function AppointmentPage({
           appointmentId={a.id}
           actions={actions}
           undo={undo ? { status: undo, label: a.status === "completed" ? "Undo complete" : "Undo no-show" } : null}
-          askFinalPrice={a.price.type === "from"}
+          askFinalPrice={a.price.type === "from" || a.price.type === "on_request"}
           currencySymbol={a.price.currency.symbol ?? a.price.currency.code}
           cancelSummary={`${a.customerName}'s ${a.serviceName} on ${formatDateShort(a.startsAt, tz)} at ${formatTime(a.startsAt, tz)}`}
         />

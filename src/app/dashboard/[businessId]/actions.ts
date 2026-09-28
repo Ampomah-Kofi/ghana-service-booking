@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { nextStepHref } from "@/components/ui/step-header";
 import { AppError } from "@/lib/errors";
-import { aboutSchema, contactSchema, locationSchema, slugSchema } from "@/schemas/business";
+import { aboutSchema, contactSchema, locationSchema, slugSchema, socialSchema } from "@/schemas/business";
 import { fieldErrorsFrom, formError, formValues, type FormState } from "@/server/actions";
 import { requireManagedBusiness } from "@/server/businesses/access";
 import {
@@ -103,10 +103,19 @@ export async function saveContactAction(_prev: FormState, formData: FormData): P
     email: formData.get("email") ?? "",
   });
   if (!parsed.success) return fieldErrorsFrom(parsed.error, formData);
+  const social = socialSchema.safeParse({
+    instagram: formData.get("instagram") ?? "",
+    tiktok: formData.get("tiktok") ?? "",
+    x: formData.get("x") ?? "",
+    facebook: formData.get("facebook") ?? "",
+    youtube: formData.get("youtube") ?? "",
+    website: formData.get("website") ?? "",
+  });
+  if (!social.success) return fieldErrorsFrom(social.error, formData);
   let businessId: string;
   try {
     const { db, business } = await requireManagedBusiness(formData.get("businessId"));
-    await saveContact(db, business.id, parsed.data);
+    await saveContact(db, business.id, parsed.data, social.data);
     refresh(business.id, business.slug);
     businessId = business.id;
   } catch (error) {

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SOCIAL_LABELS, socialDisplay, socialHref, type SocialLinks } from "@/lib/social";
 import { ReviewCard } from "@/components/reviews/review-card";
 import { RatingSummary } from "@/components/reviews/rating-summary";
 import { FavoriteButton } from "@/components/marketplace/favorite-button";
@@ -97,6 +98,9 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
   const loc = business.location;
 
   const status = openStatus(hours, business.timezone);
+  const socials = (Object.entries(business.social) as [keyof SocialLinks, string | null][]).filter(
+    (e): e is [keyof SocialLinks, string] => e[1] !== null,
+  );
   const directions =
     loc?.lat != null && loc.lng != null
       ? mapsUrl(loc.lat, loc.lng)
@@ -236,6 +240,26 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
               {a.label}
             </a>
           ))}
+        </nav>
+      ) : null}
+
+      {socials.length > 0 ? (
+        <nav aria-label="Social media" className="mb-7">
+          <ul className="rail -mx-5 flex gap-2 overflow-x-auto px-5">
+            {socials.map(([kind, value]) => (
+              <li key={kind} className="shrink-0">
+                <a
+                  href={socialHref(kind, value)}
+                  target="_blank"
+                  rel="noopener noreferrer me"
+                  className="pressable inline-flex min-h-10 items-center gap-2 rounded-full bg-fill px-3.5 text-small font-medium hover:bg-ink/10"
+                >
+                  <span className="text-ink-muted">{SOCIAL_LABELS[kind]}</span>
+                  <span className="max-w-40 truncate">{socialDisplay(kind, value)}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </nav>
       ) : null}
 

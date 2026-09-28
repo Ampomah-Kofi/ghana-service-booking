@@ -7,7 +7,23 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import type { FormState } from "@/server/actions";
 import { saveContactAction } from "../../actions";
 
-type Values = { phone: string; whatsapp: string; email: string; whatsappSame: boolean };
+type Values = {
+  phone: string;
+  whatsapp: string;
+  email: string;
+  whatsappSame: boolean;
+  social: Record<SocialKey, string>;
+};
+type SocialKey = "instagram" | "tiktok" | "x" | "facebook" | "youtube" | "website";
+
+const SOCIAL_FIELDS: { key: SocialKey; label: string; placeholder: string; inputMode?: "url" }[] = [
+  { key: "instagram", label: "Instagram", placeholder: "@yourname" },
+  { key: "tiktok", label: "TikTok", placeholder: "@yourname" },
+  { key: "x", label: "X (Twitter)", placeholder: "@yourname" },
+  { key: "facebook", label: "Facebook page", placeholder: "facebook.com/yourpage", inputMode: "url" },
+  { key: "youtube", label: "YouTube channel", placeholder: "youtube.com/@yourchannel", inputMode: "url" },
+  { key: "website", label: "Website", placeholder: "yourname.com", inputMode: "url" },
+];
 
 export function ContactForm({ businessId, values }: { businessId: string; values: Values }) {
   const [state, formAction] = useActionState<FormState, FormData>(saveContactAction, {});
@@ -60,6 +76,27 @@ export function ContactForm({ businessId, values }: { businessId: string; values
         hint="Optional."
         error={state.fieldErrors?.email}
       />
+      <fieldset className="mt-2 mb-4">
+        <legend className="mb-1 text-heading font-semibold">Social media</legend>
+        <p className="mb-3 text-small text-ink-muted">
+          Optional. Customers and brands like to see your work before they book. Paste a link or type your @username.
+        </p>
+        {SOCIAL_FIELDS.map((f) => (
+          <Field
+            key={f.key}
+            id={f.key}
+            name={f.key}
+            label={f.label}
+            inputMode={f.inputMode}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            placeholder={f.placeholder}
+            defaultValue={valueOf(state.values, f.key, values.social[f.key])}
+            error={state.fieldErrors?.[f.key]}
+          />
+        ))}
+      </fieldset>
       <SubmitButton pendingLabel="Saving…">Save and continue</SubmitButton>
     </form>
   );

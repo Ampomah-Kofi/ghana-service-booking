@@ -232,6 +232,8 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
           <span className="font-semibold tabular-nums">{price}</span>
           {service.priceType === "from" ? (
             <span className="block text-small text-ink-muted">Final price confirmed at the appointment</span>
+          ) : service.priceType === "on_request" ? (
+            <span className="block text-small text-ink-muted">You agree the price with {business.name}</span>
           ) : null}
         </Row>
         {service.depositMinor ? (

@@ -36,31 +36,41 @@ function moneyField(minorUnit: number, { required }: { required: boolean }) {
 }
 
 export function serviceSchema(minorUnit: number) {
-  return z
-    .object({
-      name: z.string().trim().min(1, "Enter a name.").max(120, "Use at most 120 characters."),
-      description: optionalText(1000),
-      price: moneyField(minorUnit, { required: true }),
-      priceType: z.enum(["fixed", "from"]),
-      durationMinutes: z.coerce
-        .number()
-        .int()
-        .min(5, "Choose a duration.")
-        .max(720)
-        .refine((v) => v % 5 === 0, "Use 5-minute steps."),
-      deposit: moneyField(minorUnit, { required: false }),
-      isActive: checkbox,
-      staffIds: z.array(z.uuid()).max(100),
-    })
-    .superRefine((v, ctx) => {
-      if (v.price !== null && v.price > 100_000_000)
-        ctx.addIssue({ code: "custom", path: ["price"], message: "That price is too high." });
-      if (v.deposit !== null && v.price !== null && v.deposit > v.price) {
-        ctx.addIssue({ code: "custom", path: ["deposit"], message: "The deposit can't be more than the price." });
-      }
-      if (v.deposit === 0) ctx.addIssue({ code: "custom", path: ["deposit"], message: "Leave empty for no deposit." });
-    })
-    .transform((v) => ({ ...v, price: v.price ?? 0 }));
+  return (
+    z
+      .object({
+        name: z.string().trim().min(1, "Enter a name.").max(120, "Use at most 120 characters."),
+        description: optionalText(1000),
+        price: moneyField(minorUnit, { required: false }),
+        priceType: z.enum(["fixed", "from", "on_request"]),
+        durationMinutes: z.coerce
+          .number()
+          .int()
+          .min(5, "Choose a duration.")
+          .max(720)
+          .refine((v) => v % 5 === 0, "Use 5-minute steps."),
+        deposit: moneyField(minorUnit, { required: false }),
+        isActive: checkbox,
+        staffIds: z.array(z.uuid()).max(100),
+      })
+      .superRefine((v, ctx) => {
+        if (v.priceType !== "on_request" && v.price === null)
+          ctx.addIssue({ code: "custom", path: ["price"], message: "Enter a price, or choose “On request”." });
+        if (v.priceType === "on_request" && v.deposit !== null)
+          ctx.addIssue({ code: "custom", path: ["deposit"], message: "A deposit needs a price. Leave it empty." });
+        if (v.price !== null && v.price > 100_000_000)
+          ctx.addIssue({ code: "custom", path: ["price"], message: "That price is too high." });
+        if (v.deposit !== null && v.price !== null && v.deposit > v.price) {
+          ctx.addIssue({ code: "custom", path: ["deposit"], message: "The deposit can't be more than the price." });
+        }
+        if (v.deposit === 0)
+          ctx.addIssue({ code: "custom", path: ["deposit"], message: "Leave empty for no deposit." });
+      })
+      // "On request" stores no amount (the database requires 0) and no deposit.
+      .transform((v) =>
+        v.priceType === "on_request" ? { ...v, price: 0, deposit: null } : { ...v, price: v.price ?? 0 },
+      )
+  );
 }
 
 export const staffSchema = z.object({

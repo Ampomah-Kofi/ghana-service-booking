@@ -37,9 +37,10 @@ export function ServiceList({ businessId, services, currency, staffNames, editQu
               )}
             </span>
             <span className="text-small text-ink-muted tabular-nums">
-              {s.priceType === "from" ? "From " : ""}
-              {formatMoney({ amountMinor: s.priceMinor, currency: s.currencyCode }, currency)} ·{" "}
-              {formatDuration(s.durationMinutes)}
+              {s.priceType === "on_request"
+                ? "Price on request"
+                : `${s.priceType === "from" ? "From " : ""}${formatMoney({ amountMinor: s.priceMinor, currency: s.currencyCode }, currency)}`}{" "}
+              · {formatDuration(s.durationMinutes)}
               {staffNames
                 ? ` · ${
                     s.staffIds

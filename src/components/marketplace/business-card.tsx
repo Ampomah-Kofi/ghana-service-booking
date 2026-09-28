@@ -83,7 +83,9 @@ export function BusinessCard({
               <span>
                 From <span className="font-semibold tabular-nums">{price}</span>
               </span>
-            ) : null}
+            ) : (
+              <span className="text-ink-muted">Prices on request</span>
+            )}
             {next ? (
               <span className="inline-flex items-center gap-1 font-medium text-success">
                 <span aria-hidden="true" className="size-1.5 rounded-full bg-success" />

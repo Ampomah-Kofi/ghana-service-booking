@@ -18,7 +18,7 @@ type Props = {
     name: string;
     description: string;
     price: string;
-    priceType: "fixed" | "from";
+    priceType: "fixed" | "from" | "on_request";
     durationMinutes: number;
     deposit: string;
     isActive: boolean;
@@ -79,8 +79,13 @@ export function ServiceForm({ businessId, serviceId, returnTo, currencySymbol, s
         >
           <option value="fixed">Exact</option>
           <option value="from">From (starting at)</option>
+          <option value="on_request">On request</option>
         </SelectField>
       </div>
+      <p className="-mt-2 mb-4 text-small text-ink-muted">
+        No fixed price (a campaign, a wiring job, a DJ set)? Choose “On request” and leave the price empty. Customers
+        can still book, and you agree the price with them.
+      </p>
 
       <SelectField
         id="durationMinutes"

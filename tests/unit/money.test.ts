@@ -25,3 +25,13 @@ describe("formatMoney", () => {
     expect(() => formatMoney({ amountMinor: 100, currency: "NGN" }, GHS)).toThrow(/mismatch/);
   });
 });
+
+describe("formatPrice", () => {
+  it("shows on-request services without an amount", async () => {
+    const { formatPrice } = await import("@/lib/money");
+    const ghs = { code: "GHS", symbol: "GH₵", minorUnit: 2 };
+    expect(formatPrice(0, "on_request", ghs)).toBe("Price on request");
+    expect(formatPrice(8000, "from", ghs)).toBe("From GH₵ 80");
+    expect(formatPrice(8000, "fixed", ghs)).toBe("GH₵ 80");
+  });
+});

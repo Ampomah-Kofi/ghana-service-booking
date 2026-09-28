@@ -94,7 +94,7 @@ insert into public.categories (name, slug, icon, sort_order, search_keywords) va
   ('Tattoo & piercing',  'tattoo-piercing',    'pen-tool',   80,  '{tattoo,piercing,"tattoo artist",ink}'),
   ('Medical & wellness', 'medical-wellness',   'heart-pulse',90,  '{clinic,physiotherapy,physio,dentist,nutritionist,wellness,therapy}'),
   ('Fitness',            'fitness',            'dumbbell',   100, '{gym,"personal trainer",fitness,yoga,pilates,trainer}'),
-  ('Photography',        'photography',        'camera',     110, '{photographer,photography,photoshoot,portrait,wedding,videographer}'),
+  ('Photography',        'photography',        'camera',     110, '{photographer,photography,photoshoot,portrait,wedding,"product photos"}'),
   ('Home services',      'home-services',      'home',       120, '{"home service",handyman,"home visit",painter,painting,tiler,fumigation}'),
   ('Cleaning',           'cleaning',           'spray-can',  130, '{cleaning,cleaner,"home cleaning","deep cleaning","office cleaning","post-construction cleaning"}'),
   ('Repairs',            'repairs',            'wrench',     140, '{repair,repairs,fix,"shoe repair",cobbler,"watch repair",welder,welding}'),
@@ -112,7 +112,13 @@ insert into public.categories (name, slug, icon, sort_order, search_keywords) va
   ('Carpentry',          'carpentry',          'hammer',     145, '{carpenter,carpentry,furniture,woodwork,cabinet,"kitchen cabinet",wardrobe,door}'),
   ('Driving lessons',    'driving-lessons',    'steering',   155, '{"driving school","driving lessons","driving instructor","learn to drive"}'),
   ('DJs & MCs',          'djs-mcs',            'music',      171, '{dj,deejay,mc,"master of ceremonies","sound system","pa system",hypeman,"wedding dj"}'),
-  ('Catering',           'catering',           'chef-hat',   172, '{caterer,catering,"small chops","party food",jollof,baker,cakes,"cake maker",chef}');
+  ('Catering',           'catering',           'chef-hat',   172, '{caterer,catering,"small chops","party food",jollof,baker,cakes,"cake maker",chef}'),
+  -- Creators and gig work: booked by date for events, shoots and campaigns.
+  ('Influencers & creators','influencers-creators','megaphone',180, '{influencer,"content creator",creator,ugc,"brand ambassador",tiktoker,instagrammer,youtuber,"sponsored post",promo,ads,advert,"brand deal"}'),
+  ('Musicians & bands',  'musicians-bands',    'mic',        173, '{musician,band,"live band",singer,saxophonist,"highlife band","praise team",instrumentalist,drummer,guitarist,trumpeter}'),
+  ('Videography',        'videography',        'video',      111, '{videographer,videography,"music video","wedding video",drone,"event coverage",editor,"video editing"}'),
+  ('Graphic design',     'graphic-design',     'pen-tool',   181, '{"graphic designer","graphic design",logo,flyer,branding,poster,"social media design","business card"}'),
+  ('Copywriting',        'copywriting',        'feather',    182, '{copywriter,copywriting,writer,"content writing",captions,script,"cv writing",proofreading}');
 
 -- ---------------------------------------------------------------------------
 -- Demo users (auth.users → profiles via trigger)

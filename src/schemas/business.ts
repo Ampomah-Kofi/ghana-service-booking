@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { parseHandle, parseSocialUrl } from "@/lib/social";
 import type { CountryCode } from "libphonenumber-js/max";
 import { phoneInputSchema } from "@/schemas/auth";
 
@@ -112,3 +113,40 @@ export function contactSchema(defaultCountry: CountryCode) {
       }
     });
 }
+
+/** Social links (after Phase 7): accepts "@handle", bare handles or pasted profile URLs. */
+const handle = (kind: "instagram" | "tiktok" | "x", label: string) =>
+  z
+    .string()
+    .trim()
+    .max(200)
+    .transform((v, ctx) => {
+      const parsed = parseHandle(kind, v);
+      if (parsed === undefined) {
+        ctx.addIssue({ code: "custom", message: `Enter your ${label} username, like @kwame.cuts.` });
+        return z.NEVER;
+      }
+      return parsed;
+    });
+const pageUrl = (kind: "facebook" | "youtube" | "website", message: string) =>
+  z
+    .string()
+    .trim()
+    .max(200)
+    .transform((v, ctx) => {
+      const parsed = parseSocialUrl(kind, v);
+      if (parsed === undefined) {
+        ctx.addIssue({ code: "custom", message });
+        return z.NEVER;
+      }
+      return parsed;
+    });
+
+export const socialSchema = z.object({
+  instagram: handle("instagram", "Instagram"),
+  tiktok: handle("tiktok", "TikTok"),
+  x: handle("x", "X"),
+  facebook: pageUrl("facebook", "Paste your Facebook page link, like facebook.com/yourpage."),
+  youtube: pageUrl("youtube", "Paste your YouTube channel link, like youtube.com/@yourchannel."),
+  website: pageUrl("website", "Enter a website like yourname.com."),
+});

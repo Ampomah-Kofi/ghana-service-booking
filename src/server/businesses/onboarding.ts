@@ -1,4 +1,5 @@
 import "server-only";
+import type { SocialLinks } from "@/lib/social";
 import type { z } from "zod";
 import type { Db } from "@/server/db/client";
 import type { aboutSchema, contactSchema, createBusinessSchema, locationSchema } from "@/schemas/business";
@@ -92,10 +93,25 @@ export async function saveContact(
   db: Db,
   businessId: string,
   input: z.infer<ReturnType<typeof contactSchema>>,
+  social?: SocialLinks,
 ): Promise<void> {
   const { data, error } = await db
     .from("businesses")
-    .update({ phone_e164: input.phone, whatsapp_e164: input.whatsapp, email: input.email })
+    .update({
+      phone_e164: input.phone,
+      whatsapp_e164: input.whatsapp,
+      email: input.email,
+      ...(social
+        ? {
+            instagram_handle: social.instagram,
+            tiktok_handle: social.tiktok,
+            x_handle: social.x,
+            facebook_url: social.facebook,
+            youtube_url: social.youtube,
+            website_url: social.website,
+          }
+        : {}),
+    })
     .eq("id", businessId)
     .select("id");
   if (error) throw toAppError(error);

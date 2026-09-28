@@ -98,8 +98,13 @@ describe("serviceSchema", () => {
   it("rejects bad prices, deposits above price and odd durations", () => {
     expect(schema.safeParse({ ...base, price: "" }).error?.issues[0]).toMatchObject({
       path: ["price"],
-      message: "Enter a price.",
+      message: "Enter a price, or choose “On request”.",
     });
+    // "On request" needs no price, stores 0 and refuses a deposit.
+    expect(schema.parse({ ...base, price: "", priceType: "on_request" })).toMatchObject({ price: 0, deposit: null });
+    expect(
+      schema.safeParse({ ...base, price: "", priceType: "on_request", deposit: "20" }).error?.issues[0].path,
+    ).toEqual(["deposit"]);
     expect(schema.safeParse({ ...base, deposit: "60" }).error?.issues[0].path).toEqual(["deposit"]);
     expect(schema.safeParse({ ...base, durationMinutes: "33" }).success).toBe(false);
     expect(schema.safeParse({ ...base, price: "12.345" }).success).toBe(false);

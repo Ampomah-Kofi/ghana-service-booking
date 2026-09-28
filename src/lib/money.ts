@@ -66,7 +66,11 @@ export function minorToInput(amountMinor: number, minorUnit: number): string {
 }
 
 /** "GH₵ 50", or "From GH₵ 80" for starting prices (docs/design.md §3a). */
-export function formatPrice(amountMinor: number, type: "fixed" | "from", currency: CurrencyInfo): string {
+export type PriceType = "fixed" | "from" | "on_request";
+
+/** "GH₵ 150", "From GH₵ 80", or "Price on request" (no amount shown). */
+export function formatPrice(amountMinor: number, type: PriceType, currency: CurrencyInfo): string {
+  if (type === "on_request") return "Price on request";
   const amount = formatMoney({ amountMinor, currency: currency.code }, currency);
   return type === "from" ? `From ${amount}` : amount;
 }

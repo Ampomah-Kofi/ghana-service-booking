@@ -20,7 +20,7 @@ export default async function ContactStepPage({ params }: PageProps<"/dashboard/
         businessId={business.id}
         step="contact"
         title="How can customers reach you?"
-        subtitle="Shown on your page as Call and WhatsApp buttons."
+        subtitle="Shown on your page as Call and WhatsApp buttons, with your social media."
       />
       <ContactForm
         businessId={business.id}
@@ -29,6 +29,14 @@ export default async function ContactStepPage({ params }: PageProps<"/dashboard/
           whatsapp: business.whatsapp ? formatPhoneInternational(business.whatsapp) : "",
           email: business.email ?? "",
           whatsappSame: business.whatsapp === null ? business.phone === null : business.whatsapp === business.phone,
+          social: {
+            instagram: business.social.instagram ? `@${business.social.instagram}` : "",
+            tiktok: business.social.tiktok ? `@${business.social.tiktok}` : "",
+            x: business.social.x ? `@${business.social.x}` : "",
+            facebook: business.social.facebook ?? "",
+            youtube: business.social.youtube ?? "",
+            website: business.social.website ?? "",
+          },
         }}
       />
     </>

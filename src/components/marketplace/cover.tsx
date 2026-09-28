@@ -35,6 +35,11 @@ const PALETTES: Record<string, Palette> = {
   carpentry: ["#4d3219", "#a8773f"],
   laundry: ["#1f4f6e", "#6aaed6"],
   "driving-lessons": ["#243b2c", "#5c8f6c"],
+  "influencers-creators": ["#5b1a5e", "#e0559b"],
+  "musicians-bands": ["#3b1d0f", "#c6782d"],
+  videography: ["#14213d", "#4d6fb3"],
+  "graphic-design": ["#1d4d4a", "#e27d60"],
+  copywriting: ["#2f2a24", "#8c7a63"],
 };
 const FALLBACKS: Palette[] = Object.values(PALETTES);
 
@@ -74,6 +79,8 @@ const ICONS: Record<string, string[]> = {
   pot: ["M3 10h18", "M5 10v7a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-7", "M9 6c0-1 1-2 1-3", "M14 6c0-1 1-2 1-3"],
   saw: ["M3 17 17 3l4 4L7 21z", "M7 13l2 2", "M10 10l2 2", "M13 7l2 2"],
   shirt: ["M8 3 3 6l2 5 3-1v11h8V10l3 1 2-5-5-3a4 4 0 0 1-8 0z"],
+  megaphone: ["M3 10v4h3l7 5V5L6 10z", "M16 9a4 4 0 0 1 0 6", "M19 6a8 8 0 0 1 0 12"],
+  video: ["M3 6h12v12H3z", "M15 10l6-3v10l-6-3"],
   wheel: [
     "M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z",
     "M12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z",
@@ -111,6 +118,11 @@ const ICON_FOR: Record<string, string> = {
   carpentry: "saw",
   laundry: "shirt",
   "driving-lessons": "wheel",
+  "influencers-creators": "megaphone",
+  "musicians-bands": "music",
+  videography: "video",
+  "graphic-design": "pen",
+  copywriting: "book",
 };
 
 function hash(text: string): number {

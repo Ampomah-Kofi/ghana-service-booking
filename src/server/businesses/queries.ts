@@ -1,4 +1,5 @@
 import "server-only";
+import type { SocialLinks } from "@/lib/social";
 import type { Db } from "@/server/db/client";
 import type { Database } from "@/server/db/types";
 import { toAppError } from "./errors";
@@ -39,6 +40,8 @@ export type BusinessView = {
   publishedAt: string | null;
   phone: string | null;
   whatsapp: string | null;
+  /** Instagram/TikTok/X handles (no "@") and Facebook/YouTube/website https URLs. */
+  social: SocialLinks;
   email: string | null;
   logoPath: string | null;
   category: { id: string; name: string; slug: string } | null;
@@ -50,6 +53,7 @@ export type BusinessView = {
 
 const businessSelect = `
   id, slug, name, description, kind, status, published_at, phone_e164, whatsapp_e164, email, logo_path, timezone,
+  instagram_handle, tiktok_handle, x_handle, facebook_url, youtube_url, website_url,
   currencies ( code, symbol, minor_unit ),
   business_categories ( is_primary, categories ( id, name, slug ) ),
   business_locations ( is_primary, city_id, area_id, locality_text, address_line, landmark, directions, lat, lng,
@@ -88,6 +92,14 @@ async function loadBusiness(db: Db, column: "id" | "slug", value: string): Promi
     phone: data.phone_e164,
     whatsapp: data.whatsapp_e164,
     email: data.email,
+    social: {
+      instagram: data.instagram_handle,
+      tiktok: data.tiktok_handle,
+      x: data.x_handle,
+      facebook: data.facebook_url,
+      youtube: data.youtube_url,
+      website: data.website_url,
+    },
     logoPath: data.logo_path,
     category: primaryCategory,
     currency: { code: data.currencies.code, symbol: data.currencies.symbol, minorUnit: data.currencies.minor_unit },

@@ -715,7 +715,9 @@ export type Database = {
           deleted_at: string | null;
           description: string | null;
           email: string | null;
+          facebook_url: string | null;
           id: string;
+          instagram_handle: string | null;
           kind: Database["public"]["Enums"]["business_kind"];
           logo_path: string | null;
           name: string;
@@ -727,9 +729,13 @@ export type Database = {
           search_document: unknown;
           slug: string;
           status: Database["public"]["Enums"]["business_status"];
+          tiktok_handle: string | null;
           timezone: string;
           updated_at: string;
+          website_url: string | null;
           whatsapp_e164: string | null;
+          x_handle: string | null;
+          youtube_url: string | null;
         };
         Insert: {
           country_code: string;
@@ -740,7 +746,9 @@ export type Database = {
           deleted_at?: string | null;
           description?: string | null;
           email?: string | null;
+          facebook_url?: string | null;
           id?: string;
+          instagram_handle?: string | null;
           kind?: Database["public"]["Enums"]["business_kind"];
           logo_path?: string | null;
           name: string;
@@ -752,9 +760,13 @@ export type Database = {
           search_document?: unknown;
           slug: string;
           status?: Database["public"]["Enums"]["business_status"];
+          tiktok_handle?: string | null;
           timezone?: string;
           updated_at?: string;
+          website_url?: string | null;
           whatsapp_e164?: string | null;
+          x_handle?: string | null;
+          youtube_url?: string | null;
         };
         Update: {
           country_code?: string;
@@ -765,7 +777,9 @@ export type Database = {
           deleted_at?: string | null;
           description?: string | null;
           email?: string | null;
+          facebook_url?: string | null;
           id?: string;
+          instagram_handle?: string | null;
           kind?: Database["public"]["Enums"]["business_kind"];
           logo_path?: string | null;
           name?: string;
@@ -777,9 +791,13 @@ export type Database = {
           search_document?: unknown;
           slug?: string;
           status?: Database["public"]["Enums"]["business_status"];
+          tiktok_handle?: string | null;
           timezone?: string;
           updated_at?: string;
+          website_url?: string | null;
           whatsapp_e164?: string | null;
+          x_handle?: string | null;
+          youtube_url?: string | null;
         };
         Relationships: [
           {
@@ -1829,7 +1847,7 @@ export type Database = {
       business_status: "draft" | "published" | "suspended" | "deactivated";
       member_role: "owner" | "manager" | "staff";
       payment_status: "pending" | "paid" | "partially_paid" | "failed" | "refunded";
-      price_type: "fixed" | "from";
+      price_type: "fixed" | "from" | "on_request";
       review_status: "published" | "hidden" | "removed";
     };
     CompositeTypes: {
@@ -1945,7 +1963,7 @@ export const Constants = {
       business_status: ["draft", "published", "suspended", "deactivated"],
       member_role: ["owner", "manager", "staff"],
       payment_status: ["pending", "paid", "partially_paid", "failed", "refunded"],
-      price_type: ["fixed", "from"],
+      price_type: ["fixed", "from", "on_request"],
       review_status: ["published", "hidden", "removed"],
     },
   },

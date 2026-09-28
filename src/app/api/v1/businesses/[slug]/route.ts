@@ -1,4 +1,5 @@
 import type { z } from "zod";
+import { socialHref } from "@/lib/social";
 import { AppError } from "@/lib/errors";
 import { publicMediaUrl } from "@/lib/images";
 import { publicEnv } from "@/lib/public-env";
@@ -57,6 +58,12 @@ export async function GET(request: Request, { params }: RouteContext<"/api/v1/bu
           large_url: media(p.pathLarge),
           service_id: p.serviceId,
         })),
+        social: Object.fromEntries(
+          Object.entries(business.social).map(([k, v]) => [
+            k,
+            v ? socialHref(k as keyof typeof business.social, v) : null,
+          ]),
+        ) as Record<keyof typeof business.social, string | null>,
         rating: rating.count > 0 && rating.average !== null ? { average: rating.average, count: rating.count } : null,
         services: services
           .filter((s) => s.isActive)
