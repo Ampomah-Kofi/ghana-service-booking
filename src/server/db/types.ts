@@ -1916,6 +1916,7 @@ export type Database = {
       };
     };
     Functions: {
+      abandon_payment: { Args: { p_payment_id: string; p_reason?: string }; Returns: undefined };
       accept_staff_invite: { Args: { p_token: string }; Returns: string };
       account_deletion_blocker: { Args: Record<PropertyKey, never>; Returns: string };
       admin_moderate_review: {
@@ -2270,7 +2271,7 @@ export type Database = {
       notification_status: "queued" | "sending" | "sent" | "failed" | "cancelled";
       payment_attempt_status: "pending" | "paid" | "failed" | "expired" | "refund_pending" | "refunded";
       payment_kind: "deposit" | "balance" | "full";
-      payment_method: "mobile_money" | "card" | "cash";
+      payment_method: "mobile_money" | "card" | "cash" | "bank_transfer";
       payment_status: "pending" | "paid" | "partially_paid" | "failed" | "refunded";
       price_type: "fixed" | "from" | "on_request";
       review_status: "published" | "hidden" | "removed";
@@ -2392,7 +2393,7 @@ export const Constants = {
       notification_status: ["queued", "sending", "sent", "failed", "cancelled"],
       payment_attempt_status: ["pending", "paid", "failed", "expired", "refund_pending", "refunded"],
       payment_kind: ["deposit", "balance", "full"],
-      payment_method: ["mobile_money", "card", "cash"],
+      payment_method: ["mobile_money", "card", "cash", "bank_transfer"],
       payment_status: ["pending", "paid", "partially_paid", "failed", "refunded"],
       price_type: ["fixed", "from", "on_request"],
       review_status: ["published", "hidden", "removed"],

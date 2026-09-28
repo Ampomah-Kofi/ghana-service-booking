@@ -1,4 +1,5 @@
-// Local stand-in for pg_cron: sends due notifications every 30 s through the mock providers.
+// Local stand-in for pg_cron: every 30 s, sends due notifications and runs the payments job
+// (expired deposit holds, lost webhooks, queued refunds) through the mock providers.
 // node scripts/dev/dispatch-loop.mjs   (reads CRON_SECRET from .env.local; app running on :3000)
 import { existsSync } from "node:fs";
 
@@ -7,16 +8,20 @@ const base = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 const secret = process.env.CRON_SECRET;
 if (!secret) throw new Error("Set CRON_SECRET in .env.local (docs/env.md)");
 
-async function tick() {
+async function run(job) {
   try {
-    const res = await fetch(`${base}/api/internal/jobs/dispatch`, {
+    const res = await fetch(`${base}/api/internal/jobs/${job}`, {
       method: "POST",
       headers: { authorization: `Bearer ${secret}` },
     });
-    console.log(new Date().toISOString(), res.status, await res.text());
+    console.log(new Date().toISOString(), job, res.status, await res.text());
   } catch (e) {
-    console.error(new Date().toISOString(), "dispatch failed:", e.message);
+    console.error(new Date().toISOString(), `${job} failed:`, e.message);
   }
+}
+async function tick() {
+  await run("payments");
+  await run("dispatch");
 }
 await tick();
 setInterval(tick, 30_000);

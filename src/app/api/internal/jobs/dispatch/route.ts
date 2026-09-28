@@ -1,5 +1,4 @@
-import { timingSafeEqual } from "node:crypto";
-import { serverEnv } from "@/server/env";
+import { checkCronAuth } from "@/server/jobs/auth";
 import { dispatchDueNotifications } from "@/server/jobs/dispatch";
 
 /**
@@ -8,14 +7,8 @@ import { dispatchDueNotifications } from "@/server/jobs/dispatch";
  * Not part of the public API.
  */
 export async function POST(request: Request): Promise<Response> {
-  const secret = serverEnv().CRON_SECRET;
-  if (!secret) return Response.json({ error: "dispatcher not configured" }, { status: 503 });
-  const given = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? "";
-  const a = Buffer.from(given);
-  const b = Buffer.from(secret);
-  if (a.length !== b.length || !timingSafeEqual(a, b)) {
-    return Response.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const denied = checkCronAuth(request);
+  if (denied) return denied;
   try {
     const result = await dispatchDueNotifications();
     return Response.json(result, { headers: { "Cache-Control": "no-store" } });

@@ -3,7 +3,7 @@
 -- reschedule keeps what was paid.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(42);
+select plan(45);
 
 create function pg_temp.act_as(p_user uuid) returns void language plpgsql as $$
 begin
@@ -95,7 +95,7 @@ select throws_ok($$ select public.apply_payment_event('mock', 'e1', 'x', 'paid',
 
 -- ── The provider says paid (once) ──────────────────────────────────────────
 select pg_temp.as_service();
-select public.set_payment_reference(p.id, 'ref-dep') from public.payments p where p.appointment_id = (select id from ids where k = 'dep');
+update public.payments p set provider_reference = 'ref-dep' where p.appointment_id = (select id from ids where k = 'dep');
 select is(public.apply_payment_event('mock', 'evt-0', 'ref-dep', 'paid', 1999, 'GHS'), 'mismatch',
           'a different amount is never marked paid');
 select is(public.apply_payment_event('mock', 'evt-1', 'ref-dep', 'paid', 2000, 'GHS'), 'applied', 'the payment is applied');
@@ -137,7 +137,7 @@ select pg_temp.book('late', 'a0000000-0000-4000-8000-000000000006', 2, 11);
 select pg_temp.act_as('a0000000-0000-4000-8000-000000000006');
 select * from public.start_payment((select id from ids where k = 'late'), 'deposit', 'card', 'mock');
 select pg_temp.as_service();
-select public.set_payment_reference(p.id, 'ref-late') from public.payments p where p.appointment_id = (select id from ids where k = 'late');
+update public.payments p set provider_reference = 'ref-late' where p.appointment_id = (select id from ids where k = 'late');
 select pg_temp.as_system();
 update public.appointments set hold_expires_at = now() - interval '1 minute' where id = (select id from ids where k = 'late');
 select pg_temp.as_service();
@@ -176,7 +176,7 @@ select pg_temp.book('move', 'a0000000-0000-4000-8000-000000000006', 3, 9);
 select pg_temp.act_as('a0000000-0000-4000-8000-000000000006');
 select * from public.start_payment((select id from ids where k = 'move'), 'deposit', 'card', 'mock');
 select pg_temp.as_service();
-select public.set_payment_reference(p.id, 'ref-move') from public.payments p where p.appointment_id = (select id from ids where k = 'move');
+update public.payments p set provider_reference = 'ref-move' where p.appointment_id = (select id from ids where k = 'move');
 select public.apply_payment_event('mock', 'evt-move', 'ref-move', 'paid', 2000, 'GHS');
 select pg_temp.act_as('a0000000-0000-4000-8000-000000000006');
 insert into ids select 'moved', public.reschedule_my_appointment((select id from ids where k = 'move'),
@@ -186,6 +186,22 @@ select is((select appointment_id from public.payments where provider_reference =
           'the paid deposit moves to the new time');
 select ok((pg_temp.a('moved')).hold_expires_at is null and (pg_temp.a('moved')).status = 'confirmed',
           'no new hold: it''s already paid');
+
+-- ── The attempt's own key is its merchant reference ────────────────────────
+select pg_temp.book('key', 'a0000000-0000-4000-8000-000000000006', 4, 9);
+select pg_temp.act_as('a0000000-0000-4000-8000-000000000006');
+select * from public.start_payment((select id from ids where k = 'key'), 'deposit', 'card', 'mock');
+select pg_temp.as_system();
+select ok((select provider_reference = idempotency_key from public.payments
+            where appointment_id = (select id from ids where k = 'key')), 'the reference sent to the provider is our key');
+select pg_temp.act_as('a0000000-0000-4000-8000-000000000001');
+select throws_ok($$ select public.abandon_payment(p.id) from public.payments p where p.appointment_id = (select id from ids where k = 'key') $$,
+                 'BZ404', null, 'only the payer can close their attempt');
+select pg_temp.act_as('a0000000-0000-4000-8000-000000000006');
+select public.abandon_payment(p.id, 'Provider down') from public.payments p where p.appointment_id = (select id from ids where k = 'key');
+select pg_temp.as_system();
+select is((select status::text from public.payments where appointment_id = (select id from ids where k = 'key')), 'failed',
+          'a start the provider refused is closed');
 
 select * from finish();
 rollback;

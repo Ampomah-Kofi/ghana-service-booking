@@ -22,6 +22,11 @@ export const serverEnvSchema = z
     // Phase 8 channels. Optional locally (default mock); production must name a real provider.
     WHATSAPP_PROVIDER: providerName.default("mock"),
     EMAIL_PROVIDER: providerName.default("mock"),
+    // Phase 9 payments (ADR-0005/0017). "none" = online payments off (deposits are paid at the visit).
+    // Real providers are added by ADR when integrated from their official docs.
+    PAYMENTS_PROVIDER: z.enum(["mock", "none"]).default("mock"),
+    // Signs the mock provider's webhooks (and later a real provider's, if it uses a shared secret).
+    PAYMENTS_WEBHOOK_SECRET: z.string().min(32, "use at least 32 random characters").optional(),
     // Bearer secret for /api/internal/jobs/dispatch (pg_cron → pg_net). Unset = the dispatcher refuses.
     CRON_SECRET: z.string().min(32, "use at least 32 random characters").optional(),
     DEFAULT_COUNTRY_CODE: z.custom<CountryCode>(
@@ -31,7 +36,7 @@ export const serverEnvSchema = z
   })
   .superRefine((env, ctx) => {
     if (env.APP_ENV === "production") {
-      for (const key of ["SMS_PROVIDER", "WHATSAPP_PROVIDER", "EMAIL_PROVIDER"] as const) {
+      for (const key of ["SMS_PROVIDER", "WHATSAPP_PROVIDER", "EMAIL_PROVIDER", "PAYMENTS_PROVIDER"] as const) {
         if (env[key] === "mock") {
           ctx.addIssue({
             code: "custom",
