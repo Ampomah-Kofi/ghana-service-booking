@@ -8,7 +8,13 @@ import { AppError } from "@/lib/errors";
 import { aboutSchema, contactSchema, locationSchema, slugSchema } from "@/schemas/business";
 import { fieldErrorsFrom, formError, formValues, type FormState } from "@/server/actions";
 import { requireManagedBusiness } from "@/server/businesses/access";
-import { addPortfolioPhoto, deletePortfolioPhoto, removeLogo, setLogo } from "@/server/businesses/media";
+import {
+  addPortfolioPhoto,
+  deletePortfolioPhoto,
+  removeLogo,
+  setLogo,
+  setPhotoService,
+} from "@/server/businesses/media";
 import {
   publishBusiness,
   saveContact,
@@ -155,6 +161,16 @@ export async function deletePhotoAction(formData: FormData): Promise<void> {
   const { db, business } = await requireManagedBusiness(formData.get("businessId"));
   const photoId = z.uuid().parse(formData.get("photoId"));
   await deletePortfolioPhoto(db, business.id, photoId);
+  refresh(business.id, business.slug);
+}
+
+/** Which service a portfolio photo shows (Phase 7). Empty = none. */
+export async function setPhotoServiceAction(formData: FormData): Promise<void> {
+  const { db, business } = await requireManagedBusiness(formData.get("businessId"));
+  const photoId = z.uuid().parse(formData.get("photoId"));
+  const raw = formData.get("serviceId");
+  const serviceId = raw ? z.uuid().parse(raw) : null;
+  await setPhotoService(db, business.id, photoId, serviceId);
   refresh(business.id, business.slug);
 }
 

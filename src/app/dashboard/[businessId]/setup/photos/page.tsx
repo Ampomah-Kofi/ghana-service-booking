@@ -4,14 +4,19 @@ import { StepHeader } from "@/components/ui/step-header";
 import { IMAGE_LIMITS, publicMediaUrl } from "@/lib/images";
 import { publicEnv } from "@/lib/public-env";
 import { managedBusinessOr404 } from "@/server/businesses/access";
-import { deletePhotoAction, removeLogoAction } from "../../actions";
+import { deletePhotoAction, removeLogoAction, setPhotoServiceAction } from "../../actions";
+import { PhotoServiceSelect } from "./photo-service-select";
+import { listServices } from "@/server/businesses/catalog";
 import { LogoUpload, PhotoUpload } from "./photo-uploads";
 
 export const metadata: Metadata = { title: "Photos" };
 
 export default async function PhotosStepPage({ params }: PageProps<"/dashboard/[businessId]/setup/photos">) {
   const { businessId } = await params;
-  const { business } = await managedBusinessOr404(businessId);
+  const { db, business } = await managedBusinessOr404(businessId);
+  const services = (await listServices(db, business.id))
+    .filter((s) => s.isActive)
+    .map((s) => ({ id: s.id, name: s.name }));
   const supabaseUrl = publicEnv().NEXT_PUBLIC_SUPABASE_URL;
 
   return (
@@ -91,6 +96,15 @@ export default async function PhotosStepPage({ params }: PageProps<"/dashboard/[
                   ✕
                 </button>
               </form>
+              {services.length > 0 ? (
+                <PhotoServiceSelect
+                  action={setPhotoServiceAction}
+                  businessId={business.id}
+                  photoId={photo.id}
+                  current={photo.serviceId}
+                  services={services}
+                />
+              ) : null}
             </li>
           ))}
           <li>
@@ -98,7 +112,8 @@ export default async function PhotosStepPage({ params }: PageProps<"/dashboard/[
           </li>
         </ul>
         <p className="mt-2 text-small text-ink-muted">
-          Photos are resized on your phone before uploading, to save data.
+          Photos are resized on your phone before uploading, to save data. Tag a photo with a service and it shows next
+          to that service on your page.
         </p>
       </section>
 

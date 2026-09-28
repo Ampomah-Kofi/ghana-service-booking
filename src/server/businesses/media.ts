@@ -136,3 +136,23 @@ export async function deletePortfolioPhoto(db: Db, businessId: string, photoId: 
     data.flatMap((p) => [p.path_small, p.path_large]),
   );
 }
+
+/** Tags a portfolio photo with one of the business's services (or clears it). The FK keeps it in-business. */
+export async function setPhotoService(
+  db: Db,
+  businessId: string,
+  photoId: string,
+  serviceId: string | null,
+): Promise<void> {
+  const { data, error } = await db
+    .from("business_photos")
+    .update({ service_id: serviceId })
+    .eq("business_id", businessId)
+    .eq("id", photoId)
+    .select("id");
+  if (error) {
+    if (error.code === "23503") throw new AppError("VALIDATION", "Choose one of your services.");
+    throw toAppError(error);
+  }
+  if (data.length === 0) throw new AppError("NOT_FOUND", "That photo no longer exists.");
+}
