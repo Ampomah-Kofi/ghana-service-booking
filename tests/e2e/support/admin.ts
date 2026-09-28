@@ -41,7 +41,12 @@ export async function deleteTestUser(user: TestUser): Promise<void> {
       ...(logos ?? []).map((f) => `businesses/${b.id}/logo/${f.name}`),
     ];
     if (paths.length) await db.storage.from("public-media").remove(paths);
-    // Appointments are never deleted by the app (business records); tests remove their own.
+    // Appointments and payments are never deleted by the app (business records); tests remove their own.
+    const { data: pays } = await db.from("payments").select("id").eq("business_id", b.id);
+    const payIds = (pays ?? []).map((p) => p.id);
+    if (payIds.length) await db.from("payment_events").delete().in("payment_id", payIds);
+    await db.from("payments").delete().eq("business_id", b.id);
+    await db.from("notifications").delete().eq("business_id", b.id);
     await db.from("appointments").delete().eq("business_id", b.id);
     await db.from("businesses").delete().eq("id", b.id);
   }
@@ -122,4 +127,33 @@ export async function createCompletedVisit(business: TestBusiness, customer: Tes
     .single();
   if (error) throw error;
   return data.id;
+}
+
+/**
+ * Phase 9: the business asks for a GH₵ 50 deposit and takes it online. Open every day 06:00–22:00
+ * so there are times to book; payout details first (the database refuses the other order).
+ */
+export async function enableOnlineDeposits(business: TestBusiness): Promise<void> {
+  const db = admin();
+  await db.from("business_hours").delete().eq("business_id", business.id);
+  const { error: hoursError } = await db
+    .from("business_hours")
+    .insert([1, 2, 3, 4, 5, 6, 7].map((weekday) => ({ business_id: business.id, weekday, during: "[06:00,22:00)" })));
+  if (hoursError) throw hoursError;
+  await db.from("services").update({ deposit_minor: 5000 }).eq("business_id", business.id);
+  const { error: payoutError } = await db.from("business_payout_accounts").insert({
+    business_id: business.id,
+    method: "mobile_money",
+    account_name: business.name,
+    momo_network: "mtn",
+    momo_number_e164: "+233244000111",
+  });
+  if (payoutError) throw payoutError;
+  const { data: rules } = await db.from("booking_rules").select("business_id").eq("business_id", business.id);
+  if (!rules?.length) await db.from("booking_rules").insert({ business_id: business.id });
+  const { error } = await db
+    .from("booking_rules")
+    .update({ collect_deposits_online: true, min_notice_minutes: 0 })
+    .eq("business_id", business.id);
+  if (error) throw error;
 }

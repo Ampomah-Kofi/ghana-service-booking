@@ -30,6 +30,9 @@ import {
   notificationPreferences,
   notificationPreferencesResponse,
   notificationsResponse,
+  paymentsResponse,
+  startPaymentBody,
+  startPaymentResponse,
 } from "@/schemas/api-v1";
 
 const schema = (s: z.ZodType) => z.toJSONSchema(s, { target: "openapi-3.0", io: "output", unrepresentable: "any" });
@@ -81,6 +84,8 @@ export function buildOpenApiDocument(serverUrl: string) {
         MyReviews: schema(myReviewsResponse),
         Notifications: schema(notificationsResponse),
         NotificationPreferences: schema(notificationPreferencesResponse),
+        Payments: schema(paymentsResponse),
+        StartedPayment: schema(startPaymentResponse),
       },
     },
     paths: {
@@ -289,6 +294,34 @@ export function buildOpenApiDocument(serverUrl: string) {
           responses: {
             "200": { description: "Reviews", content: json("MyReviews") },
             "401": errorResponse("Not signed in"),
+          },
+        },
+      },
+      "/appointments/{id}/payments": {
+        get: {
+          summary: "Payments on a booking",
+          description: "Visible to the booking's customer and the business's owners and managers.",
+          security: [{ bearer: [] }],
+          parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+          responses: {
+            "200": { description: "Payments, oldest first", content: json("Payments") },
+            "401": errorResponse("Not signed in"),
+            "404": errorResponse("Not your booking"),
+          },
+        },
+        post: {
+          summary: "Pay the deposit (or in full) for your booking",
+          description:
+            "Only the booking's customer. While a deposit is due, the booking has `hold_expires_at`; pay before then or it is released. `next` says what to do: open `url` (card, bank), or approve the Mobile Money prompt on the phone and poll GET. The booking confirms itself when the provider reports the payment.",
+          security: [{ bearer: [] }],
+          parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+          requestBody: { required: true, content: { "application/json": { schema: body(startPaymentBody) } } },
+          responses: {
+            "201": { description: "Started", content: json("StartedPayment") },
+            "401": errorResponse("Not signed in"),
+            "404": errorResponse("Not your booking"),
+            "409": errorResponse("Nothing to pay, time's up, or online payments are off"),
+            "422": errorResponse("Invalid input"),
           },
         },
       },

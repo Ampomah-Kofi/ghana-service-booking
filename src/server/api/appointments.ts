@@ -24,6 +24,7 @@ export function toApiAppointment(a: AppointmentView): z.infer<typeof appointment
     deposit: a.depositMinor ? { amount_minor: a.depositMinor, currency } : null,
     final_price: a.finalPriceMinor !== null ? { amount_minor: a.finalPriceMinor, currency } : null,
     payment_status: a.paymentStatus,
+    hold_expires_at: a.holdExpiresAt ? new Date(a.holdExpiresAt).toISOString() : null,
     customer: { name: a.customerName, phone: a.customerPhone },
     note: a.note,
     cancellation_reason: a.cancellationReason,

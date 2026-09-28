@@ -171,6 +171,10 @@ export const appointment = z.object({
   deposit: money.nullable(),
   final_price: money.nullable().describe("What was actually charged, recorded when completing"),
   payment_status: z.enum(["pending", "paid", "partially_paid", "failed", "refunded"]).nullable(),
+  hold_expires_at: z.iso
+    .datetime({ offset: true })
+    .nullable()
+    .describe("Set while a deposit is due: pay before this or the booking is released"),
   customer: z.object({ name: z.string(), phone: z.string().nullable() }),
   note: z.string().nullable(),
   cancellation_reason: z.string().nullable(),
@@ -307,3 +311,42 @@ export const notificationPreferences = z.object({
   email: z.boolean(),
 });
 export const notificationPreferencesResponse = z.object({ data: notificationPreferences });
+
+// Phase 9: payments. The customer pays a deposit (or the full price) for their own booking.
+export const payment = z.object({
+  id: z.uuid(),
+  appointment_id: z.uuid(),
+  kind: z.enum(["deposit", "balance", "full"]),
+  method: z.enum(["mobile_money", "card", "cash", "bank_transfer"]),
+  network: z.enum(["mtn", "telecel", "airteltigo"]).nullable(),
+  status: z.enum(["pending", "paid", "failed", "expired", "refund_pending", "refunded"]),
+  amount: money,
+  reference: z.string().nullable().describe("Our reference for the attempt; quote it to support"),
+  failure_reason: z.string().nullable(),
+  paid_at: z.iso.datetime({ offset: true }).nullable(),
+  refunded_at: z.iso.datetime({ offset: true }).nullable(),
+  created_at: z.iso.datetime({ offset: true }),
+});
+export const paymentsResponse = z.object({ data: z.array(payment) });
+
+export const startPaymentBody = z.object({
+  kind: z.enum(["deposit", "full"]).default("deposit"),
+  method: z.enum(["mobile_money", "card", "bank_transfer"]),
+  network: z.enum(["mtn", "telecel", "airteltigo"]).optional().describe("Required for mobile_money"),
+  phone: z.string().trim().max(32).optional().describe("Mobile Money number; required for mobile_money"),
+});
+
+export const startPaymentResponse = z.object({
+  data: z.object({
+    payment_id: z.uuid(),
+    amount: money,
+    next: z.discriminatedUnion("type", [
+      z.object({ type: z.literal("redirect"), url: z.url().describe("Open in a browser to finish paying") }),
+      z.object({
+        type: z.literal("await_customer_approval"),
+        message: z.string().describe("e.g. approve the prompt on your phone; poll GET …/payments"),
+      }),
+      z.object({ type: z.literal("none") }),
+    ]),
+  }),
+});
