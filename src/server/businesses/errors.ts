@@ -9,6 +9,8 @@ const byCode: Record<string, AppErrorCode> = {
   BZ404: "NOT_FOUND",
   BZ409: "CONFLICT",
   BZ422: "VALIDATION",
+  // A suspended account (Phase 10): forbidden, but the message says why.
+  BZ423: "FORBIDDEN",
   BZ429: "LIMIT_REACHED",
   "42501": "FORBIDDEN",
 };
@@ -23,7 +25,10 @@ export function toAppError(error: DbError, fallback = "Something went wrong. Ple
     console.error("[db]", error.code, error.message);
     return new AppError("INTERNAL", fallback);
   }
-  const message = code === "FORBIDDEN" ? "You don't have access to this business." : capitalise(error.message);
+  const message =
+    code === "FORBIDDEN" && error.code !== "BZ423"
+      ? "You don't have access to this business."
+      : capitalise(error.message);
   return new AppError(code, message, error.details ?? undefined);
 }
 

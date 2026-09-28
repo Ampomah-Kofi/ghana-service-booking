@@ -40,7 +40,7 @@ begin
     end if;
   end if;
   if private.is_suspended(v_uid) then
-    raise exception 'your account is suspended. Contact support if you think this is a mistake' using errcode = 'BZ403';
+    raise exception 'your account is suspended. Contact support if you think this is a mistake' using errcode = 'BZ423';
   end if;
   return new;
 end;

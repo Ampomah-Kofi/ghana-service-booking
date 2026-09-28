@@ -101,9 +101,9 @@ select throws_ok(
        (select id from public.services where business_id = 'b0000000-0000-4000-8000-000000000001' and name = 'Low cut'),
        array[(select id from public.staff where business_id = 'b0000000-0000-4000-8000-000000000001' limit 1)],
        date_trunc('day', now()) + interval '5 days 10 hours', 'Yaw Adjei', '+233200000006') $$,
-  'BZ403', null, 'a suspended customer cannot book');
+  'BZ423', null, 'a suspended customer cannot book');
 select throws_ok($$ select public.create_business('Yaw Barbers', 'solo', (select id from public.categories where slug = 'barbers'), 'GH') $$,
-                 'BZ403', null, 'nor open a business');
+                 'BZ423', null, 'nor open a business');
 select is((select count(*)::int from public.appointments where customer_user_id = 'a0000000-0000-4000-8000-000000000006') >= 0,
           true, 'but can still see their own bookings');
 

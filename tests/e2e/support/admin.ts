@@ -47,7 +47,16 @@ export async function deleteTestUser(user: TestUser): Promise<void> {
     await db.from("appointments").delete().eq("business_id", b.id);
     await db.from("businesses").delete().eq("id", b.id);
   }
+  // Test admins: their audit rows and role go first (the log is append-only for people).
+  await db.from("admin_actions").delete().eq("admin_user_id", user.id);
+  await db.from("platform_admins").delete().eq("user_id", user.id);
   await db.auth.admin.deleteUser(user.id);
+}
+
+/** Phase 10: make a test user a platform admin with the given role. */
+export async function makeAdmin(user: TestUser, role: "super_admin" | "moderator" | "support"): Promise<void> {
+  const { error } = await admin().from("platform_admins").insert({ user_id: user.id, role });
+  if (error) throw error;
 }
 
 export type TestBusiness = { id: string; slug: string; name: string };

@@ -31,6 +31,7 @@ import {
   notificationPreferencesResponse,
   notificationsResponse,
   paymentDetailsResponse,
+  insightsResponse,
   paymentsResponse,
 } from "@/schemas/api-v1";
 
@@ -85,6 +86,7 @@ export function buildOpenApiDocument(serverUrl: string) {
         NotificationPreferences: schema(notificationPreferencesResponse),
         Payments: schema(paymentsResponse),
         PaymentDetails: schema(paymentDetailsResponse),
+        Insights: schema(insightsResponse),
       },
     },
     paths: {
@@ -307,6 +309,23 @@ export function buildOpenApiDocument(serverUrl: string) {
             "200": { description: "Payments, oldest first", content: json("Payments") },
             "401": errorResponse("Not signed in"),
             "404": errorResponse("Not your booking"),
+          },
+        },
+      },
+      "/businesses/{slug}/insights": {
+        get: {
+          summary: "Insights for a business you manage",
+          description:
+            "Owners and managers only (others get 404). Bookings per day, outcomes, cancellation and no-show rates, money the business recorded, top services and staff, new vs returning customers. Computed in the business's timezone.",
+          security: [{ bearer: [] }],
+          parameters: [
+            { name: "slug", in: "path", required: true, schema: { type: "string" } },
+            { name: "days", in: "query", required: false, schema: { type: "integer", enum: [7, 30, 90], default: 30 } },
+          ],
+          responses: {
+            "200": { description: "Insights", content: json("Insights") },
+            "401": errorResponse("Not signed in"),
+            "404": errorResponse("Not a business you manage"),
           },
         },
       },

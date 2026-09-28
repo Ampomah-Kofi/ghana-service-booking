@@ -342,3 +342,25 @@ export const paymentDetailsResponse = z.object({
       .nullable(),
   }),
 });
+
+// Phase 10: provider insights (owners and managers).
+export const insightsResponse = z.object({
+  data: z.object({
+    period: z.object({ days: z.number().int(), from: z.string(), to: z.string(), timezone: z.string() }),
+    bookings: z.number().int(),
+    by_status: z.record(z.string(), z.number().int()),
+    by_source: z.record(z.string(), z.number().int()),
+    cancellation_rate: z.number().nullable(),
+    no_show_rate: z.number().nullable().describe("No-shows ÷ (completed + no-shows)"),
+    per_day: z.array(z.object({ day: z.string(), bookings: z.number().int(), completed: z.number().int() })),
+    money: z.object({
+      currency: z.string(),
+      recorded_minor: z.number().int().describe("What the business marked paid (ADR-0017)"),
+      refunded_minor: z.number().int(),
+      completed_value_minor: z.number().int(),
+    }),
+    top_services: z.array(z.object({ name: z.string(), count: z.number().int() })),
+    top_staff: z.array(z.object({ name: z.string(), count: z.number().int() })),
+    customers: z.object({ total: z.number().int(), new: z.number().int(), returning: z.number().int() }),
+  }),
+});

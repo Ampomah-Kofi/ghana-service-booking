@@ -30,10 +30,18 @@ export default async function AccountPage() {
     accountDeletionBlocker(db),
   ]);
   const prefs = await getMessagePreferences(db, user.id);
+  const { data: suspension } = await db.rpc("my_suspension");
+  const suspended = suspension?.[0] ?? null;
 
   return (
     <>
       <LargeTitle title={profile?.fullName ?? "Your account"} eyebrow="Account" className="mb-6" />
+      {suspended ? (
+        <p role="status" className="mb-6 rounded-card bg-danger/10 px-4 py-3 text-body text-danger">
+          Your account is suspended, so you can&apos;t make new bookings or write reviews. Your existing bookings are
+          still here.{suspended.reason ? ` Reason: ${suspended.reason}` : ""}
+        </p>
+      ) : null}
 
       <GroupedSection title="Profile">
         <button type="button" popoverTarget="edit-name" className="block w-full text-left hover:bg-fill">
@@ -43,6 +51,9 @@ export default async function AccountPage() {
         <GroupedRow label="Email" value={user.email ?? "Not set"} />
         {admin ? (
           <>
+            <Link href="/admin" className="block hover:bg-fill">
+              <GroupedRow label="Admin overview" value="Platform admin ›" />
+            </Link>
             <Link href="/admin/categories" className="block hover:bg-fill">
               <GroupedRow label="Categories" value="Platform admin ›" />
             </Link>
