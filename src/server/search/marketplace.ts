@@ -47,6 +47,7 @@ export type SearchResult = {
   needsLocation: boolean;
 };
 
+export type CardRow = Row;
 type Row = {
   id: string;
   slug: string;
@@ -69,7 +70,7 @@ type Row = {
   total_count: number;
 };
 
-function toCard(row: Row): BusinessCard {
+export function toCard(row: Row): BusinessCard {
   return {
     id: row.id,
     slug: row.slug,
