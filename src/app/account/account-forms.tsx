@@ -120,7 +120,7 @@ export function MessagePreferencesForm({
               {hasEmail ? "Booked, moved and cancelled" : "Add an email to your account first"}
             </span>
           </span>
-          <input type="checkbox" role="switch" name="email" defaultChecked={email} disabled={!hasEmail} />
+          <input type="checkbox" role="switch" name="email" defaultChecked={email && hasEmail} disabled={!hasEmail} />
         </label>
       </fieldset>
       <div className="border-t border-border px-4 py-3">
