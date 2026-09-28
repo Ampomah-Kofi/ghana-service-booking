@@ -95,12 +95,24 @@ insert into public.categories (name, slug, icon, sort_order, search_keywords) va
   ('Medical & wellness', 'medical-wellness',   'heart-pulse',90,  '{clinic,physiotherapy,physio,dentist,nutritionist,wellness,therapy}'),
   ('Fitness',            'fitness',            'dumbbell',   100, '{gym,"personal trainer",fitness,yoga,pilates,trainer}'),
   ('Photography',        'photography',        'camera',     110, '{photographer,photography,photoshoot,portrait,wedding,videographer}'),
-  ('Home services',      'home-services',      'home',       120, '{"home service",plumber,electrician,handyman,"home visit"}'),
-  ('Cleaning',           'cleaning',           'spray-can',  130, '{cleaning,cleaner,"home cleaning","deep cleaning","office cleaning",laundry}'),
-  ('Repairs',            'repairs',            'wrench',     140, '{repair,"phone repair","laptop repair",appliance,mechanic,tailor}'),
+  ('Home services',      'home-services',      'home',       120, '{"home service",handyman,"home visit",painter,painting,tiler,fumigation}'),
+  ('Cleaning',           'cleaning',           'spray-can',  130, '{cleaning,cleaner,"home cleaning","deep cleaning","office cleaning","post-construction cleaning"}'),
+  ('Repairs',            'repairs',            'wrench',     140, '{repair,repairs,fix,"shoe repair",cobbler,"watch repair",welder,welding}'),
   ('Tutoring',           'tutoring',           'book-open',  150, '{tutor,tutoring,lessons,"extra classes",wassce,bece,coding}'),
   ('Consulting',         'consulting',         'briefcase',  160, '{consultant,consulting,advisor,coach,lawyer,accountant}'),
-  ('Event services',     'event-services',     'party-popper',170,'{events,decor,"event planner",dj,mc,catering,rentals}');
+  ('Event services',     'event-services',     'party-popper',170,'{events,decor,decorator,"event planner",rentals,"canopy rental",ushers}'),
+  -- Trades and everyday services (added after Phase 7): many of these travel to the customer.
+  ('Electricians',       'electricians',       'zap',        121, '{electrician,electrical,wiring,rewiring,socket,"prepaid meter",sparky,"light installation","ceiling fan"}'),
+  ('Plumbers',           'plumbers',           'droplet',    122, '{plumber,plumbing,"burst pipe",leak,"water tank",borehole,toilet,"water heater"}'),
+  ('Laundry',            'laundry',            'shirt',      135, '{laundry,"dry cleaning",ironing,"wash and fold",laundromat}'),
+  ('AC & appliance repair','ac-appliance-repair','snowflake', 141, '{"ac repair","air conditioner",aircon,"ac servicing",fridge,freezer,"washing machine","deep freezer"}'),
+  ('Phone & laptop repair','phone-laptop-repair','smartphone',142, '{"phone repair","screen replacement","laptop repair","computer repair","phone battery",iphone,samsung}'),
+  ('Auto mechanics',     'auto-mechanics',     'car',        143, '{mechanic,"fitting shop","car repair","car service","auto electrician",vulcanizer,vulcaniser,"car wash","wheel alignment"}'),
+  ('Tailors & fashion',  'tailors-fashion',    'scissors',   144, '{tailor,seamstress,dressmaker,designer,kaba,slit,kente,"african print",alterations,"wedding dress",fashion}'),
+  ('Carpentry',          'carpentry',          'hammer',     145, '{carpenter,carpentry,furniture,woodwork,cabinet,"kitchen cabinet",wardrobe,door}'),
+  ('Driving lessons',    'driving-lessons',    'steering',   155, '{"driving school","driving lessons","driving instructor","learn to drive"}'),
+  ('DJs & MCs',          'djs-mcs',            'music',      171, '{dj,deejay,mc,"master of ceremonies","sound system","pa system",hypeman,"wedding dj"}'),
+  ('Catering',           'catering',           'chef-hat',   172, '{caterer,catering,"small chops","party food",jollof,baker,cakes,"cake maker",chef}');
 
 -- ---------------------------------------------------------------------------
 -- Demo users (auth.users → profiles via trigger)

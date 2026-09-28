@@ -24,6 +24,17 @@ const PALETTES: Record<string, Palette> = {
   tutoring: ["#34336d", "#6f6dc1"],
   consulting: ["#252d38", "#5b6b7f"],
   "event-services": ["#7a5d0e", "#d9b03e"],
+  electricians: ["#5c4a06", "#d4a514"],
+  plumbers: ["#12436b", "#3f86c2"],
+  "ac-appliance-repair": ["#16505e", "#58a9bb"],
+  "phone-laptop-repair": ["#2a2f45", "#6571a3"],
+  "auto-mechanics": ["#3a2a22", "#8a6a55"],
+  "tailors-fashion": ["#5a1f3d", "#b04f7f"],
+  "djs-mcs": ["#2a1450", "#7a4cc8"],
+  catering: ["#6b2a12", "#d0683a"],
+  carpentry: ["#4d3219", "#a8773f"],
+  laundry: ["#1f4f6e", "#6aaed6"],
+  "driving-lessons": ["#243b2c", "#5c8f6c"],
 };
 const FALLBACKS: Palette[] = Object.values(PALETTES);
 
@@ -53,6 +64,23 @@ const ICONS: Record<string, string[]> = {
   book: ["M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z", "M4 21V5", "M8 7h7"],
   briefcase: ["M3 7h18v13H3z", "M8 7V5h8v2", "M3 12h18"],
   star: ["M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"],
+  bolt: ["M13 2 4 14h7l-1 8 9-12h-7z"],
+  drop: ["M12 3c4 5 6 8 6 11a6 6 0 1 1-12 0c0-3 2-6 6-11z", "M9 15a3 3 0 0 0 3 3"],
+  snow: ["M12 2v20", "M4 7l16 10", "M20 7 4 17", "M9 4l3 2 3-2", "M9 20l3-2 3 2"],
+  phone: ["M8 2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z", "M11 18h2"],
+  car: ["M3 16v-4l2-5h14l2 5v4z", "M3 16v2h3v-2", "M18 16v2h3v-2", "M7 13h.01", "M17 13h.01"],
+  needle: ["M5 19 19 5", "M16 5h3v3", "M7 21a4 4 0 0 1-4-4c0-3 6-3 6-6"],
+  music: ["M9 18V5l11-2v13", "M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0", "M20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0"],
+  pot: ["M3 10h18", "M5 10v7a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-7", "M9 6c0-1 1-2 1-3", "M14 6c0-1 1-2 1-3"],
+  saw: ["M3 17 17 3l4 4L7 21z", "M7 13l2 2", "M10 10l2 2", "M13 7l2 2"],
+  shirt: ["M8 3 3 6l2 5 3-1v11h8V10l3 1 2-5-5-3a4 4 0 0 1-8 0z"],
+  wheel: [
+    "M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z",
+    "M12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z",
+    "M3 12h6",
+    "M15 12h6",
+    "M12 15v6",
+  ],
 };
 const ICON_FOR: Record<string, string> = {
   barbers: "scissors",
@@ -72,6 +100,17 @@ const ICON_FOR: Record<string, string> = {
   tutoring: "book",
   consulting: "briefcase",
   "event-services": "star",
+  electricians: "bolt",
+  plumbers: "drop",
+  "ac-appliance-repair": "snow",
+  "phone-laptop-repair": "phone",
+  "auto-mechanics": "car",
+  "tailors-fashion": "needle",
+  "djs-mcs": "music",
+  catering: "pot",
+  carpentry: "saw",
+  laundry: "shirt",
+  "driving-lessons": "wheel",
 };
 
 function hash(text: string): number {

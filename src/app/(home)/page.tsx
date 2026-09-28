@@ -22,7 +22,14 @@ import { nextAvailableToday } from "@/server/scheduling/next-available";
 import { recentlyJoined, type BusinessCard as Card } from "@/server/search/marketplace";
 import { PlaceCard } from "@/components/marketplace/place-card";
 
-const EXAMPLES = ["Barber in East Legon", "Braids in Kumasi", "Nails near me", "Home cleaning"];
+const EXAMPLES = [
+  "Barber in East Legon",
+  "Electrician in Tema",
+  "Braids in Kumasi",
+  "DJ in Accra",
+  "Nails near me",
+  "Home cleaning",
+];
 
 /** Explore: search first, then categories and swipeable rows of providers (SPEC §11). */
 export default async function HomePage({ searchParams }: PageProps<"/">) {
