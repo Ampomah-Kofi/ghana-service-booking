@@ -46,8 +46,8 @@
 | **Rebook in one tap** | ✅ "Book again" on past bookings and on Explore |
 | **"Your places" (recently booked) on Explore** | ✅ last visit, or "booked" when you haven't been yet |
 | **Search/filter by availability ("Available today")** | ✅ live "Today 2:30 pm" on cards, an Explore row, and a search filter |
-| Photos per service (portfolio next to the service) | ❌ business-level photos only |
-| Favourites, verified reviews with replies | ⏳ Phase 7 |
+| Photos per service (portfolio next to the service) | ✅ Phase 7 (tag photos with a service) |
+| Favourites, verified reviews with replies | ✅ Phase 7 |
 | Reminders, provider-worded messages | ⏳ Phase 8 |
 | Deposits, no-show fees, pay after the appointment | ⏳ Phase 9 |
 | Map of results | ⏳ later (map tiles cost data and API keys; the distance sort already exists) |

@@ -100,7 +100,7 @@ Always a text label, never colour alone.
 
 **App feel (after Phase 6)**
 - **Installable** (`src/app/manifest.ts`): standalone display, brand splash colours, app icon (`scripts/dev/app-icon.svg` → `node scripts/dev/render-icons.mjs`). No service worker yet (offline is a later decision).
-- **Shell:** on phones there's no website header. Customers get a bottom tab bar (Explore · Bookings · Account; Favourites joins in Phase 7), providers their own. Tabs hide on focused screens (business page, booking flow, onboarding). The header returns from `md`.
+- **Shell:** on phones there's no website header. Customers get a bottom tab bar (Explore · Bookings · Favourites · Account), providers their own. Tabs hide on focused screens (business page, booking flow, onboarding). The header returns from `md`.
 - **Photo first:** every business has a cover. It's their photo when uploaded, otherwise an illustrated SVG cover per category (`src/components/marketplace/cover.tsx`: zero image bytes; unknown categories get a stable palette and a sparkle).
 - **Explore:** greeting, search pill, example chips, category picture tiles, then swipeable rows ("New on …", one row per category with providers), towns, and a card for professionals.
 - **Business page:** full-bleed cover with round Back and Share, an info sheet overlapping it (name, category · area, "New", "Open · closes 8:00 pm"), a round action row (Call · WhatsApp · Directions · Share), and a sticky Book bar.
@@ -120,6 +120,15 @@ Always a text label, never colour alone.
 - **Date step:** the date is split into two taps, **Month** and **Day**. The open one is outlined in green and a short line joins it to a grid right under it (months in a 3-column grid; days as a Monday-first calendar, dates outside the booking window greyed). Borrowed as a *pattern* from an insurance app the owner liked (SPEC §1: patterns only, our own look). Built on exclusive `<details name>`, so no JavaScript. Below it, the day strip: weekday over a day circle (green when chosen, green number for today, dot when there are times), swipeable, with **Today** to jump back.
 - **Tabs:** tap the current tab to scroll up; the bar tucks away while scrolling down and returns on the way up; labels truncate rather than overflow at large text sizes.
 - **Search:** recent searches (on this phone only) and category/town suggestions under the field.
+
+**Favourites and reviews (Phase 7)**
+- **Heart:** a glass round button on every card cover and on the business cover (beside Share); fills red with a pop when saved; signed out it goes to sign-in and comes back. Favourites is the third customer tab.
+- **Ratings:** "★ 4.7 (3)" replaces "New" on cards; the facts strip shows "4.7 ★ · 3 reviews". The Reviews section has a big average, bars per star (5 → 1) and the latest three reviews; "See all" opens the full list.
+- **Review card:** initial avatar, "Kofi B.", service with person · month and year, stars, text, then "Reply from <business>" in a grey box; Report opens a sheet with reasons.
+- **Rate your visit:** completed bookings show **Rate** in Bookings; the ticket has "How was <service>?" with five large stars (real radio buttons; drag across with a finger) and an optional note. Afterwards "Your review" with Edit (14 days) in a sheet.
+- **Provider:** Reviews under More, with All / Needs a reply; Reply opens a sheet. Today shows a "2 new reviews" card while any are unanswered.
+- **Service photos:** providers tag portfolio photos with a service; up to three thumbnails show in that service's row and a larger strip in its sheet.
+- **Account:** Name (editable in a sheet), your reviews, Sign out (grey capsule), and Delete account (red text) opening a sheet that says exactly what happens and asks you to type DELETE.
 
 **Glass (ADR-0010)**
 - `.glass` / `.glass-strong` (see `globals.css`) are only for the navigation and control layer: the floating capsule tab bars, the desktop header, round buttons and chips over covers, the booking summary bar and the "+" menu. The selected tab is a brighter `glass-lens`.

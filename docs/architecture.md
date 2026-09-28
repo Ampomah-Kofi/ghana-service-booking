@@ -136,7 +136,7 @@ Legend: **R** read · **C** create · **U** update · **D** delete/deactivate ·
 | Sessions (mobile) | Supabase SDK stores access and refresh tokens in secure storage; API gets `Bearer` access token (1h expiry, refresh rotation) |
 | Profile bootstrap | `on auth.users insert` trigger creates the `profiles` row |
 | OTP abuse | Supabase OTP rate limits (per phone and per IP) plus our hook refusing more than N SMS per phone per hour (table-backed counter). Short OTP expiry; Cloudflare Turnstile on the phone form if abuse appears |
-| Account deletion | `delete_my_account()` anonymises profile, nulls `customer_user_id` on appointments (snapshots become "Deleted customer"), deletes favorites/consents, then deletes the auth user via the admin API (server-only) |
+| Account deletion | `delete_my_account()` (Phase 7) runs as the signed-in user: refuses business creators and platform admins (`account_deletion_blocker()`), replaces name/phone/note on their appointments with "Deleted customer", then deletes the `auth.users` row itself, which cascades to the profile, favourites, consents and memberships; other links become null and reviews stay as "Former customer". No secret key is needed, so ADR-0002's containment is unchanged. The web action then clears the session cookie locally |
 
 ## 6. Scheduling and availability
 

@@ -12,7 +12,8 @@
 | 3 | services, staff_services, business_hours, staff_working_hours (`timerange` + GiST no-overlap), blocked_times, **staff_invites** (new: hashed one-time token, phone-bound), admin_actions |
 | 5 | business_clients, appointments (exclusion constraint, idempotency key), appointment_status_history. Not yet: `hold_expires_at` / pending holds (arrive with deposits in Phase 9) |
 | 6 | `appointments.final_price_minor`; `business_client_summaries` view (security_invoker); staff can read their own appointments' history |
-| later | payments, reviews, favorites, notifications and the rest, still in the draft |
+| 7 | **favorites** (PK user+business; private to the user), **reviews** (one per completed appointment; snapshots author "Kofi A.", service, staff, visit date; `status` published/hidden/removed; one business reply; `businesses.rating_avg/count` kept by trigger over published reviews), **review_reports** (one per person per review), `business_photos.service_id` (composite FK keeps it in-business). Functions: `submit_review`, `update_review` (14 days), `reply_to_review` (owners/managers), `report_review`, `admin_moderate_review` (audited), `account_deletion_blocker`, `delete_my_account`, `my_favorite_businesses` |
+| later | payments, notifications and the rest, still in the draft |
 
 ## 1. ER diagram
 
