@@ -1,54 +1,71 @@
-# ADR-0017: Deposits, holds, refunds and payout accounts
+# ADR-0017: Booker GH is not a payment platform
 
-**Status:** Proposed (Phase 9; builds on ADR-0005, which stays in force) · **Date:** 2026-09-28
+**Status:** Proposed, waiting for approval · **Date:** 2026-09-28 · **Would supersede** ADR-0005 (provider-agnostic online payments) and the first Phase 9 build
 
-## Context
+## Current approach
 
-Phase 9 turns ADR-0005's provider interface into a working flow. The product owner asked for:
+Phase 9 was built to take money inside the app, following ADR-0005 and SPEC §13:
 
-- payment both in the app and face to face;
-- checkout choices of Mobile Money, card, bank transfer, or "just book" (Apple Pay only if the chosen provider supports it);
-- owners giving their own payout details so the money goes to them.
+- a payment attempts ledger, plus a webhook inbox that applies each event exactly once;
+- a `MockPaymentProvider` standing in for a real payment company, with a dev-only phone prompt;
+- deposit bookings held for 15 minutes while the customer pays online;
+- automatic refunds, a reconciliation job, and payout accounts showing where online payments land.
 
-No real aggregator is chosen yet (Paystack is the suggested first candidate). CLAUDE.md forbids invented vendor APIs, so everything runs on `MockPaymentProvider` until sandbox keys exist.
+## Problem
 
-## Decision
+The product owner clarified (28 Sep) that **Booker GH must not process payments**. The customer only says how they'll pay. The business collects the money directly: cash handed over, or Mobile Money or a bank transfer to the business's own number. The product owner also chose **no deposits at all** and **removing the online-payment code** rather than keeping it switched off.
 
-1. **"Just book" stays the default.** Online payment is off for every business until the owner switches it on. Services without a deposit never ask for money up front. Cash or Mobile Money handed over at the visit is recorded by any member of the business with `record_manual_payment`. The amount is capped at the price, and staff never see payment amounts (RLS).
-2. **Holds reuse the double-booking constraint.** A deposit booking is inserted `pending` with `hold_expires_at` (15 minutes, from `booking_rules.pending_hold_minutes`), so the slot is blocked by the existing exclusion constraint. There is no new locking.
-   - An expired hold is cancelled with "Payment not completed in time" and the slot is freed. This happens in the payments job, and also lazily before the same staff's next booking.
-   - Notifications wait until the hold is released: payment confirms the booking and sends "You're booked".
-3. **The merchant reference is the payment's `idempotency_key`** (`appt:{id}:{kind}:{n}`), set by `start_payment`. The customer's own session can therefore create the attempt and call the provider without the service-role key. Only the webhook route and jobs (`src/server/jobs/**`, `/api/internal/**`) use the privileged client.
-4. **Webhooks are applied exactly once.** `apply_payment_event` writes to the `payment_events` inbox, which is unique on `(provider, event_id)`, then locks the payment and applies the state machine. The result is one of: applied, duplicate, unknown_payment, ignored or mismatch.
-   - A mismatch in amount or currency is recorded and never applied.
-   - Money that arrives after the hold expired is refunded automatically.
-   - Webhooks are served at `/api/internal/webhooks/payments/{provider}`. They are internal and not part of `/api/v1`.
-5. **Refund policy is in the database.** A trigger on appointment status queues refunds:
-   - a cancellation by anyone refunds the paid deposit;
-   - a no-show refunds it only if `refund_deposit_on_no_show` is set;
-   - a reschedule moves the paid payment to the new booking.
+Keeping the online build would mean:
 
-   Owners and managers can also refund by hand, and must give a reason. `claim_refunds` hands refunds to the job with `SKIP LOCKED`.
+- code nobody uses, which still has to be maintained and secured;
+- a mock checkout that could be mistaken for a real one;
+- a `PAYMENTS_WEBHOOK_SECRET` to manage for nothing.
 
-6. **Payout accounts.** `business_payout_accounts` holds one row per business: Mobile Money (network and number) or bank (bank name and account number).
-   - Only the owner and platform admins can read it (RLS), and only the owner can write it, through `set_payout_account`.
-   - The UI shows only the last 4 digits.
-   - Changing the details resets the account to `unverified` and clears `provider_account_ref`, so the new account must be registered with the provider again (e.g. as a subaccount).
-   - The database refuses to switch on `collect_deposits_online` or `allow_full_payment_online` until a payout account exists (BZ409).
-7. **Money still never passes through the platform** (ADR-0005). With an aggregator, each business's payout account becomes its own subaccount. The platform holds no funds and takes no commission.
-8. **Methods.** `payment_method` covers `mobile_money`, `card`, `bank_transfer` and `cash`. Apple Pay or Google Pay appear only if the chosen provider offers them on its hosted checkout; the app does not integrate them directly.
+## Proposed change
 
-## Alternatives
+1. **No money moves through the app, ever.** No payment company, no card or Mobile Money checkout, no webhooks, no in-app refunds.
+2. **Accepted payment methods (per business).** The owner ticks what they accept: cash, Mobile Money, bank transfer, card at the shop. This is shown on their public page and service list, e.g. "Pays: Cash · MoMo".
+3. **Customer's choice (per booking).** When booking, the customer picks one of the accepted methods, e.g. "I'll pay with Mobile Money". It is stored on the appointment as `payment_method_choice` and is information only.
+4. **Business payment details.** The owner may add a Mobile Money number and name and/or bank details.
+   - They are shown to a customer only on that customer's own booking, and only for the method they chose.
+   - They are never shown on the public page or in search, and never through the API to anyone else. A database function returns them only to the booking's customer and the business.
+   - The ticket shows, for example: "Send to 024 000 0001 (Kwame Asante), MTN MoMo. Reference BK-4821."
+5. **The business marks it paid.** "Mark paid" on the appointment records cash, Mobile Money, bank or card, with the amount and an optional note.
+   - This keeps the current `payments` table as a simple record of money the business says it received. Refunds are also recorded by the business ("Mark refunded").
+   - `appointments.payment_status` stays derived: `null` (nothing recorded), `partially_paid`, `paid`, `refunded`.
+   - Staff can mark paid; only owners and managers see amounts (unchanged).
+6. **No deposits.** Remove `services.deposit_minor`, `appointments.deposit_minor`, the deposit fields in forms and the API, and the pending-hold logic (`hold_expires_at`). Bookings confirm exactly as they did before Phase 9.
+7. **Remove:**
+   - **Code:** `PaymentProvider` and the mock, the pay and waiting screens, `/dev/mock-pay`, the webhook and payments-job routes, and `PAYMENTS_PROVIDER` / `PAYMENTS_WEBHOOK_SECRET`.
+   - **Database:** `payment_events`, and the functions `start_payment`, `abandon_payment`, `apply_payment_event`, `expire_payment_holds`, `claim_refunds`, `finish_refund` and `stale_pending_payments`.
+   - **Automatic behaviour:** the automatic refund trigger, and the online-payment switches in `booking_rules`.
 
-| Option                                               | Why not now                                                                      |
-| ---------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Platform collects, then pays out                     | Licensing, escrow and reconciliation burden (ADR-0005)                           |
-| Separate hold table or advisory locks                | The existing exclusion constraint already makes a pending booking block the slot |
-| Service-role client in the request path              | Breaks the least-privilege rule; the merchant-reference design avoids it         |
-| Store full payout numbers in the browser for editing | Needless exposure; owners re-enter them to change                                |
+   This is done with a new forward-only migration. Applied migrations are not edited.
 
-## Consequences
+8. **Notifications.** Keep one message: an in-app receipt to the customer when the business marks a booking paid. Drop "Refund sent" and all hold-related behaviour.
 
-- The whole flow is testable locally. The mock's `/dev/mock-pay/[reference]` page (404 in production, labelled "development only") posts signed webhooks.
-- The real adapter needs contract tests against the vendor sandbox, plus the vendor's subaccount registration, which is what sets `provider_account_ref` and `status = verified`.
-- Payout details are sensitive personal data under Act 843. They are covered by account deletion (cascade) and are admin-readable only for support.
+## Benefits
+
+- It matches how the product owner wants the business to run.
+- No payment licensing, provider fees, chargebacks or payment secrets.
+- Much less code. The booking flow goes back to its simpler, tested Phase 5 shape.
+- It still records who paid what, so the Payments page and Phase 10 analytics (revenue) work from what businesses mark.
+
+## Risks
+
+- **No-shows:** without deposits, businesses carry the risk; the no-show counts in analytics help them see it. Deposits can come back later as a new decision.
+- **Accuracy:** "Paid" is only as accurate as what the business records. The page labels it "Recorded by the business".
+- **Privacy:** a business's MoMo number is visible to its own booked customers. The owner chooses to add it, and it is covered by account deletion (Act 843).
+- **Spec conflict:** SPEC §13 ("online payments", "deposits", "Mobile Money-ready payment architecture") and §5 ("pay deposits where required") need updating by the product owner.
+
+## Migration impact
+
+- One new migration that drops the online-payment objects and the deposit columns, and adds `business_payment_details`, `accepted_payment_methods` and `appointments.payment_method_choice`. It also reshapes `business_payout_accounts` into the payment details that customers see.
+  - Existing local and demo payment rows: online attempts are deleted, manual records are kept.
+  - Postgres enums can't drop values, so the payment enums are recreated.
+- `/api/v1` changes:
+  - removed: `deposit` and `hold_expires_at` on appointments, and `POST /appointments/{id}/payments`;
+  - added: `payment_method_choice` on bookings, and `GET /appointments/{id}/payment-details`.
+  - No mobile clients exist yet, so nothing breaks in the field. The OpenAPI document and `docs/api/v1.md` will be updated.
+- Tests: the payments pgTAP, integration and E2E tests are rewritten around the new flow: choose method → see details → business marks paid → tenant isolation of the details.
+- Docs: `architecture.md` §8, `data-model.md`, `env.md`, `api/v1.md`, `testing.md`, the Phase 9 plan; ADR-0005 marked superseded.
