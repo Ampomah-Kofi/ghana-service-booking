@@ -1362,6 +1362,8 @@ export type Database = {
           notify_sms: boolean;
           notify_whatsapp: boolean;
           phone_e164: string | null;
+          suspended_at: string | null;
+          suspension_reason: string | null;
           updated_at: string;
         };
         Insert: {
@@ -1377,6 +1379,8 @@ export type Database = {
           notify_sms?: boolean;
           notify_whatsapp?: boolean;
           phone_e164?: string | null;
+          suspended_at?: string | null;
+          suspension_reason?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -1392,6 +1396,8 @@ export type Database = {
           notify_sms?: boolean;
           notify_whatsapp?: boolean;
           phone_e164?: string | null;
+          suspended_at?: string | null;
+          suspension_reason?: string | null;
           updated_at?: string;
         };
         Relationships: [
@@ -1896,10 +1902,47 @@ export type Database = {
     Functions: {
       accept_staff_invite: { Args: { p_token: string }; Returns: string };
       account_deletion_blocker: { Args: Record<PropertyKey, never>; Returns: string };
+      admin_get_business: { Args: { p_business_id: string }; Returns: Json };
+      admin_get_user: { Args: { p_user_id: string }; Returns: Json };
+      admin_list_businesses: {
+        Args: {
+          p_limit?: number;
+          p_offset?: number;
+          p_query?: string;
+          p_status?: Database["public"]["Enums"]["business_status"];
+        };
+        Returns: {
+          bookings_30d: number;
+          created_at: string;
+          id: string;
+          name: string;
+          owner_name: string;
+          owner_phone: string;
+          place: string;
+          slug: string;
+          status: Database["public"]["Enums"]["business_status"];
+          verification_status: Database["public"]["Enums"]["business_verification"];
+        }[];
+      };
+      admin_list_users: {
+        Args: { p_limit?: number; p_offset?: number; p_query?: string };
+        Returns: {
+          admin_role: Database["public"]["Enums"]["admin_role"];
+          bookings: number;
+          businesses_owned: number;
+          created_at: string;
+          email: string;
+          full_name: string;
+          id: string;
+          phone_e164: string;
+          suspended_at: string;
+        }[];
+      };
       admin_moderate_review: {
         Args: { p_reason: string; p_review_id: string; p_status: Database["public"]["Enums"]["review_status"] };
         Returns: undefined;
       };
+      admin_platform_stats: { Args: Record<PropertyKey, never>; Returns: Json };
       admin_save_category: {
         Args: {
           p_description: string;
@@ -1913,6 +1956,10 @@ export type Database = {
         };
         Returns: string;
       };
+      admin_set_business_suspended: {
+        Args: { p_business_id: string; p_reason: string; p_suspended: boolean };
+        Returns: Database["public"]["Enums"]["business_status"];
+      };
       admin_set_business_verification: {
         Args: {
           p_business_id: string;
@@ -1920,6 +1967,10 @@ export type Database = {
           p_reason: string;
           p_status: Database["public"]["Enums"]["business_verification"];
         };
+        Returns: undefined;
+      };
+      admin_set_user_suspended: {
+        Args: { p_reason: string; p_suspended: boolean; p_user_id: string };
         Returns: undefined;
       };
       book_appointment: {
@@ -1935,6 +1986,7 @@ export type Database = {
         };
         Returns: string;
       };
+      business_insights: { Args: { p_business_id: string; p_days?: number }; Returns: Json };
       business_publish_readiness: { Args: { p_business_id: string }; Returns: string[] };
       cancel_my_appointment: { Args: { p_appointment_id: string; p_reason?: string }; Returns: undefined };
       choose_payment_method: {
@@ -2109,6 +2161,13 @@ export type Database = {
           saved_at: string;
           slug: string;
           total_count: number;
+        }[];
+      };
+      my_suspension: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          reason: string;
+          suspended_at: string;
         }[];
       };
       publish_business: { Args: { p_business_id: string }; Returns: undefined };
