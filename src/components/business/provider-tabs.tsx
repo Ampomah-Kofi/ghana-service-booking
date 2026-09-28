@@ -46,7 +46,7 @@ export function ProviderTabs({ businessId, canManage }: { businessId: string; ca
     <>
       <nav
         aria-label="Business"
-        className="pointer-events-none fixed inset-x-0 bottom-0 z-20 px-4 pb-safe-sm md:hidden"
+        className="pointer-events-none fixed inset-x-0 bottom-0 z-30 px-4 pb-safe-sm md:hidden"
       >
         <ul className="glass-strong pointer-events-auto mx-auto flex max-w-md rounded-full p-1.5">
           {tabs.map(({ href, label, icon: Icon, match }) => {

@@ -61,6 +61,25 @@ for (const width of [360, 390]) {
           }
         }
       }
+      // 0b) Navigation bars must be on top: sample points across each visible nav and check nothing covers it.
+      const covered = [];
+      for (const nav of document.querySelectorAll("nav")) {
+        if (getComputedStyle(nav).position !== "fixed" || !visible(nav)) continue;
+        const bar = nav.firstElementChild ?? nav;
+        const r = bar.getBoundingClientRect();
+        if (r.bottom <= 0 || r.top >= innerHeight) continue;
+        for (const fx of [0.08, 0.3, 0.5, 0.7, 0.92]) {
+          const x = r.left + r.width * fx,
+            y = r.top + r.height / 2;
+          const hit = document.elementFromPoint(x, y);
+          if (hit && !nav.contains(hit)) {
+            covered.push(
+              `${nav.getAttribute("aria-label")} at ${Math.round(x)}px under ${hit.tagName.toLowerCase()}.${hit.className.toString().split(" ")[0]}`,
+            );
+            break;
+          }
+        }
+      }
       // 1) In-flow text overlapping other in-flow text.
       const leaves = [...document.querySelectorAll("main *")].filter(
         (el) => visible(el) && !isFixed(el) && [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()),
@@ -114,11 +133,11 @@ for (const width of [360, 390]) {
         (el) => visible(el) && !isFixed(el) && el.children.length === 0,
       );
       const lastBottom = Math.max(...content.map((el) => el.getBoundingClientRect().bottom));
-      return { hits: [...new Set(hits)].slice(0, 6), hidden: Math.round(lastBottom - barTop), trapped };
+      return { hits: [...new Set(hits)].slice(0, 6), hidden: Math.round(lastBottom - barTop), trapped, covered };
     });
-    const bad = r.hits.length || r.hidden > 0 || r.trapped.length;
+    const bad = r.hits.length || r.hidden > 0 || r.trapped.length || r.covered.length;
     console.log(
-      `${bad ? "✗" : "✓"} ${width} ${path}${r.hidden > 0 ? `  last content ${r.hidden}px under bottom bar` : ""}${r.hits.length ? "\n    " + r.hits.join("\n    ") : ""}${r.trapped.length ? "\n    fixed but trapped: " + r.trapped.join(", ") : ""}`,
+      `${bad ? "✗" : "✓"} ${width} ${path}${r.hidden > 0 ? `  last content ${r.hidden}px under bottom bar` : ""}${r.hits.length ? "\n    " + r.hits.join("\n    ") : ""}${r.trapped.length ? "\n    fixed but trapped: " + r.trapped.join(", ") : ""}${r.covered.length ? "\n    nav covered: " + r.covered.join(", ") : ""}`,
     );
   }
   await ctx.close();

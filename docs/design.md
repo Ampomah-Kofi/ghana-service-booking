@@ -31,6 +31,7 @@
 
 - **Type (ADR-0014, phone first):** system font stack, zero downloads. `display` 28/34 bold (large titles), `title` 20/26, `heading` 17/22, `body` 16/24, `small` 14/20, `caption` 12/16; from 640 px `display` 32/40 and `title` 22/28. Display, title and heading carry their own negative tracking (ADR-0011); don't add `tracking-*` or per-screen font sizes.
 - **Prices in lists:** always `PriceTag` (amount at body size, "from" as a caption above, "Price on request" quiet and wrapping).
+- **Layers:** page content, including sticky headers and calendar gutters, stays at `z-20` or below; navigation (tab bars, compact title bar) and the floating "+" are `z-30`; toasts `z-40`; sheets use the top layer. `overlap-check.mjs` fails if anything covers a navigation bar.
 - **Motion rule:** never animate `transform`/`filter` on a wrapper that contains `position: fixed` elements (it traps them); page transitions are opacity-only.
 - **Radii:** `chip` 6 px, `control` 10 px, `card` 20 px. Buttons, chips, search and avatars are full-round capsules.
 - **Spacing:** 4 px grid; gutters 20 px on phones.

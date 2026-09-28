@@ -19,7 +19,7 @@ export function LargeTitle({
     <>
       <div
         aria-hidden="true"
-        className="compact-bar glass-strong pointer-events-none fixed inset-x-0 top-0 z-20 pt-safe-sm pb-2.5 text-center md:hidden"
+        className="compact-bar glass-strong pointer-events-none fixed inset-x-0 top-0 z-30 pt-safe-sm pb-2.5 text-center md:hidden"
       >
         <p className="mx-auto max-w-2xl truncate px-16 text-heading font-semibold">{title}</p>
       </div>

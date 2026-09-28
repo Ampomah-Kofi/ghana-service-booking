@@ -144,8 +144,12 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
             </Row>
           ) : null}
           <Row label="Booked as">
-            {a.customerName}
-            {a.customerPhone ? `, ${formatPhoneInternational(a.customerPhone)}` : ""}
+            <span className="block">{a.customerName}</span>
+            {a.customerPhone ? (
+              <span className="block whitespace-nowrap text-ink-muted tabular-nums">
+                {formatPhoneInternational(a.customerPhone)}
+              </span>
+            ) : null}
           </Row>
           {a.note ? <Row label="Your note">{a.note}</Row> : null}
           {a.status === "cancelled" && a.cancellationReason ? <Row label="Reason">{a.cancellationReason}</Row> : null}
@@ -156,11 +160,11 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
           className="grid grid-flow-col auto-cols-fr gap-1 border-t border-border px-2 py-3"
         >
           {live ? (
-            <a href={`/bookings/${a.id}/ics`} download className={ACTION}>
+            <a href={`/bookings/${a.id}/ics`} download aria-label="Add to calendar" className={ACTION}>
               <span className={ACTION_ICON}>
                 <CalendarPlusIcon />
               </span>
-              Add to calendar
+              Calendar
             </a>
           ) : null}
           {directions ? (

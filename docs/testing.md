@@ -93,6 +93,7 @@ Result: no violations after two fixes (faint other-month days in the month grid;
 `node scripts/dev/overlap-check.mjs <storage-state.json|-> <path…>` (app running on :3000; storage states from `scripts/dev/login-state.mjs`) flags, at 360 and 390 px:
 - in-flow text boxes that overlap each other;
 - the last content on a page ending under a fixed bottom bar (tab bars, booking bar) when scrolled to the bottom;
+- a navigation bar covered by anything (sampled across its width);
 - a `position: fixed` element trapped by a transformed, filtered or blurred ancestor (it would scroll away with the page). It runs with normal motion, because a page animation's leftover transform is exactly what causes this (ADR-0014 found the provider tab bar scrolling away).
 Floating layers (title bar, tab bars, sheets, the date grid) are meant to sit over content; they're solid or frosted with a shadow so what's under them never shows through as text-on-text. Last run (after ADR-0012): 23 customer and provider screens, both widths, no findings. The check was also shown to flag a deliberately injected 12 px overlap.
 

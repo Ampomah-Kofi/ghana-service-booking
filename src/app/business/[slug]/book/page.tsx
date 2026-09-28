@@ -386,7 +386,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
 
       {selected ? (
         <section aria-labelledby="times-heading" className="sheet-up">
-          <h2 id="times-heading" className="mb-3 text-title font-semibold">
+          <h2 id="times-heading" className="mb-3 text-heading font-semibold">
             {formatLocalDate(selected.date)}
           </h2>
           {selected.slots.length === 0 ? (
@@ -421,7 +421,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
                           date: selected.date,
                           time: slot.start.toISOString(),
                         })}
-                        className="flex min-h-12 items-center justify-center pressable rounded-full bg-fill text-body font-semibold tabular-nums text-ink transition-colors hover:bg-primary-soft hover:text-primary active:bg-primary active:text-on-primary"
+                        className="flex min-h-11 items-center justify-center pressable rounded-full bg-fill text-body font-medium tabular-nums text-ink transition-colors hover:bg-primary-soft hover:text-primary active:bg-primary active:text-on-primary"
                       >
                         {formatTime(slot.start, setup.timezone)}
                       </Link>

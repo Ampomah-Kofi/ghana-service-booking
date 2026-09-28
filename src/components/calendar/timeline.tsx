@@ -154,6 +154,8 @@ export function Timeline({
               {items.map((a) => {
                 const tone = STATUS[a.status];
                 const compact = a.height < 44;
+                // Time (16) + name (20) + service (16) + padding (8): the service line only when it fits whole.
+                const showService = a.height - 2 >= 60;
                 return (
                   <Link
                     prefetch={false}
@@ -177,9 +179,9 @@ export function Timeline({
                         {a.source === "walk_in" ? " · Walk-in" : ""}
                       </span>
                       <span className="block truncate text-small font-medium">{a.customerName}</span>
-                      {compact ? null : (
+                      {showService ? (
                         <span className="block truncate text-caption text-ink-muted">{a.serviceName}</span>
-                      )}
+                      ) : null}
                       <span className="sr-only">, {tone.label}</span>
                     </span>
                   </Link>

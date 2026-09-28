@@ -39,7 +39,7 @@ export function CustomerTabs() {
     <>
       <div aria-hidden="true" className="h-24 md:hidden" />
       {/* Floating glass capsule (ADR-0010): content scrolls underneath, like current iOS. */}
-      <nav aria-label="App" className="pointer-events-none fixed inset-x-0 bottom-0 z-20 px-5 pb-safe-sm md:hidden">
+      <nav aria-label="App" className="pointer-events-none fixed inset-x-0 bottom-0 z-30 px-5 pb-safe-sm md:hidden">
         <ul
           className={`glass-strong pointer-events-auto mx-auto flex max-w-sm rounded-full p-1.5 transition-[transform,opacity] duration-300 ease-out ${
             away ? "tabs-away" : ""

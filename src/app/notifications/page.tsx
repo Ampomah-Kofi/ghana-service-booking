@@ -71,7 +71,7 @@ export default async function NotificationsPage() {
                       </span>
                       <span className="shrink-0 text-caption text-ink-muted">{ago(item.at, now)}</span>
                     </span>
-                    <span className="mt-0.5 line-clamp-2 block text-small text-ink-muted">{item.body}</span>
+                    <span className="mt-0.5 line-clamp-2 text-small text-ink-muted">{item.body}</span>
                   </span>
                   {item.read ? (
                     <ChevronRightIcon className="mt-3 shrink-0 text-ink-muted" />

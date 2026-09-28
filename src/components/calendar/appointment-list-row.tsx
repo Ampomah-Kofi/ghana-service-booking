@@ -23,7 +23,9 @@ export function AppointmentListRow({
   return (
     <li>
       <Link href={href} className="flex min-h-16 items-stretch gap-3 px-4 py-3 hover:bg-fill active:bg-fill">
-        <span className={`w-16 shrink-0 text-small tabular-nums ${cancelled ? "text-ink-muted line-through" : ""}`}>
+        <span
+          className={`w-[4.75rem] shrink-0 whitespace-nowrap text-small tabular-nums ${cancelled ? "text-ink-muted line-through" : ""}`}
+        >
           {dateLabel ? <span className="block text-caption text-ink-muted">{dateLabel}</span> : null}
           <span className="block font-semibold">{formatTime(a.startsAt, timezone)}</span>
           <span className="block text-ink-muted">{formatTime(a.endsAt, timezone)}</span>

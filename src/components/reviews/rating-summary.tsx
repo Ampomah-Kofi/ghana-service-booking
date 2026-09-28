@@ -19,7 +19,7 @@ export function RatingSummary({ summary }: { summary: Summary }) {
                 <span className="w-3 text-right tabular-nums">{star}</span>
                 <span className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-fill" aria-hidden="true">
                   <span
-                    className="absolute inset-y-0 left-0 rounded-full bg-ink/60"
+                    className="absolute inset-y-0 left-0 rounded-full bg-star"
                     style={{ width: `${(n / max) * 100}%` }}
                   />
                 </span>

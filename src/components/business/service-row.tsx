@@ -34,9 +34,7 @@ export function ServiceRow({
       <span className="min-w-0 flex-1">
         <span className="block text-body font-medium break-words">{name}</span>
         <span className="block text-small text-ink-muted">{meta}</span>
-        {description ? (
-          <span className="mt-0.5 line-clamp-1 block text-small text-ink-muted">{description}</span>
-        ) : null}
+        {description ? <span className="mt-0.5 line-clamp-1 text-small text-ink-muted">{description}</span> : null}
         {deposit ? <span className="mt-0.5 block text-small text-warning">{deposit}</span> : null}
         {photos.length > 0 ? (
           <span className="mt-2 flex gap-1.5" aria-hidden="true">
