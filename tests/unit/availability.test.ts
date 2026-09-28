@@ -224,4 +224,11 @@ describe("display formats", () => {
     expect(formatDateTime(t, ACCRA)).toBe("Mon, 1 Mar · 1:05 pm");
     expect(formatLocalDate("2027-03-01")).toBe("Monday, 1 March");
   });
+
+  it("writes long dates with the year in the business timezone", async () => {
+    const { formatDateWithYear } = await import("@/lib/datetime");
+    expect(formatDateWithYear("2026-09-28T10:00:00Z", ACCRA)).toBe("28 September 2026");
+    // Late on 31 Dec in UTC is already New Year's Day in Lagos (UTC+1).
+    expect(formatDateWithYear("2026-12-31T23:30:00Z", "Africa/Lagos")).toBe("1 January 2027");
+  });
 });

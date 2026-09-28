@@ -12,7 +12,11 @@ import { managedBusinessOr404 } from "@/server/businesses/access";
 import { getPublishReadiness } from "@/server/businesses/onboarding";
 import { formatPlace } from "@/server/businesses/queries";
 import { qrDataUrl } from "@/server/businesses/qr";
-import { PublishButton, UnpublishButton } from "../publish-controls";
+import { ApplyForVerificationButton, PublishButton, UnpublishButton } from "../publish-controls";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
+import { BRAND } from "@/lib/brand";
+import { getVerificationNote } from "@/server/businesses/verification";
+import { formatDateWithYear } from "@/lib/datetime";
 
 export const metadata: Metadata = { title: "More" };
 
@@ -20,7 +24,7 @@ type ChecklistItem = { label: string; detail: string; done: boolean; required: b
 
 export default async function MorePage({ params }: PageProps<"/dashboard/[businessId]/more">) {
   const { businessId } = await params;
-  const { db, business } = await managedBusinessOr404(businessId);
+  const { db, business, role } = await managedBusinessOr404(businessId);
   const missing = await getPublishReadiness(db, business.id);
   const contactNumber = business.phone ?? business.whatsapp;
   const setup = (step: (typeof SETUP_STEPS)[number]["slug"]) => `/dashboard/${business.id}/setup/${step}`;
@@ -88,6 +92,10 @@ export default async function MorePage({ params }: PageProps<"/dashboard/[busine
   const pageUrl = businessPageUrl(siteUrl, business.slug);
   const published = business.status === "published";
   const qr = published ? await qrDataUrl(pageUrl) : null;
+  const verification = business.verification;
+  const isOwner = role === "owner";
+  const verificationNote =
+    isOwner && verification.status === "declined" ? await getVerificationNote(db, business.id) : null;
 
   return (
     <>
@@ -164,6 +172,49 @@ export default async function MorePage({ params }: PageProps<"/dashboard/[busine
             </Link>
           </p>
         </section>
+      ) : null}
+
+      {published ? (
+        <GroupedSection
+          title="Verified check mark"
+          footer={`A ${BRAND.name} admin checks your phone and details (for example by calling you). Changing your business name removes the check until it's checked again.`}
+        >
+          <div className="grid gap-3 p-4">
+            {verification.status === "verified" ? (
+              <p className="flex items-center gap-2 text-body">
+                <VerifiedBadge className="text-title" />
+                <span>
+                  Verified
+                  {verification.verifiedAt
+                    ? ` on ${formatDateWithYear(verification.verifiedAt, business.timezone)}`
+                    : ""}
+                  . Customers see the check next to your name.
+                </span>
+              </p>
+            ) : verification.status === "pending" ? (
+              <p className="text-body">
+                <span className="font-medium">Checking your details.</span>{" "}
+                <span className="text-ink-muted">We&apos;ll call or text you, usually within 2 days.</span>
+              </p>
+            ) : (
+              <>
+                <p className="text-body text-ink-muted">
+                  {verification.status === "declined"
+                    ? "We couldn't verify your business this time."
+                    : "Show customers a green check next to your name, so they know a real person runs this page."}
+                </p>
+                {verificationNote ? (
+                  <p className="rounded-control bg-fill px-3 py-2 text-small">{verificationNote}</p>
+                ) : null}
+                {isOwner ? (
+                  <ApplyForVerificationButton businessId={business.id} again={verification.status === "declined"} />
+                ) : (
+                  <p className="text-small text-ink-muted">Only the owner can apply.</p>
+                )}
+              </>
+            )}
+          </div>
+        </GroupedSection>
       ) : null}
 
       {published ? (

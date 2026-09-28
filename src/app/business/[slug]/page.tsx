@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { SOCIAL_LABELS, socialDisplay, socialHref, type SocialLinks } from "@/lib/social";
 import { ReviewCard } from "@/components/reviews/review-card";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
+import { Sheet } from "@/components/ui/sheet";
+import { BRAND } from "@/lib/brand";
+import { formatDateWithYear } from "@/lib/datetime";
 import { RatingSummary } from "@/components/reviews/rating-summary";
 import { FavoriteButton } from "@/components/marketplace/favorite-button";
 import { listBusinessReviews, ratingSummary } from "@/server/reviews/reviews";
@@ -178,7 +182,22 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
               />
             ) : null}
             <div className="min-w-0 flex-1">
-              <h1 className="text-title font-bold">{business.name}</h1>
+              <h1 className="text-title font-bold">
+                {business.name}
+                {business.verification.status === "verified" ? (
+                  <>
+                    {" "}
+                    <button
+                      type="button"
+                      popoverTarget="verified-info"
+                      aria-label="Verified business: what this means"
+                      className="pressable -m-1 inline-flex p-1 align-baseline"
+                    >
+                      <VerifiedBadge />
+                    </button>
+                  </>
+                ) : null}
+              </h1>
               <p className="truncate text-small text-ink-muted">
                 {[business.category?.name, place].filter(Boolean).join(" · ")}
               </p>
@@ -456,6 +475,20 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
             </Link>
           </div>
         </div>
+      ) : null}
+      {business.verification.status === "verified" ? (
+        <Sheet id="verified-info" title="Verified business">
+          <p className="text-body text-ink-muted">
+            {BRAND.name} checked the owner&apos;s phone and details
+            {business.verification.verifiedAt
+              ? ` on ${formatDateWithYear(business.verification.verifiedAt, business.timezone)}`
+              : ""}
+            . The check stays while the business keeps this name.
+          </p>
+          <p className="mt-3 text-small text-ink-muted">
+            It isn&apos;t a guarantee of every visit: read the reviews, and report anything that looks wrong.
+          </p>
+        </Sheet>
       ) : null}
     </article>
   );

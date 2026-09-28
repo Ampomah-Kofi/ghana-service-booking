@@ -38,6 +38,8 @@ export async function GET(request: Request, { params }: RouteContext<"/api/v1/bu
         description: business.description,
         kind: business.kind,
         timezone: business.timezone,
+        verified: business.verification.status === "verified",
+        verified_at: business.verification.status === "verified" ? business.verification.verifiedAt : null,
         category: business.category ? { name: business.category.name, slug: business.category.slug } : null,
         location: loc
           ? {

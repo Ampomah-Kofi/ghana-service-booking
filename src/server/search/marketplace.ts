@@ -18,6 +18,8 @@ export type BusinessCard = {
   nextAvailableAt: string | null;
   distanceKm: number | null;
   publishedAt: string | null;
+  /** A platform admin checked the owner's details (ADR-0015). */
+  verified: boolean;
 };
 
 export type SearchInput = {
@@ -68,6 +70,7 @@ type Row = {
   published_at: string | null;
   distance_m: number | null;
   total_count: number;
+  is_verified: boolean | null;
 };
 
 export function toCard(row: Row): BusinessCard {
@@ -91,6 +94,7 @@ export function toCard(row: Row): BusinessCard {
     nextAvailableAt: row.next_available_at,
     distanceKm: row.distance_m !== null ? Math.round(row.distance_m / 100) / 10 : null,
     publishedAt: row.published_at,
+    verified: row.is_verified === true,
   };
 }
 

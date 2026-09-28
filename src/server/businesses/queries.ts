@@ -44,6 +44,12 @@ export type BusinessView = {
   social: SocialLinks;
   /** New bookings also go by SMS to the business phone (Phase 8). */
   notifyNewBookingSms: boolean;
+  /** The verified check (ADR-0015): owners apply, platform admins decide. */
+  verification: {
+    status: BusinessRow["verification_status"];
+    requestedAt: string | null;
+    verifiedAt: string | null;
+  };
   email: string | null;
   logoPath: string | null;
   category: { id: string; name: string; slug: string } | null;
@@ -56,6 +62,7 @@ export type BusinessView = {
 const businessSelect = `
   id, slug, name, description, kind, status, published_at, phone_e164, whatsapp_e164, email, logo_path, timezone,
   instagram_handle, tiktok_handle, x_handle, facebook_url, youtube_url, website_url, notify_new_booking_sms,
+  verification_status, verification_requested_at, verified_at,
   currencies ( code, symbol, minor_unit ),
   business_categories ( is_primary, categories ( id, name, slug ) ),
   business_locations ( is_primary, city_id, area_id, locality_text, address_line, landmark, directions, lat, lng,
@@ -103,6 +110,11 @@ async function loadBusiness(db: Db, column: "id" | "slug", value: string): Promi
       website: data.website_url,
     },
     notifyNewBookingSms: data.notify_new_booking_sms,
+    verification: {
+      status: data.verification_status,
+      requestedAt: data.verification_requested_at,
+      verifiedAt: data.verified_at,
+    },
     logoPath: data.logo_path,
     category: primaryCategory,
     currency: { code: data.currencies.code, symbol: data.currencies.symbol, minorUnit: data.currencies.minor_unit },

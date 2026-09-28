@@ -19,5 +19,6 @@ Changing an accepted decision means writing a new ADR (see CLAUDE.md §Architect
 | [0012](0012-interaction-polish.md) | Interaction polish (iOS patterns on the web) | Accepted |
 | [0013](0013-notification-channels.md) | Notification channels, preferences and templates | Accepted |
 | [0014](0014-compact-mobile-type.md) | Compact phone type scale and denser lists | Accepted |
+| [0015](0015-verified-businesses.md) | Verified businesses (admin-checked check mark) | Accepted |
 
 Accepted 2026-09-27 with Phase 0 approval.

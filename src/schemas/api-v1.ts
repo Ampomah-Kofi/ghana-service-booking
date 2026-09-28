@@ -41,6 +41,8 @@ export const businessCard = z.object({
   rating: z.object({ average: z.number(), count: z.number().int() }).nullable(),
   next_available_at: z.iso.datetime({ offset: true }).nullable(),
   distance_km: z.number().nullable(),
+  /** A platform admin checked the owner's details (ADR-0015). */
+  verified: z.boolean(),
 });
 
 export const searchResponse = z.object({
@@ -68,6 +70,9 @@ export const businessProfile = z.object({
     description: z.string().nullable(),
     kind: z.enum(["solo", "team"]),
     timezone: z.string(),
+    /** The verified check (ADR-0015); verified_at is when an admin granted it. */
+    verified: z.boolean(),
+    verified_at: z.iso.datetime({ offset: true }).nullable(),
     category: z.object({ name: z.string(), slug: z.string() }).nullable(),
     location: z
       .object({

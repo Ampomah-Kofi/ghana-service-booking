@@ -30,6 +30,12 @@ export function formatDayLong(instant: Date | string, timezone: string): string 
   return `${p.weekday}, ${p.day} ${p.month}`;
 }
 
+/** "14 October 2026" (for dates that can be long ago, e.g. when a business was verified) */
+export function formatDateWithYear(instant: Date | string, timezone: string): string {
+  const p = parts(new Date(instant), timezone, { day: "numeric", month: "long", year: "numeric" });
+  return `${p.day} ${p.month} ${p.year}`;
+}
+
 /** "Tue, 14 Oct · 9:30 am" */
 export function formatDateTime(instant: Date | string, timezone: string): string {
   return `${formatDateShort(instant, timezone)} · ${formatTime(instant, timezone)}`;

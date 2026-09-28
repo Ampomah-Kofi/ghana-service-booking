@@ -44,5 +44,6 @@ export function toApiCard(c: BusinessCard, supabaseUrl: string): z.infer<typeof 
     rating: c.rating,
     next_available_at: c.nextAvailableAt,
     distance_km: c.distanceKm,
+    verified: c.verified,
   };
 }

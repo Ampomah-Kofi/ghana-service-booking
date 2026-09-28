@@ -705,6 +705,32 @@ export type Database = {
           },
         ];
       };
+      business_verification_notes: {
+        Row: {
+          business_id: string;
+          note: string;
+          updated_at: string;
+        };
+        Insert: {
+          business_id: string;
+          note: string;
+          updated_at?: string;
+        };
+        Update: {
+          business_id?: string;
+          note?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_verification_notes_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: true;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       businesses: {
         Row: {
           country_code: string;
@@ -733,6 +759,9 @@ export type Database = {
           tiktok_handle: string | null;
           timezone: string;
           updated_at: string;
+          verification_requested_at: string | null;
+          verification_status: Database["public"]["Enums"]["business_verification"];
+          verified_at: string | null;
           website_url: string | null;
           whatsapp_e164: string | null;
           x_handle: string | null;
@@ -765,6 +794,9 @@ export type Database = {
           tiktok_handle?: string | null;
           timezone?: string;
           updated_at?: string;
+          verification_requested_at?: string | null;
+          verification_status?: Database["public"]["Enums"]["business_verification"];
+          verified_at?: string | null;
           website_url?: string | null;
           whatsapp_e164?: string | null;
           x_handle?: string | null;
@@ -797,6 +829,9 @@ export type Database = {
           tiktok_handle?: string | null;
           timezone?: string;
           updated_at?: string;
+          verification_requested_at?: string | null;
+          verification_status?: Database["public"]["Enums"]["business_verification"];
+          verified_at?: string | null;
           website_url?: string | null;
           whatsapp_e164?: string | null;
           x_handle?: string | null;
@@ -1730,6 +1765,15 @@ export type Database = {
         };
         Returns: string;
       };
+      admin_set_business_verification: {
+        Args: {
+          p_business_id: string;
+          p_note?: string;
+          p_reason: string;
+          p_status: Database["public"]["Enums"]["business_verification"];
+        };
+        Returns: undefined;
+      };
       book_appointment: {
         Args: {
           p_business_id: string;
@@ -1887,6 +1931,7 @@ export type Database = {
           distance_m: number;
           has_from_price: boolean;
           id: string;
+          is_verified: boolean;
           locality_text: string;
           logo_path: string;
           min_price_minor: number;
@@ -1906,6 +1951,10 @@ export type Database = {
       remove_staff_member: { Args: { p_staff_id: string }; Returns: undefined };
       reply_to_review: { Args: { p_body: string; p_review_id: string }; Returns: undefined };
       report_review: { Args: { p_details: string; p_reason: string; p_review_id: string }; Returns: undefined };
+      request_business_verification: {
+        Args: { p_business_id: string };
+        Returns: Database["public"]["Enums"]["business_verification"];
+      };
       reschedule_my_appointment: {
         Args: { p_appointment_id: string; p_staff_ids: string[]; p_starts_at: string };
         Returns: string;
@@ -1938,6 +1987,7 @@ export type Database = {
           distance_m: number;
           has_from_price: boolean;
           id: string;
+          is_verified: boolean;
           locality_text: string;
           logo_path: string;
           min_price_minor: number;
@@ -1981,6 +2031,7 @@ export type Database = {
       appointment_status: "pending" | "confirmed" | "arrived" | "completed" | "cancelled" | "no_show";
       business_kind: "solo" | "team";
       business_status: "draft" | "published" | "suspended" | "deactivated";
+      business_verification: "none" | "pending" | "verified" | "declined";
       member_role: "owner" | "manager" | "staff";
       notification_channel: "sms" | "whatsapp" | "email" | "in_app";
       notification_status: "queued" | "sending" | "sent" | "failed" | "cancelled";
@@ -2099,6 +2150,7 @@ export const Constants = {
       appointment_status: ["pending", "confirmed", "arrived", "completed", "cancelled", "no_show"],
       business_kind: ["solo", "team"],
       business_status: ["draft", "published", "suspended", "deactivated"],
+      business_verification: ["none", "pending", "verified", "declined"],
       member_role: ["owner", "manager", "staff"],
       notification_channel: ["sms", "whatsapp", "email", "in_app"],
       notification_status: ["queued", "sending", "sent", "failed", "cancelled"],

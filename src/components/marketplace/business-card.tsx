@@ -5,6 +5,7 @@ import { formatMoney } from "@/lib/money";
 import type { BusinessCard as Card } from "@/server/search/marketplace";
 import { Cover } from "./cover";
 import { FavoriteButton } from "./favorite-button";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
 
 type Currency = { code: string; symbol: string; minorUnit: number };
 
@@ -101,7 +102,10 @@ export function BusinessCard({
             </div>
           </MorphCover>
           <div className={`min-w-0 flex-1 py-0.5 ${heart ? "pr-9" : "pr-1"}`}>
-            <h3 className="truncate text-heading font-semibold">{card.name}</h3>
+            <h3 className="flex min-w-0 items-center gap-1 text-heading font-semibold">
+              <span className="truncate">{card.name}</span>
+              {card.verified ? <VerifiedBadge /> : null}
+            </h3>
             {meta ? <p className="truncate text-small text-ink-muted">{meta}</p> : null}
             <p className="mt-0.5 flex min-w-0 flex-wrap items-center gap-x-2 text-small">
               {rating ?? (
@@ -150,7 +154,10 @@ export function BusinessCard({
         </MorphCover>
         <div className="px-0.5 pt-2.5">
           <div className="flex items-baseline justify-between gap-2">
-            <h3 className="min-w-0 truncate text-heading font-semibold">{card.name}</h3>
+            <h3 className="flex min-w-0 items-center gap-1 text-heading font-semibold">
+              <span className="truncate">{card.name}</span>
+              {card.verified ? <VerifiedBadge /> : null}
+            </h3>
             {rating}
           </div>
           {meta ? <p className="truncate text-small text-ink-muted">{meta}</p> : null}

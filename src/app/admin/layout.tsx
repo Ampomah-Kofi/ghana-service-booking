@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isPlatformAdmin } from "@/server/auth/roles";
 import { requireUserOrRedirect } from "@/server/auth/session";
@@ -8,7 +9,18 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   if (!(await isPlatformAdmin())) notFound();
   return (
     <div>
-      <p className="mb-2 text-heading font-semibold text-ink">Admin</p>
+      <nav aria-label="Admin" className="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <p className="text-heading font-semibold text-ink">Admin</p>
+        {[
+          ["/admin/verification", "Verification"],
+          ["/admin/reviews", "Reviews"],
+          ["/admin/categories", "Categories"],
+        ].map(([href, label]) => (
+          <Link key={href} href={href} className="min-h-11 content-center text-small font-medium text-primary">
+            {label}
+          </Link>
+        ))}
+      </nav>
       {children}
     </div>
   );

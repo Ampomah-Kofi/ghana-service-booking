@@ -8,6 +8,7 @@ import { AppError } from "@/lib/errors";
 import { aboutSchema, contactSchema, locationSchema, slugSchema, socialSchema } from "@/schemas/business";
 import { fieldErrorsFrom, formError, formValues, type FormState } from "@/server/actions";
 import { requireManagedBusiness } from "@/server/businesses/access";
+import { requestVerification } from "@/server/businesses/verification";
 import {
   addPortfolioPhoto,
   deletePortfolioPhoto,
@@ -200,6 +201,18 @@ export async function unpublishAction(_prev: FormState, formData: FormData): Pro
     await unpublishBusiness(db, business.id);
     refresh(business.id, business.slug);
     return { ok: true, notice: "Your page is hidden. Only your team can see it." };
+  } catch (error) {
+    return formError(error, formData);
+  }
+}
+
+/** The owner asks for the verified check (ADR-0015). The database refuses anyone but the owner. */
+export async function requestVerificationAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  try {
+    const { db, business } = await requireManagedBusiness(formData.get("businessId"));
+    await requestVerification(db, business.id);
+    refresh(business.id, business.slug);
+    return { ok: true, notice: "Thanks! We'll check your details and add the check mark, usually within 2 days." };
   } catch (error) {
     return formError(error, formData);
   }
