@@ -276,7 +276,12 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
       ) : !live && a.business.slug ? (
         <Link
           href={rebookHref(a.business.slug, a.serviceId, a.staffId)}
-          className="pressable flex min-h-12 items-center justify-center rounded-full bg-primary px-5 font-semibold text-on-primary hover:bg-primary-hover"
+          // While the visit still waits for a rating, "Post review" is the one green button on screen.
+          className={`pressable flex min-h-12 items-center justify-center rounded-full px-5 font-semibold ${
+            a.status === "completed" && !myReview
+              ? "bg-fill text-primary hover:bg-ink/10"
+              : "bg-primary text-on-primary hover:bg-primary-hover"
+          }`}
         >
           Book again
         </Link>
