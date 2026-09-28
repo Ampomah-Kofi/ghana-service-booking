@@ -212,3 +212,27 @@ export function ExpandIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function HeartIcon({ className, filled = false }: IconProps & { filled?: boolean }) {
+  return (
+    <svg {...base} className={className} fill={filled ? "currentColor" : "none"}>
+      <path d="M12 20s-7.5-4.6-9.2-9.1C1.7 7.8 3.7 4.5 7 4.5c2 0 3.5 1.1 5 3 1.5-1.9 3-3 5-3 3.3 0 5.3 3.3 4.2 6.4C19.5 15.4 12 20 12 20Z" />
+    </svg>
+  );
+}
+
+export function StarIcon({ className, filled = true }: IconProps & { filled?: boolean }) {
+  return (
+    <svg {...base} className={className} fill={filled ? "currentColor" : "none"} strokeWidth={1.5}>
+      <path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9L12 3.5Z" />
+    </svg>
+  );
+}
+
+export function FlagIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M5 21V4M5 4h11l-2 4 2 4H5" />
+    </svg>
+  );
+}

@@ -7,11 +7,14 @@ export function ResultList({
   supabaseUrl,
   currencies,
   next,
+  favorites,
 }: {
   cards: Card[];
   supabaseUrl: string;
   currencies: Map<string, CurrencyView>;
   next?: Map<string, { label: string }>;
+  /** Saved businesses of the signed-in user; null = signed out; undefined = no hearts. */
+  favorites?: Set<string> | null;
 }) {
   return (
     <ul className="grid grid-cols-[minmax(0,1fr)] gap-x-4 gap-y-6 sm:grid-cols-2">
@@ -23,6 +26,7 @@ export function ResultList({
             currencies={currencies}
             eager={i < 2}
             next={next?.get(card.id)?.label}
+            favorite={favorites === undefined ? undefined : favorites === null ? null : favorites.has(card.id)}
           />
         </li>
       ))}

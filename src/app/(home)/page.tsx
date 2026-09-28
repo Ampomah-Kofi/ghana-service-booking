@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { heartsFor } from "@/server/favorites/favorites";
 import { toSuggestions } from "@/server/catalog/suggestions";
 import { LargeTitle } from "@/components/ui/large-title";
 import type { ReactNode } from "react";
@@ -36,10 +37,8 @@ export default async function HomePage() {
     countryTimezone(db, country),
   ]);
   // Live "next free time today" for everything shown, in one batch (same engine as booking).
-  const next = await nextAvailableToday(
-    db,
-    recent.map((c) => c.id),
-  );
+  const ids = recent.map((c) => c.id);
+  const [next, favorites] = await Promise.all([nextAvailableToday(db, ids), heartsFor(db, user?.id ?? null, ids)]);
   const availableToday = recent
     .filter((c) => next.has(c.id))
     .sort((a, b) => (next.get(a.id)?.at.getTime() ?? 0) - (next.get(b.id)?.at.getTime() ?? 0));
@@ -68,6 +67,7 @@ export default async function HomePage() {
             eager={eagerFirst && i < 2}
             next={next.get(card.id)?.label}
             morph={firstShown(card.id)}
+            favorite={favorites === null ? null : favorites.has(card.id)}
           />
         </li>
       ))}

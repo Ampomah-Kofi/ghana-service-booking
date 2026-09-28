@@ -44,6 +44,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <Link href="/bookings" className="text-small font-medium text-ink-muted hover:text-ink">
                 Bookings
               </Link>
+              <Link href="/favorites" className="text-small font-medium text-ink-muted hover:text-ink">
+                Favourites
+              </Link>
               <Link href="/account" className="text-small font-medium text-ink-muted hover:text-ink">
                 Account
               </Link>

@@ -4,6 +4,7 @@ import { publicMediaUrl } from "@/lib/images";
 import { formatMoney } from "@/lib/money";
 import type { BusinessCard as Card } from "@/server/search/marketplace";
 import { Cover } from "./cover";
+import { FavoriteButton } from "./favorite-button";
 
 type Currency = { code: string; symbol: string; minorUnit: number };
 
@@ -19,6 +20,7 @@ export function BusinessCard({
   eager = false,
   next = null,
   morph = true,
+  favorite,
 }: {
   card: Card;
   supabaseUrl: string;
@@ -29,6 +31,8 @@ export function BusinessCard({
   next?: string | null;
   /** Grow this cover into the business page's cover on tap. Only one card per business on a page may morph. */
   morph?: boolean;
+  /** Heart on the cover: true/false = saved or not; null = signed out (heart goes to sign-in); undefined = no heart. */
+  favorite?: boolean | null;
 }) {
   const image = card.imagePath ?? card.logoPath;
   const currency = card.startingPrice ? currencies.get(card.startingPrice.currency) : undefined;
@@ -41,52 +45,63 @@ export function BusinessCard({
     .join(" · ");
 
   return (
-    <Link href={`/business/${card.slug}`} className="pressable group block">
-      <MorphCover id={card.id} enabled={morph}>
-        <div className={`relative overflow-hidden rounded-card bg-fill ${compact ? "aspect-4/3" : "aspect-video"}`}>
-          <Cover
-            imageUrl={image ? publicMediaUrl(supabaseUrl, image) : null}
-            categorySlug={card.categorySlug}
-            seed={card.id}
-            iconScale={compact ? 0.9 : 1}
-            eager={eager}
-            className="transition-transform duration-300 group-hover:scale-102"
-          />
-          {card.rating ? null : (
-            <span className="glass absolute top-2.5 left-2.5 rounded-full px-2.5 py-1 text-caption font-semibold text-ink">
-              New
-            </span>
-          )}
+    <div className="relative">
+      <Link href={`/business/${card.slug}`} className="pressable group block">
+        <MorphCover id={card.id} enabled={morph}>
+          <div className={`relative overflow-hidden rounded-card bg-fill ${compact ? "aspect-4/3" : "aspect-video"}`}>
+            <Cover
+              imageUrl={image ? publicMediaUrl(supabaseUrl, image) : null}
+              categorySlug={card.categorySlug}
+              seed={card.id}
+              iconScale={compact ? 0.9 : 1}
+              eager={eager}
+              className="transition-transform duration-300 group-hover:scale-102"
+            />
+            {card.rating ? null : (
+              <span className="glass absolute top-2.5 left-2.5 rounded-full px-2.5 py-1 text-caption font-semibold text-ink">
+                New
+              </span>
+            )}
+          </div>
+        </MorphCover>
+        <div className="px-0.5 pt-2.5">
+          <div className="flex items-baseline justify-between gap-2">
+            <h3 className="min-w-0 truncate text-heading font-semibold">{card.name}</h3>
+            {card.rating ? (
+              <span className="shrink-0 text-small font-semibold tabular-nums">
+                <span className="text-star" aria-hidden="true">
+                  ★
+                </span>{" "}
+                {card.rating.average.toFixed(1)}{" "}
+                <span className="font-normal text-ink-muted">({card.rating.count})</span>
+              </span>
+            ) : null}
+          </div>
+          {meta ? <p className="truncate text-small text-ink-muted">{meta}</p> : null}
+          <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-small">
+            {price ? (
+              <span>
+                From <span className="font-semibold tabular-nums">{price}</span>
+              </span>
+            ) : null}
+            {next ? (
+              <span className="inline-flex items-center gap-1 font-medium text-success">
+                <span aria-hidden="true" className="size-1.5 rounded-full bg-success" />
+                {next}
+              </span>
+            ) : null}
+          </p>
         </div>
-      </MorphCover>
-      <div className="px-0.5 pt-2.5">
-        <div className="flex items-baseline justify-between gap-2">
-          <h3 className="min-w-0 truncate text-heading font-semibold">{card.name}</h3>
-          {card.rating ? (
-            <span className="shrink-0 text-small font-semibold tabular-nums">
-              <span className="text-star" aria-hidden="true">
-                ★
-              </span>{" "}
-              {card.rating.average.toFixed(1)} <span className="font-normal text-ink-muted">({card.rating.count})</span>
-            </span>
-          ) : null}
-        </div>
-        {meta ? <p className="truncate text-small text-ink-muted">{meta}</p> : null}
-        <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-small">
-          {price ? (
-            <span>
-              From <span className="font-semibold tabular-nums">{price}</span>
-            </span>
-          ) : null}
-          {next ? (
-            <span className="inline-flex items-center gap-1 font-medium text-success">
-              <span aria-hidden="true" className="size-1.5 rounded-full bg-success" />
-              {next}
-            </span>
-          ) : null}
-        </p>
-      </div>
-    </Link>
+      </Link>
+      {favorite !== undefined ? (
+        <FavoriteButton
+          businessId={card.id}
+          businessName={card.name}
+          saved={favorite}
+          className="glass absolute top-2 right-2 text-ink"
+        />
+      ) : null}
+    </div>
   );
 }
 

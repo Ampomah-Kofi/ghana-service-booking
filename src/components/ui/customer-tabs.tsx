@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CompassIcon, TicketIcon, UserIcon } from "./icons";
+import { CompassIcon, HeartIcon, TicketIcon, UserIcon } from "./icons";
 
 /** Screens with their own bottom bar or a focused flow don't show the customer tabs. */
 const HIDDEN = ["/dashboard", "/business/", "/onboarding", "/admin", "/invite"];
 
 /**
- * The customer app's bottom tab bar on phones (docs/design.md): Explore · Bookings · Account.
- * Favourites joins in Phase 7. Desktop keeps the top header instead.
+ * The customer app's bottom tab bar on phones (docs/design.md): Explore · Bookings · Favourites · Account.
+ * Desktop keeps the top header instead.
  */
 export function CustomerTabs() {
   const pathname = usePathname();
@@ -25,6 +25,7 @@ export function CustomerTabs() {
       active: pathname === "/" || pathname.startsWith("/search") || pathname.startsWith("/categories"),
     },
     { href: "/bookings", label: "Bookings", icon: TicketIcon, active: pathname.startsWith("/bookings") },
+    { href: "/favorites", label: "Favourites", icon: HeartIcon, active: pathname.startsWith("/favorites") },
     {
       href: "/account",
       label: "Account",

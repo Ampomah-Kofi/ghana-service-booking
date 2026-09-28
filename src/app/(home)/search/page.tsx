@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { heartsFor } from "@/server/favorites/favorites";
+import { getCurrentUser } from "@/server/auth/session";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ClockIcon, SearchIcon } from "@/components/ui/icons";
 import Link from "next/link";
@@ -41,10 +43,18 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
     listCurrencies(db),
     searchSuggestions(db, serverEnv().DEFAULT_COUNTRY_CODE),
   ]);
-  const next = await nextAvailableToday(
-    db,
-    result.results.map((c) => c.id),
-  );
+  const user = await getCurrentUser();
+  const [next, favorites] = await Promise.all([
+    nextAvailableToday(
+      db,
+      result.results.map((c) => c.id),
+    ),
+    heartsFor(
+      db,
+      user?.id ?? null,
+      result.results.map((c) => c.id),
+    ),
+  ]);
   const cards = todayOnly
     ? result.results
         .filter((c) => next.has(c.id))
@@ -126,6 +136,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
           supabaseUrl={publicEnv().NEXT_PUBLIC_SUPABASE_URL}
           currencies={currencies}
           next={next}
+          favorites={favorites}
         />
       )}
 

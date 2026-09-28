@@ -46,3 +46,8 @@ export async function removeFavorite(db: Db, userId: string, businessId: string)
   const { error } = await db.from("favorites").delete().eq("user_id", userId).eq("business_id", businessId);
   if (error) throw toAppError(error);
 }
+
+/** Hearts for a page of cards: the saved set for a signed-in user, null when signed out. */
+export async function heartsFor(db: Db, userId: string | null, businessIds: string[]): Promise<Set<string> | null> {
+  return userId ? favoriteIdsAmong(db, userId, businessIds) : null;
+}

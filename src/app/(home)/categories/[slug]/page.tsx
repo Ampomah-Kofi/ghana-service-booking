@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { heartsFor } from "@/server/favorites/favorites";
+import { getCurrentUser } from "@/server/auth/session";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StoreIcon } from "@/components/ui/icons";
 import { LargeTitle } from "@/components/ui/large-title";
@@ -39,10 +41,9 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
     listCurrencies(db),
   ]);
 
-  const next = await nextAvailableToday(
-    db,
-    result.results.map((c) => c.id),
-  );
+  const user = await getCurrentUser();
+  const ids = result.results.map((c) => c.id);
+  const [next, favorites] = await Promise.all([nextAvailableToday(db, ids), heartsFor(db, user?.id ?? null, ids)]);
   const chip = (active: boolean) =>
     `inline-flex min-h-9 items-center rounded-full px-3.5 text-small whitespace-nowrap ${active ? "bg-ink text-surface" : "bg-fill text-ink"}`;
 
@@ -91,6 +92,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
           supabaseUrl={publicEnv().NEXT_PUBLIC_SUPABASE_URL}
           currencies={currencies}
           next={next}
+          favorites={favorites}
         />
       )}
     </>
