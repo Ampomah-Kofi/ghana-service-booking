@@ -12,8 +12,8 @@ export function GroupedSection({
 }) {
   return (
     <section className="mb-8">
-      {title ? <h2 className="mb-2 px-4 text-heading font-semibold text-ink">{title}</h2> : null}
-      <div className="overflow-hidden rounded-card bg-card border border-border">{children}</div>
+      {title ? <h2 className="mb-1.5 px-4 text-small font-medium text-ink-muted">{title}</h2> : null}
+      <div className="overflow-hidden ios-list rounded-card bg-card lift">{children}</div>
       {footer ? <p className="mt-2 px-4 text-small text-ink-muted">{footer}</p> : null}
     </section>
   );
@@ -21,7 +21,7 @@ export function GroupedSection({
 
 export function GroupedRow({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="flex min-h-11 items-center justify-between gap-4 border-b border-border px-4 py-3 last:border-b-0">
+    <div className="flex min-h-11 items-center justify-between gap-4 px-4 py-3">
       <span className="text-body">{label}</span>
       <span className="text-right text-body text-ink-muted">{value}</span>
     </div>

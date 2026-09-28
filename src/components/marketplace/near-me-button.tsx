@@ -34,7 +34,7 @@ export function NearMeButton({ query }: { query: string }) {
         type="button"
         onClick={locate}
         disabled={status === "locating"}
-        className="pressable inline-flex min-h-10 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 text-small font-medium text-primary disabled:opacity-60"
+        className="pressable inline-flex min-h-10 items-center gap-1.5 rounded-full bg-primary-soft px-3.5 text-small font-medium text-primary disabled:opacity-60"
       >
         <NavigationIcon className="size-4" />
         {status === "locating" ? "Finding you…" : "Near me"}

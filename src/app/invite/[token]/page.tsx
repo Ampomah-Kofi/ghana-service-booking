@@ -28,7 +28,7 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
   await requireUserOrRedirect(`/invite/${token}`);
   const invite = await getInvite(await createUserClient(), token);
 
-  const card = "rounded-card bg-card p-6 border border-border";
+  const card = "rounded-card bg-card p-6 lift";
   if (!invite) {
     return (
       <div className={card}>
@@ -49,7 +49,7 @@ export default async function InvitePage({ params, searchParams }: PageProps<"/i
     <div className="mx-auto max-w-sm pt-4">
       <div className={card}>
         <p className="text-heading font-semibold text-ink">Team invite</p>
-        <h1 className="mt-1 text-display font-bold tracking-tight">Join {invite.businessName}</h1>
+        <h1 className="mt-1 text-display font-bold">Join {invite.businessName}</h1>
         <p className="mt-2 text-body text-ink-muted">
           You&apos;ll appear as <strong className="text-ink">{invite.staffName}</strong>
           {invite.role === "manager" ? " and can manage the business." : " and see your own bookings."}

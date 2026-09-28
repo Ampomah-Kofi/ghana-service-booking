@@ -13,12 +13,12 @@ export default async function TeamPage({ params }: PageProps<"/dashboard/[busine
   return (
     <>
       <div className="mb-4 flex items-end justify-between gap-3">
-        <h1 className="text-display font-bold tracking-tight">Team</h1>
+        <h1 className="text-display font-bold">Team</h1>
         <Link href={`/dashboard/${business.id}/team/new`} className="min-h-11 content-center font-medium text-primary">
           Add member
         </Link>
       </div>
-      <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
+      <ul className="ios-list overflow-hidden rounded-card bg-card lift">
         {staff.map((s) => (
           <li key={s.id}>
             <Link

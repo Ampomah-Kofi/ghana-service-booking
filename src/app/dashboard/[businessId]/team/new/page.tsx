@@ -11,7 +11,7 @@ export default async function NewStaffPage({ params }: PageProps<"/dashboard/[bu
   const services = await listServices(db, business.id);
   return (
     <>
-      <h1 className="mb-4 text-display font-bold tracking-tight">Add team member</h1>
+      <h1 className="mb-4 text-display font-bold">Add team member</h1>
       <StaffForm
         businessId={business.id}
         services={services.map((s) => ({ id: s.id, name: s.name }))}

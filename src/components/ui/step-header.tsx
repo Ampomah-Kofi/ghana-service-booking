@@ -47,7 +47,7 @@ export function StepHeader({
           style={{ width: `${((index + 1) / SETUP_STEPS.length) * 100}%` }}
         />
       </div>
-      <h1 className="text-display font-bold tracking-tight">{title}</h1>
+      <h1 className="text-display font-bold">{title}</h1>
       <p className="mt-2 text-body text-ink-muted">{subtitle}</p>
     </div>
   );

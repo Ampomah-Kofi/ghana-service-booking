@@ -16,7 +16,7 @@ type Props = {
 export function AboutForm({ businessId, categories, values }: Props) {
   const [state, formAction] = useActionState<FormState, FormData>(saveAboutAction, {});
   return (
-    <form action={formAction} noValidate className="rounded-card bg-card p-5 border border-border">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 lift">
       <input type="hidden" name="businessId" value={businessId} />
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
       <Field
@@ -80,7 +80,7 @@ export function SlugForm({
   const [state, formAction] = useActionState<FormState, FormData>(saveSlugAction, {});
   const host = siteUrl.replace(/^https?:\/\//, "");
   return (
-    <form action={formAction} noValidate className="rounded-card bg-card p-5 border border-border">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 lift">
       <input type="hidden" name="businessId" value={businessId} />
       <FormMessage tone="notice" message={state.notice} />
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />

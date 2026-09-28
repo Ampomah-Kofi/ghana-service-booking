@@ -38,7 +38,7 @@ export function StaffForm({
   const [state, formAction] = useActionState<FormState, FormData>(saveStaffAction, {});
   const e = state.fieldErrors ?? {};
   return (
-    <form action={formAction} noValidate className="rounded-card bg-card p-5 border border-border">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 lift">
       <input type="hidden" name="businessId" value={businessId} />
       {staffId ? <input type="hidden" name="staffId" value={staffId} /> : null}
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
@@ -123,7 +123,7 @@ export function StaffHoursForm({
       <input type="hidden" name="staffId" value={staffId} />
       <FormMessage tone="notice" message={state.notice} />
       <FormMessage tone="error" message={state.message} />
-      <label className="mb-3 flex min-h-11 items-center justify-between gap-3 rounded-card bg-card px-4 text-body border border-border">
+      <label className="mb-3 flex min-h-11 items-center justify-between gap-3 rounded-card bg-card px-4 text-body lift">
         Same as the business hours
         <input
           type="checkbox"
@@ -161,7 +161,7 @@ export function InviteForm({
   if (state.link) {
     const message = `You've been added to our team on Hyia. Open this link and sign in with ${state.phone} to accept: ${state.link}`;
     return (
-      <div className="grid gap-3 rounded-card bg-card p-5 border border-border">
+      <div className="grid gap-3 rounded-card bg-card p-5 lift">
         <p className="text-body">
           Send this link to <strong>{state.phone}</strong>. It works once, only for that phone number, and expires in 7
           days.
@@ -172,7 +172,7 @@ export function InviteForm({
             href={`https://wa.me/${state.phone?.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex min-h-11 items-center justify-center rounded-control bg-primary px-3 text-body font-semibold text-on-primary"
+            className="flex min-h-11 items-center justify-center rounded-full bg-primary px-3 text-body font-semibold text-on-primary"
           >
             Send on WhatsApp
           </a>
@@ -195,7 +195,7 @@ export function InviteForm({
   }
 
   return (
-    <form action={formAction} noValidate className="rounded-card bg-card p-5 border border-border">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 lift">
       <input type="hidden" name="businessId" value={businessId} />
       <input type="hidden" name="staffId" value={staffId} />
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
@@ -236,7 +236,7 @@ export function RemoveStaffForm({ businessId, staffId, name }: { businessId: str
       <input type="hidden" name="staffId" value={staffId} />
       <FormMessage tone="error" message={state.message} />
       {confirming ? (
-        <div className="grid gap-2 rounded-card bg-card p-4 border border-border">
+        <div className="grid gap-2 rounded-card bg-card p-4 lift">
           <p className="text-body">
             Remove {name}? They&apos;ll disappear from your page and lose access. Past bookings are kept.
           </p>
@@ -253,7 +253,7 @@ export function RemoveStaffForm({ businessId, staffId, name }: { businessId: str
         <Button
           type="button"
           variant="plain"
-          className="w-full rounded-card bg-card text-danger border border-border"
+          className="w-full rounded-card bg-card text-danger lift"
           onClick={() => setConfirming(true)}
         >
           Remove from team

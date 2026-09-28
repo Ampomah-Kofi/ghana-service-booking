@@ -23,7 +23,7 @@ export default async function PhotosStepPage({ params }: PageProps<"/dashboard/[
         subtitle="Good photos are the biggest reason customers book. Both are optional."
       />
 
-      <section className="mb-8 rounded-card bg-card p-5 border border-border" aria-labelledby="logo-heading">
+      <section className="mb-8 rounded-card bg-card p-5 lift" aria-labelledby="logo-heading">
         <h2 id="logo-heading" className="mb-3 text-title font-semibold">
           Logo or profile photo
         </h2>
@@ -104,7 +104,7 @@ export default async function PhotosStepPage({ params }: PageProps<"/dashboard/[
 
       <Link
         href={`/dashboard/${business.id}/more?setup=done`}
-        className="flex min-h-11 w-full items-center justify-center rounded-control bg-primary px-4 text-body font-semibold text-on-primary hover:bg-primary-hover"
+        className="flex min-h-11 w-full items-center justify-center rounded-full bg-primary px-4 text-body font-semibold text-on-primary hover:bg-primary-hover"
       >
         Finish and preview
       </Link>

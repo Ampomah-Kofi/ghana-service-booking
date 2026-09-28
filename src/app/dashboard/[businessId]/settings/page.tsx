@@ -14,7 +14,7 @@ export default async function SettingsPage({ params }: PageProps<"/dashboard/[bu
 
   return (
     <>
-      <h1 className="mb-5 text-display font-bold tracking-tight">Settings</h1>
+      <h1 className="mb-5 text-display font-bold">Settings</h1>
       <h2 className="mb-2 px-4 text-heading font-semibold text-ink">Booking rules</h2>
       <BookingRulesForm
         businessId={business.id}
@@ -29,7 +29,7 @@ export default async function SettingsPage({ params }: PageProps<"/dashboard/[bu
         }}
       />
       <h2 className="mb-2 mt-8 px-4 text-heading font-semibold text-ink">Business profile</h2>
-      <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
+      <ul className="ios-list overflow-hidden rounded-card bg-card lift">
         {[
           ["about", "Name, category and description"],
           ["location", "Location"],

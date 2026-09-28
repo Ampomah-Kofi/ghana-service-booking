@@ -11,11 +11,11 @@ export default async function AdminCategoriesPage() {
 
   return (
     <>
-      <h1 className="mb-2 text-display font-bold tracking-tight">Categories</h1>
+      <h1 className="mb-2 text-display font-bold">Categories</h1>
       <p className="mb-6 text-body text-ink-muted">
         Changes show on the site straight away. Every change is recorded in the audit log.
       </p>
-      <ul className="mb-8 divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
+      <ul className="mb-8 ios-list overflow-hidden rounded-card bg-card lift">
         {categories.map((c) => (
           <li key={c.id}>
             <details>
@@ -46,7 +46,7 @@ export default async function AdminCategoriesPage() {
         ))}
       </ul>
       <h2 className="mb-2 px-4 text-heading font-semibold text-ink">New category</h2>
-      <div className="rounded-card bg-card border border-border">
+      <div className="rounded-card bg-card lift">
         <CategoryForm
           values={{ name: "", slug: "", description: "", keywords: "", sortOrder: next, isActive: false }}
         />

@@ -15,7 +15,7 @@ export default async function DashboardIndexPage() {
 
   return (
     <>
-      <h1 className="mb-6 text-display font-bold tracking-tight">Your businesses</h1>
+      <h1 className="mb-6 text-display font-bold">Your businesses</h1>
       <GroupedSection>
         {managed.map((m) => (
           <Link

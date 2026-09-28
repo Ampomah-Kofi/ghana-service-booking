@@ -105,7 +105,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
   return (
     <article>
       <header className="mb-5">
-        <div className="bleed-top relative -mx-4 aspect-4/3 overflow-hidden bg-fill sm:mx-0 sm:rounded-card md:mt-0 md:aspect-video">
+        <div className="bleed-top relative -mx-5 aspect-4/3 overflow-hidden bg-fill sm:mx-0 sm:rounded-card md:mt-0 md:aspect-video">
           <Cover
             imageUrl={cover ? media(cover.pathLarge) : null}
             categorySlug={business.category?.slug ?? null}
@@ -140,37 +140,47 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
             </a>
           ) : null}
         </div>
-        <div className="relative -mx-4 -mt-6 rounded-t-card bg-surface px-4 pt-5 sm:mx-0 sm:mt-0 sm:px-0">
-          <div className="flex items-start gap-3">
+        <div className="relative -mx-5 -mt-6 rounded-t-card bg-surface px-5 pt-5 sm:mx-0 sm:mt-0 sm:px-0">
+          <div className="flex items-center gap-3.5">
             {business.logoPath ? (
               // eslint-disable-next-line @next/next/no-img-element -- pre-sized 400px logo
               <img
                 src={media(business.logoPath)}
                 alt=""
-                width={56}
-                height={56}
-                className="size-14 shrink-0 rounded-full border border-border object-cover"
+                width={64}
+                height={64}
+                className="size-16 shrink-0 rounded-card object-cover lift"
               />
             ) : null}
-            <div className="min-w-0">
-              <h1 className="text-display font-bold tracking-tight">{business.name}</h1>
-              <p className="text-body text-ink-muted">{[business.category?.name, place].filter(Boolean).join(" · ")}</p>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-title font-bold">{business.name}</h1>
+              <p className="truncate text-small text-ink-muted">
+                {[business.category?.name, place].filter(Boolean).join(" · ")}
+              </p>
             </div>
-          </div>
-          <div className="mt-2.5 flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-primary-soft px-2.5 py-1 text-caption font-semibold text-primary">
-              New
-            </span>
-            {status ? (
-              <span className="inline-flex items-center gap-1.5 text-small">
-                <span
-                  aria-hidden="true"
-                  className={`size-2 rounded-full ${status.open ? "bg-success" : "bg-ink-muted"}`}
-                />
-                <span className={status.open ? "font-medium text-success" : "text-ink-muted"}>{status.label}</span>
-              </span>
+            {canBook ? (
+              <Link
+                href={bookHref()}
+                className="pressable shrink-0 rounded-full bg-primary px-5 py-1.5 text-small font-bold text-on-primary hover:bg-primary-hover"
+              >
+                Book
+              </Link>
             ) : null}
           </div>
+          {/* App-store style facts strip: rating, opening, services. Labels always spelled out. */}
+          <dl className="mt-4 grid grid-cols-3 divide-x divide-border border-y border-border py-3 text-center">
+            <Stat label="Reviews" value="New" />
+            {status ? (
+              <Stat
+                label={status.label.split(" · ")[1] ?? ""}
+                value={status.label.split(" · ")[0]}
+                tone={status.open ? "text-success" : undefined}
+              />
+            ) : (
+              <Stat label="Hours" value="—" />
+            )}
+            <Stat label={services.length === 1 ? "Service" : "Services"} value={String(services.length)} />
+          </dl>
         </div>
       </header>
 
@@ -192,7 +202,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
               {...(a.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               className="pressable flex flex-col items-center gap-1.5 text-caption font-medium"
             >
-              <span className="flex size-12 items-center justify-center rounded-full border border-border bg-card">
+              <span className="flex size-12 items-center justify-center rounded-full bg-fill text-primary">
                 {a.icon}
               </span>
               {a.label}
@@ -206,11 +216,11 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
           Services
         </h2>
         {services.length === 0 ? (
-          <p className="rounded-card bg-card p-4 text-body text-ink-muted border border-border">
+          <p className="rounded-card bg-card p-4 text-body text-ink-muted lift">
             Services coming soon.
           </p>
         ) : (
-          <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
+          <ul className="ios-list overflow-hidden rounded-card bg-card lift">
             {services.map((s) => (
               <li key={s.id}>
                 <ServiceRow
@@ -256,7 +266,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
               <li key={member.id} className="flex w-20 shrink-0 flex-col items-center text-center">
                 <span
                   aria-hidden="true"
-                  className="mb-1 flex size-14 items-center justify-center rounded-full bg-card text-title font-semibold text-ink-muted border border-border"
+                  className="mb-1 flex size-14 items-center justify-center rounded-full bg-fill text-title font-semibold text-ink-muted"
                 >
                   {member.displayName.charAt(0).toUpperCase()}
                 </span>
@@ -280,7 +290,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
       ) : null}
 
       {loc ? (
-        <section className="mb-6 rounded-card bg-card p-4 border border-border" aria-labelledby="where-heading">
+        <section className="mb-6 rounded-card bg-card p-4 lift" aria-labelledby="where-heading">
           <h2 id="where-heading" className="mb-2 text-title font-semibold">
             Where to find us
           </h2>
@@ -308,7 +318,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
           <h2 id="hours-heading" className="mb-2 text-title font-semibold">
             Opening hours
           </h2>
-          <dl className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
+          <dl className="ios-list overflow-hidden rounded-card bg-card lift">
             {week.map((day) => (
               <div key={day.day} className="flex justify-between gap-4 px-4 py-2.5 text-body">
                 <dt>{day.label}</dt>
@@ -373,5 +383,14 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
         </div>
       ) : null}
     </article>
+  );
+}
+
+function Stat({ label, value, tone }: { label: string; value: string; tone?: string }) {
+  return (
+    <div className="flex min-w-0 flex-col-reverse px-1">
+      <dt className="truncate text-caption text-ink-muted">{label}</dt>
+      <dd className={`text-heading font-bold ${tone ?? ""}`}>{value}</dd>
+    </div>
   );
 }

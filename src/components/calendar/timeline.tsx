@@ -58,7 +58,7 @@ export function Timeline({
   for (let m = window.from; m < window.to; m += 30) halfHours.push(m);
 
   return (
-    <div className="-mx-4 overflow-x-auto border-y border-border bg-card md:mx-0 md:rounded-card md:border">
+    <div className="-mx-5 overflow-x-auto border-y border-border bg-card md:mx-0 md:rounded-card md:border">
       <div
         className="grid min-w-full"
         style={{ gridTemplateColumns: `3.25rem repeat(${columns.length}, minmax(${minColumnWidth}, 1fr))` }}

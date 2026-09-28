@@ -24,7 +24,7 @@ export function BookingDetailsForm({
   const [state, formAction] = useActionState<FormState, FormData>(bookAction.bind(null, slug), {});
   return (
     <form action={formAction} noValidate>
-      <div className="rounded-card border border-border bg-card p-5">
+      <div className="rounded-card bg-card p-5 lift">
         {Object.entries(hidden).map(([name, value]) => (
           <input key={name} type="hidden" name={name} value={value} />
         ))}

@@ -18,10 +18,10 @@
 
 | Token | Light | Dark | Use / boundary |
 |---|---|---|---|
-| `surface` | `#FAF8F4` | `#121512` | The only page background |
-| `card` | `#FFFFFF` | `#1C201D` | Cards, sheets, inputs; always on `surface`, never on another card |
+| `surface` | `#F3F1EC` | `#0B0D0B` | The only page background |
+| `card` | `#FFFFFF` | `#1B1F1C` | Cards, sheets, inputs; always on `surface`, never on another card |
 | `ink` / `ink-muted` | `#14201B` / `#5B6660` | `#EEF0EC` / `#A6AEA8` | Text; muted text ≥ 14 px, never for prices or actions |
-| `border` | `#E3DED5` | `#2E3430` | 1 px dividers and outlines |
+| `border` | `#E4E0D8` | `#2E3430` | Inset list separators, input outlines, calendar grid (not cards) |
 | `fill` | ink at 6 % | ink at 8 % | Skeletons, quiet chips, pressed rows |
 | `primary` / `primary-hover` | `#0F6B4F` / `#0B5540` | `#4CC596` / `#3DB386` | One filled primary button per screen, links, selected time |
 | `primary-soft` | `#E4F2EC` | green at 16 % | Selected-but-secondary (chosen staff, active chip). Never text |
@@ -29,11 +29,11 @@
 | `star` | `#E0A526` | same | Stars only, next to the number |
 | `whatsapp` | `#1F7A45` | `#4CC07A` | The WhatsApp button only |
 
-- **Type:** system font stack, zero downloads. `display` 28/34 bold (large titles, provider name), `title` 20/28, `heading` 17/24, `body` 16/24, `small` 14/20, `caption` 12/16 (badges only).
-- **Radii:** `chip` 6 px, `control` 10 px, `card` 16 px. Pills and avatars are full-round.
-- **Spacing:** 4 px grid; gutters 16 px mobile, 24 px `md+`.
-- **Depth:** flat cards with borders. `shadow-sheet` for sheets and sticky bars, `shadow-pop` for menus and the floating "+". No blur, no gradients.
-- **Controls:** buttons and inputs 48 px tall; every tap target ≥ 44 px.
+- **Type:** system font stack, zero downloads. `display` 34/40 bold (large titles), `title` 22/28, `heading` 17/22, `body` 17/24, `small` 15/20, `caption` 12/16. Display, title and heading carry their own negative tracking (ADR-0011); don't add `tracking-*` per screen.
+- **Radii:** `chip` 6 px, `control` 10 px, `card` 20 px. Buttons, chips, search and avatars are full-round capsules.
+- **Spacing:** 4 px grid; gutters 20 px on phones.
+- **Depth (ADR-0011):** cards have **no outline**; `.lift` (a very soft shadow, a hairline rim in dark mode) separates them from `surface`. Lists use `.ios-list` (separators inset 16 px). `shadow-sheet` for sheets and sticky bars, `shadow-pop` for menus and the floating "+". Blur only on the navigation layer (ADR-0010).
+- **Controls:** buttons and inputs 48 px tall; every tap target ≥ 44 px. Primary: filled green capsule. Secondary: grey `fill` capsule. Destructive: red-tinted capsule. No outlined buttons.
 - **Motion:** 200–300 ms ease-out; sheets slide up; `prefers-reduced-motion` turns it off.
 
 ## 3. Patterns
@@ -105,6 +105,11 @@ Always a text label, never colour alone.
 - **Explore:** greeting, search pill, example chips, category picture tiles, then swipeable rows ("New on …", one row per category with providers), towns, and a card for professionals.
 - **Business page:** full-bleed cover with round Back and Share, an info sheet overlapping it (name, category · area, "New", "Open · closes 8:00 pm"), a round action row (Call · WhatsApp · Directions · Share), and a sticky Book bar.
 - **Motion:** screens ease in (`src/app/template.tsx`), pressable cards and buttons dip on tap, times slide up, and booking success has a drawn tick. All of it is off with reduced motion.
+
+**iOS refinement (ADR-0011)**
+- Explore opens with a date eyebrow, a large "Explore" title and an account circle; search is a grey capsule field submitted by the keyboard.
+- The business page header is an App Store-style row (logo, name, capsule **Book**) above a facts strip: reviews · open status · number of services.
+- Times are grey capsules; the chosen time turns green.
 
 **Glass (ADR-0010)**
 - `.glass` / `.glass-strong` (see `globals.css`) are only for the navigation and control layer: the floating capsule tab bars, the desktop header, round buttons and chips over covers, the booking summary bar and the "+" menu. The selected tab is a brighter `glass-lens`.

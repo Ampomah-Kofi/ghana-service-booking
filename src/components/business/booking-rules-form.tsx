@@ -28,7 +28,7 @@ export function BookingRulesForm({ businessId, values }: { businessId: string; v
   const [state, formAction] = useActionState<FormState, FormData>(saveBookingRulesAction, {});
   const e = state.fieldErrors ?? {};
   return (
-    <form action={formAction} noValidate className="rounded-card bg-card p-5 border border-border">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 lift">
       <input type="hidden" name="businessId" value={businessId} />
       <FormMessage tone="notice" message={state.notice} />
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />

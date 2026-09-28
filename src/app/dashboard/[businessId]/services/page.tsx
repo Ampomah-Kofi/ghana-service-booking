@@ -18,7 +18,7 @@ export default async function ServicesPage({ params }: PageProps<"/dashboard/[bu
   return (
     <>
       <div className="mb-4 flex items-end justify-between gap-3">
-        <h1 className="text-display font-bold tracking-tight">Services</h1>
+        <h1 className="text-display font-bold">Services</h1>
         <Link
           href={`/dashboard/${business.id}/services/new`}
           className="min-h-11 content-center font-medium text-primary"

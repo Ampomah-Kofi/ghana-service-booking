@@ -45,12 +45,12 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
 
   return (
     <>
-      <h1 className="text-display font-bold tracking-tight">{category.name}</h1>
+      <h1 className="text-display font-bold">{category.name}</h1>
       <p className="mb-4 mt-1 text-small text-ink-muted">
         {result.total === 1 ? "1 professional" : `${result.total} professionals`}
         {result.interpretation.place ? ` in ${result.interpretation.place}` : ""}
       </p>
-      <nav aria-label="Filter by town" className="-mx-4 mb-5 overflow-x-auto px-4 [scrollbar-width:none]">
+      <nav aria-label="Filter by town" className="-mx-5 mb-5 overflow-x-auto px-5 [scrollbar-width:none]">
         <ul className="flex w-max gap-2">
           <li>
             <Link href={`/categories/${slug}`} className={chip(!where)} aria-current={!where ? "page" : undefined}>
@@ -76,7 +76,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
         </p>
       ) : null}
       {result.results.length === 0 ? (
-        <div className="rounded-card bg-card p-6 text-center border border-border">
+        <div className="rounded-card bg-card p-6 text-center lift">
           <p className="text-title font-semibold">No {category.name.toLowerCase()} yet</p>
           <p className="mt-2 text-body text-ink-muted">New professionals join every week.</p>
           <Link href="/onboarding" className="mt-3 inline-flex min-h-11 items-center font-medium text-primary">

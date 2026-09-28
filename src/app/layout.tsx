@@ -34,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* Website header from tablet width; on phones each screen has its own large title and the app tab bar. */}
         <header className="glass sticky top-0 z-10 hidden md:block">
           <nav className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4" aria-label="Main">
-            <Link href="/" className="text-title font-bold tracking-tight">
+            <Link href="/" className="text-title font-bold">
               {BRAND.name}
             </Link>
             <div className="flex items-center gap-6">
@@ -56,7 +56,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </div>
           </nav>
         </header>
-        <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-safe pb-10 md:pt-8">{children}</main>
+        <main className="mx-auto w-full max-w-2xl flex-1 px-5 pt-safe pb-10 md:pt-8">{children}</main>
         <CustomerTabs />
       </body>
     </html>

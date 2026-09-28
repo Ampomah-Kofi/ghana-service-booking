@@ -51,14 +51,14 @@ export default async function AppointmentPage({
       </Link>
       {sp.moved === "1" ? <FormMessage tone="notice" message="Appointment moved." /> : null}
 
-      <article className="overflow-hidden rounded-card border border-border bg-card">
+      <article className="overflow-hidden rounded-card bg-card lift">
         <div aria-hidden="true" className={`h-1.5 ${STATUS[a.status].bar}`} />
         <div className="p-5">
           <div className="mb-3 flex flex-wrap gap-1.5">
             <StatusBadge status={a.status} />
             <SourceBadge source={a.source} />
           </div>
-          <h1 className="text-display font-bold tracking-tight">{a.customerName}</h1>
+          <h1 className="text-display font-bold">{a.customerName}</h1>
           <p
             className={`text-body tabular-nums ${a.status === "cancelled" ? "text-ink-muted line-through" : "text-ink-muted"}`}
           >
@@ -69,7 +69,7 @@ export default async function AppointmentPage({
             <div className="mt-4 grid grid-cols-2 gap-2">
               <a
                 href={telUrl(a.customerPhone)}
-                className="flex min-h-12 items-center justify-center gap-2 rounded-control border border-border font-semibold hover:bg-fill"
+                className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-fill font-semibold hover:bg-ink/10"
               >
                 <PhoneIcon /> Call
               </a>
@@ -77,7 +77,7 @@ export default async function AppointmentPage({
                 href={whatsappChatUrl(a.customerPhone)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex min-h-12 items-center justify-center gap-2 rounded-control border border-border font-semibold text-whatsapp hover:bg-fill"
+                className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-fill font-semibold text-whatsapp hover:bg-ink/10"
               >
                 <ChatIcon /> WhatsApp
               </a>
@@ -85,7 +85,7 @@ export default async function AppointmentPage({
           ) : null}
         </div>
 
-        <dl className="divide-y divide-border border-t border-border">
+        <dl className="ios-list border-t border-border">
           <Row label="Service">
             {a.serviceName} · {formatDuration(minutes)}
           </Row>
@@ -125,7 +125,7 @@ export default async function AppointmentPage({
         {canManage && live ? (
           <Link
             href={`${base}/appointments/${a.id}/move`}
-            className="flex min-h-12 items-center justify-center rounded-control border border-border bg-card font-semibold hover:bg-fill"
+            className="flex min-h-12 items-center justify-center rounded-full bg-fill font-semibold hover:bg-ink/10"
           >
             Move or reassign
           </Link>

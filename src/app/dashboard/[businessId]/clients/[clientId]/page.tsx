@@ -31,7 +31,7 @@ export default async function ClientPage({ params }: PageProps<"/dashboard/[busi
       >
         <ChevronLeftIcon /> Clients
       </Link>
-      <h1 className="text-display font-bold tracking-tight">{client.name}</h1>
+      <h1 className="text-display font-bold">{client.name}</h1>
       <p className="mb-4 text-body text-ink-muted">
         {client.phone ? formatPhoneInternational(client.phone) : "No phone number"}
         {client.hasAccount ? " · Has an account" : ""}
@@ -41,7 +41,7 @@ export default async function ClientPage({ params }: PageProps<"/dashboard/[busi
         <div className="mb-5 grid grid-cols-2 gap-2">
           <a
             href={telUrl(client.phone)}
-            className="flex min-h-12 items-center justify-center gap-2 rounded-control border border-border bg-card font-semibold hover:bg-fill"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-fill font-semibold hover:bg-ink/10"
           >
             <PhoneIcon /> Call
           </a>
@@ -49,7 +49,7 @@ export default async function ClientPage({ params }: PageProps<"/dashboard/[busi
             href={whatsappChatUrl(client.phone)}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex min-h-12 items-center justify-center gap-2 rounded-control border border-border bg-card font-semibold text-whatsapp hover:bg-fill"
+            className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-fill font-semibold text-whatsapp hover:bg-ink/10"
           >
             <ChatIcon /> WhatsApp
           </a>
@@ -62,7 +62,7 @@ export default async function ClientPage({ params }: PageProps<"/dashboard/[busi
           ["Spent", money],
           ["No-shows", String(client.noShows)],
         ].map(([label, value]) => (
-          <div key={label} className="rounded-card border border-border bg-card p-3">
+          <div key={label} className="rounded-card bg-card p-3 lift">
             <dt className="text-caption text-ink-muted">{label}</dt>
             <dd className="truncate text-heading font-semibold tabular-nums">{value}</dd>
           </div>
@@ -74,9 +74,9 @@ export default async function ClientPage({ params }: PageProps<"/dashboard/[busi
           Appointments
         </h2>
         {appointments.length === 0 ? (
-          <p className="rounded-card border border-border bg-card p-4 text-body text-ink-muted">No appointments yet.</p>
+          <p className="rounded-card bg-card p-4 text-body text-ink-muted lift">No appointments yet.</p>
         ) : (
-          <ul className="divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
+          <ul className="ios-list overflow-hidden rounded-card bg-card lift">
             {appointments.map((a) => (
               <AppointmentListRow
                 key={a.id}

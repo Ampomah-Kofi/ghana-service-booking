@@ -38,7 +38,7 @@ export default async function MoveAppointmentPage({
       >
         <ChevronLeftIcon /> Appointment
       </Link>
-      <h1 className="mb-1 text-display font-bold tracking-tight">Move appointment</h1>
+      <h1 className="mb-1 text-display font-bold">Move appointment</h1>
       <p className="mb-5 text-body text-ink-muted">
         {a.customerName} · {a.serviceName} · now {formatDateShort(a.startsAt, tz)} at {formatTime(a.startsAt, tz)}
       </p>

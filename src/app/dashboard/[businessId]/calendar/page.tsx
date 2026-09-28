@@ -126,7 +126,7 @@ export default async function CalendarPage({ params, searchParams }: PageProps<"
 
       <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="truncate text-display font-bold tracking-tight">{title}</h1>
+          <h1 className="truncate text-display font-bold">{title}</h1>
           {view === "day" ? (
             <p className="text-small text-ink-muted">
               {dayCount === 0 ? "Nothing booked" : `${dayCount} appointment${dayCount === 1 ? "" : "s"}`}
@@ -148,21 +148,21 @@ export default async function CalendarPage({ params, searchParams }: PageProps<"
         <Link
           href={href({ date: prev })}
           aria-label={`Previous ${view}`}
-          className="flex size-11 items-center justify-center rounded-control border border-border bg-card hover:bg-fill"
+          className="flex size-11 items-center justify-center rounded-full bg-fill hover:bg-ink/10"
         >
           <ChevronLeftIcon />
         </Link>
         <Link
           href={href({ date: today })}
           aria-current={date === today ? "date" : undefined}
-          className="flex min-h-11 items-center rounded-control border border-border bg-card px-4 text-small font-semibold hover:bg-fill"
+          className="flex min-h-11 items-center rounded-full bg-fill px-4 text-small font-semibold hover:bg-ink/10"
         >
           Today
         </Link>
         <Link
           href={href({ date: next })}
           aria-label={`Next ${view}`}
-          className="flex size-11 items-center justify-center rounded-control border border-border bg-card hover:bg-fill"
+          className="flex size-11 items-center justify-center rounded-full bg-fill hover:bg-ink/10"
         >
           <ChevronRightIcon />
         </Link>
@@ -197,7 +197,7 @@ export default async function CalendarPage({ params, searchParams }: PageProps<"
       ) : null}
 
       {canManage && team.length > 1 ? (
-        <nav aria-label="Team member" className="-mx-4 mb-4 overflow-x-auto px-4 [scrollbar-width:none]">
+        <nav aria-label="Team member" className="-mx-5 mb-4 overflow-x-auto px-5 [scrollbar-width:none]">
           <ul className="flex w-max gap-2">
             {[{ id: null, displayName: "Everyone" }, ...team].map((s) => {
               const active = staffFilter === s.id;
@@ -224,7 +224,7 @@ export default async function CalendarPage({ params, searchParams }: PageProps<"
       {view === "month" ? (
         <MonthGrid date={date} today={today} byDate={byDate} dayHref={(d) => href({ view: "day", date: d })} />
       ) : columns.length === 0 ? (
-        <p className="rounded-card border border-border bg-card p-5 text-body text-ink-muted">
+        <p className="rounded-card bg-card p-5 text-body text-ink-muted lift">
           No one takes appointments yet.{" "}
           {canManage ? (
             <Link href={`${base}/team`} className="font-medium text-primary">
@@ -308,7 +308,7 @@ function WeekAgenda({
               {c.working.length === 0 ? "Closed" : "Nothing booked"}
             </p>
           ) : (
-            <ul className="divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
+            <ul className="ios-list overflow-hidden rounded-card bg-card lift">
               {c.appointments.map((a) => (
                 <AppointmentListRow
                   key={a.id}

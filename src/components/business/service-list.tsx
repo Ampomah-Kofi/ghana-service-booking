@@ -15,13 +15,13 @@ type Props = {
 export function ServiceList({ businessId, services, currency, staffNames, editQuery = "" }: Props) {
   if (services.length === 0) {
     return (
-      <p className="rounded-card bg-card p-4 text-body text-ink-muted border border-border">
+      <p className="rounded-card bg-card p-4 text-body text-ink-muted lift">
         No services yet. Add what you offer, with prices and how long each takes.
       </p>
     );
   }
   return (
-    <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
+    <ul className="ios-list overflow-hidden rounded-card bg-card lift">
       {services.map((s, i) => (
         <li key={s.id} className="flex items-center gap-2 pr-2">
           <Link

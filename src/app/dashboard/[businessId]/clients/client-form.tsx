@@ -16,7 +16,7 @@ export function ClientForm({
 }) {
   const [state, formAction] = useActionState<FormState, FormData>(saveClientAction.bind(null, businessId), {});
   return (
-    <form action={formAction} noValidate className="rounded-card border border-border bg-card p-5">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 lift">
       <input type="hidden" name="clientId" value={client?.id ?? ""} />
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
       <FormMessage tone="notice" message={state.notice} />

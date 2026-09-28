@@ -90,7 +90,7 @@ export default async function MorePage({ params }: PageProps<"/dashboard/[busine
 
   return (
     <>
-      <h1 className="mb-1 text-display font-bold tracking-tight">More</h1>
+      <h1 className="mb-1 text-display font-bold">More</h1>
       <p className="mb-6 text-body text-ink-muted">
         {published
           ? "Your page is live. Customers can book you online."

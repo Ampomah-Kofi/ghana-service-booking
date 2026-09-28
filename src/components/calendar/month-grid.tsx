@@ -19,7 +19,7 @@ export function MonthGrid({
 }) {
   const cells = monthGrid(date);
   return (
-    <div className="overflow-hidden rounded-card border border-border bg-card">
+    <div className="overflow-hidden rounded-card bg-card lift">
       <div className="grid grid-cols-7 border-b border-border">
         {WEEKDAYS.map((d) => (
           <p key={d} className="py-2 text-center text-caption text-ink-muted">

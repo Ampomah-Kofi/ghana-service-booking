@@ -65,7 +65,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
         <SearchForm defaultQuery={[q, where && !q.includes(" in ") ? `in ${where}` : ""].filter(Boolean).join(" ")} />
       </div>
 
-      <h1 className="text-display font-bold tracking-tight">{heading}</h1>
+      <h1 className="text-display font-bold">{heading}</h1>
       <p className="mb-3 text-small text-ink-muted" aria-live="polite">
         {todayOnly ? `${cards.length} available today` : result.total === 1 ? "1 result" : `${result.total} results`}
       </p>
@@ -88,7 +88,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
       </nav>
 
       {result.needsLocation ? (
-        <div className="mb-4 rounded-card bg-card p-4 border border-border">
+        <div className="mb-4 rounded-card bg-card p-4 lift">
           <p className="text-body">Allow location to see who&apos;s closest to you.</p>
           <NearMeButton query={q} />
         </div>
@@ -100,7 +100,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
       ) : null}
 
       {todayOnly && cards.length === 0 && result.results.length > 0 ? (
-        <div className="rounded-card border border-border bg-card p-6 text-center">
+        <div className="rounded-card bg-card p-6 text-center lift">
           <p className="text-title font-semibold">Nothing free today</p>
           <p className="mt-2 text-body text-ink-muted">
             These places are fully booked or closed for the rest of today.
@@ -110,7 +110,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
           </Link>
         </div>
       ) : result.results.length === 0 ? (
-        <div className="rounded-card bg-card p-6 text-center border border-border">
+        <div className="rounded-card bg-card p-6 text-center lift">
           <p className="text-title font-semibold">No matches yet</p>
           <p className="mt-2 text-body text-ink-muted">
             Try a category like “barber” or “nails”, or a bigger town like Accra or Kumasi.

@@ -27,7 +27,7 @@ export default async function TimeOffPage({ params }: PageProps<"/dashboard/[bus
 
   return (
     <>
-      <h1 className="text-display font-bold tracking-tight">Time off</h1>
+      <h1 className="text-display font-bold">Time off</h1>
       <p className="mb-5 mt-2 text-body text-ink-muted">
         Holidays, days off and breaks. Customers can&apos;t book these times.
       </p>
@@ -37,9 +37,9 @@ export default async function TimeOffPage({ params }: PageProps<"/dashboard/[bus
           Upcoming
         </h2>
         {blocks.length === 0 ? (
-          <p className="rounded-card bg-card p-4 text-body text-ink-muted border border-border">No time off planned.</p>
+          <p className="rounded-card bg-card p-4 text-body text-ink-muted lift">No time off planned.</p>
         ) : (
-          <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
+          <ul className="ios-list overflow-hidden rounded-card bg-card lift">
             {blocks.map((b) => (
               <li key={b.id} className="flex items-center gap-3 px-4 py-3">
                 <div className="min-w-0 flex-1">

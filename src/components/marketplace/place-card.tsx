@@ -8,7 +8,7 @@ import { Cover } from "./cover";
 /** A place you've been: tap the card for the business, or "Book again" for the same service and person. */
 export function PlaceCard({ place, supabaseUrl }: { place: Place; supabaseUrl: string }) {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-card border border-border bg-card">
+    <div className="flex h-full flex-col overflow-hidden rounded-card bg-card lift">
       <Link href={`/business/${place.slug}`} className="pressable flex items-center gap-3 p-3">
         <span className="size-14 shrink-0 overflow-hidden rounded-control">
           <Cover
@@ -28,7 +28,7 @@ export function PlaceCard({ place, supabaseUrl }: { place: Place; supabaseUrl: s
       </Link>
       <Link
         href={rebookHref(place.slug, place.lastServiceId, place.lastStaffId)}
-        className="pressable mx-3 mb-3 flex min-h-11 items-center justify-center rounded-control bg-primary-soft text-small font-semibold text-primary hover:bg-primary hover:text-on-primary"
+        className="pressable mx-3 mb-3 flex min-h-11 items-center justify-center rounded-full bg-primary-soft text-small font-semibold text-primary hover:bg-primary hover:text-on-primary"
       >
         Book again
       </Link>

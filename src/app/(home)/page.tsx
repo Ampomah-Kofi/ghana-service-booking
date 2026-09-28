@@ -7,7 +7,9 @@ import { ChevronRightIcon, StoreIcon } from "@/components/ui/icons";
 import { BRAND } from "@/lib/brand";
 import { publicEnv } from "@/lib/public-env";
 import { listActiveCategories } from "@/server/catalog/categories";
-import { listCities, listCurrencies } from "@/server/catalog/currencies";
+import { countryTimezone, listCities, listCurrencies } from "@/server/catalog/currencies";
+import { formatDayLong } from "@/lib/datetime";
+import { UserIcon } from "@/components/ui/icons";
 import { createUserClient } from "@/server/db/supabase-server";
 import { serverEnv } from "@/server/env";
 import { getCurrentUser } from "@/server/auth/session";
@@ -22,12 +24,14 @@ const EXAMPLES = ["Barber in East Legon", "Braids in Kumasi", "Nails near me", "
 export default async function HomePage() {
   const db = await createUserClient();
   const user = await getCurrentUser();
-  const [categories, cities, recent, currencies, places] = await Promise.all([
+  const country = serverEnv().DEFAULT_COUNTRY_CODE;
+  const [categories, cities, recent, currencies, places, timezone] = await Promise.all([
     listActiveCategories(db),
-    listCities(db, serverEnv().DEFAULT_COUNTRY_CODE),
+    listCities(db, country),
     recentlyJoined(db, 40),
     listCurrencies(db),
     user ? listMyPlaces(db, user.id) : Promise.resolve([]),
+    countryTimezone(db, country),
   ]);
   // Live "next free time today" for everything shown, in one batch (same engine as booking).
   const next = await nextAvailableToday(
@@ -48,7 +52,7 @@ export default async function HomePage() {
   const categoryRows = categories.filter((c) => byCategory.has(c.slug)).slice(0, 4);
 
   const row = (cards: Card[], eagerFirst = false) => (
-    <ul className="rail -mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
+    <ul className="rail -mx-5 flex gap-3 overflow-x-auto px-5 pb-1">
       {cards.map((card, i) => (
         <li key={card.id} className="w-3/4 max-w-72 shrink-0">
           <BusinessCard
@@ -68,16 +72,27 @@ export default async function HomePage() {
     <div className="relative isolate">
       <div
         aria-hidden="true"
-        className="aurora bleed-top pointer-events-none absolute -right-4 -left-4 -z-10 h-80 md:mt-0"
+        className="aurora bleed-top pointer-events-none absolute -right-5 -left-5 -z-10 h-80 md:mt-0"
       />
-      <header className="mb-5 pt-2">
-        <p className="text-small font-medium text-primary">Akwaaba</p>
-        <h1 className="text-display font-bold tracking-tight">What would you like to book?</h1>
+      <header className="mb-4 flex items-end justify-between gap-3 pt-3">
+        <div className="min-w-0">
+          <p className="text-caption font-semibold tracking-wide text-ink-muted uppercase">
+            {formatDayLong(new Date(), timezone)}
+          </p>
+          <h1 className="text-display font-bold">Explore</h1>
+        </div>
+        <Link
+          href={user ? "/account" : "/sign-in"}
+          aria-label={user ? "Your account" : "Sign in"}
+          className="pressable mb-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary"
+        >
+          <UserIcon className="size-5" />
+        </Link>
       </header>
 
       <section className="mb-7" aria-label="Search">
         <SearchForm />
-        <ul className="rail -mx-4 mt-1 flex gap-2 overflow-x-auto px-4">
+        <ul className="rail -mx-5 mt-1 flex gap-2 overflow-x-auto px-5">
           {EXAMPLES.map((example) => (
             <li key={example} className="shrink-0">
               <Link
@@ -93,7 +108,7 @@ export default async function HomePage() {
 
       {places.length > 0 ? (
         <Section title="Your places" id="places">
-          <ul className="rail -mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
+          <ul className="rail -mx-5 flex gap-3 overflow-x-auto px-5 pb-1">
             {places.map((place) => (
               <li key={place.businessId} className="w-3/4 max-w-72 shrink-0">
                 <PlaceCard place={place} supabaseUrl={supabaseUrl} />
@@ -105,11 +120,11 @@ export default async function HomePage() {
 
       <Section title="Categories" id="categories">
         {categories.length === 0 ? (
-          <p className="rounded-card border border-border bg-card p-4 text-body text-ink-muted">
+          <p className="rounded-card bg-card p-4 text-body text-ink-muted lift">
             No categories yet. Check back soon.
           </p>
         ) : (
-          <ul className="rail -mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
+          <ul className="rail -mx-5 flex gap-3 overflow-x-auto px-5 pb-1">
             {categories.map((category) => (
               <li key={category.id} className="w-20 shrink-0">
                 <Link href={`/categories/${category.slug}`} className="pressable block text-center">
@@ -135,7 +150,7 @@ export default async function HomePage() {
           {row(recent.slice(0, 8), availableToday.length === 0)}
         </Section>
       ) : (
-        <p className="mb-8 rounded-card border border-border bg-card p-5 text-body text-ink-muted">
+        <p className="mb-8 rounded-card bg-card p-5 text-body text-ink-muted lift">
           No businesses yet. Be the first to{" "}
           <Link href="/onboarding" className="font-medium text-primary">
             list yours
@@ -156,7 +171,7 @@ export default async function HomePage() {
             <li key={city.slug}>
               <Link
                 href={`/search?where=${encodeURIComponent(city.name)}`}
-                className="pressable inline-flex min-h-10 items-center rounded-full border border-border bg-card px-4 text-small"
+                className="pressable inline-flex min-h-10 items-center rounded-full bg-fill px-4 text-small font-medium"
               >
                 {city.name}
               </Link>
@@ -186,11 +201,11 @@ function Section({ title, id, href, children }: { title: string; id: string; hre
   return (
     <section aria-labelledby={`${id}-heading`} className="mb-8">
       <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h2 id={`${id}-heading`} className="text-title font-bold tracking-tight">
+        <h2 id={`${id}-heading`} className="text-title font-bold">
           {title}
         </h2>
         {href ? (
-          <Link href={href} className="text-small font-semibold text-primary">
+          <Link href={href} className="text-body text-primary">
             See all
           </Link>
         ) : null}

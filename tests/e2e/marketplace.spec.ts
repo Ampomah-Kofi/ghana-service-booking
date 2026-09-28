@@ -6,7 +6,7 @@ test("search from the home page and open a provider", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "New on Hyia" })).toBeVisible();
 
   await page.getByRole("searchbox", { name: /Search for a service/ }).fill("Barber in East Legon");
-  await page.getByRole("button", { name: "Search", exact: true }).click();
+  await page.getByRole("searchbox", { name: /Search for a service/ }).press("Enter");
 
   await expect(page).toHaveURL(/\/search\?q=Barber\+in\+East\+Legon/);
   await expect(page.getByRole("heading", { level: 1, name: "Barbers in East Legon, Accra" })).toBeVisible();

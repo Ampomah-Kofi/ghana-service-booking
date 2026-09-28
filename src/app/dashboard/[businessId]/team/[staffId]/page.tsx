@@ -23,7 +23,7 @@ export default async function StaffPage({ params, searchParams }: PageProps<"/da
 
   return (
     <>
-      <h1 className="mb-4 text-display font-bold tracking-tight">{member.displayName}</h1>
+      <h1 className="mb-4 text-display font-bold">{member.displayName}</h1>
       {added ? (
         <p role="status" className="mb-4 rounded-control bg-success/10 px-3 py-2 text-small text-success">
           Added. Set their hours below, and invite them if they should see their own bookings.
@@ -52,11 +52,11 @@ export default async function StaffPage({ params, searchParams }: PageProps<"/da
 
       <h2 className={heading}>Account</h2>
       {member.userId ? (
-        <p className="rounded-card bg-card p-4 text-body border border-border">
+        <p className="rounded-card bg-card p-4 text-body lift">
           Linked to their account. They can sign in and see their bookings.
         </p>
       ) : member.pendingInvite ? (
-        <div className="rounded-card bg-card p-4 border border-border">
+        <div className="rounded-card bg-card p-4 lift">
           <p className="text-body">
             Invite sent to {formatPhoneInternational(member.pendingInvite.phone)}. It expires{" "}
             {new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: business.timezone }).format(

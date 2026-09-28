@@ -23,3 +23,10 @@ export async function listCities(db: Db, countryCode: string): Promise<CityLink[
   if (error) throw toAppError(error);
   return data.map((c) => ({ name: c.name, slug: c.slug }));
 }
+
+/** The country's default IANA timezone (reference data), e.g. for "today" on Explore. */
+export async function countryTimezone(db: Db, countryCode: string): Promise<string> {
+  const { data, error } = await db.from("countries").select("default_timezone").eq("code", countryCode).maybeSingle();
+  if (error) throw toAppError(error);
+  return data?.default_timezone ?? "UTC";
+}

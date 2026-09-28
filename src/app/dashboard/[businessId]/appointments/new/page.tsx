@@ -44,7 +44,7 @@ export default async function NewAppointmentPage({
       >
         <ChevronLeftIcon /> Calendar
       </Link>
-      <h1 className="mb-1 text-display font-bold tracking-tight">{walkIn ? "Add walk-in" : "New appointment"}</h1>
+      <h1 className="mb-1 text-display font-bold">{walkIn ? "Add walk-in" : "New appointment"}</h1>
       <p className="mb-5 text-body text-ink-muted">
         {walkIn
           ? "Starts now. Pick the service and you're done."

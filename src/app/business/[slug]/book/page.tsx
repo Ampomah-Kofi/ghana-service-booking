@@ -103,7 +103,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
             </Link>
           </Panel>
         ) : (
-          <ul className="divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
+          <ul className="ios-list overflow-hidden rounded-card bg-card lift">
             {setup.services.map((s) => (
               <li key={s.id}>
                 <Link
@@ -160,7 +160,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
         back={serviceStepHref}
         step={{ step: 2, of: totalSteps }}
       >
-        <ul className="divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
+        <ul className="ios-list overflow-hidden rounded-card bg-card lift">
           {people.map((s) => (
             <li key={s.id}>
               <Link
@@ -216,7 +216,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
         ? `Free to cancel or change online up to ${setup.rules.cancellationWindowHours} hours before.`
         : "Free to cancel or change online any time before it starts.";
     const details = (
-      <dl className="mb-5 divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
+      <dl className="mb-5 ios-list overflow-hidden rounded-card bg-card lift">
         <Row label="Where">
           <span className="block font-medium">{business.name}</span>
           {place ? <span className="block text-small text-ink-muted">{place}</span> : null}
@@ -273,7 +273,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
           <BookingBar summary={summary(when)}>
             <Link
               href={`/sign-in?next=${encodeURIComponent(next)}`}
-              className="flex min-h-12 w-full items-center justify-center rounded-control bg-primary px-4 text-body font-semibold text-on-primary hover:bg-primary-hover"
+              className="flex min-h-12 w-full items-center justify-center rounded-full bg-primary px-4 text-body font-semibold text-on-primary hover:bg-primary-hover"
             >
               Sign in to book
             </Link>
@@ -331,7 +331,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
       step={{ step: totalSteps - 1, of: totalSteps }}
     >
       <nav aria-label="Dates" className="mb-4">
-        <ul className="-mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none]">
+        <ul className="-mx-5 flex snap-x gap-2 overflow-x-auto px-5 pb-2 [scrollbar-width:none]">
           {days.map((d) => {
             const pill = dayPill(d.date);
             const isSelected = d.date === selected?.date;
@@ -391,7 +391,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
             {formatLocalDate(selected.date)}
           </h2>
           {selected.slots.length === 0 ? (
-            <div className="rounded-card border border-border bg-card p-4">
+            <div className="rounded-card bg-card p-4 lift">
               <p className="text-body">
                 No times on {dayPill(selected.date).weekday}.
                 {nextOpen
@@ -401,7 +401,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
               {nextOpen ? (
                 <Link
                   href={bookHref(slug, { ...withStaff, from: fromParam, date: nextOpen.date })}
-                  className="mt-3 flex min-h-12 items-center justify-center rounded-control border border-border bg-card font-semibold text-primary hover:bg-fill"
+                  className="mt-3 flex min-h-12 items-center justify-center rounded-full bg-fill font-semibold text-primary hover:bg-ink/10"
                 >
                   Show {formatLocalDateShort(nextOpen.date)}
                 </Link>
@@ -422,7 +422,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
                           date: selected.date,
                           time: slot.start.toISOString(),
                         })}
-                        className="flex min-h-12 items-center justify-center rounded-control border border-border bg-card text-body font-medium tabular-nums text-primary transition-colors hover:border-primary hover:bg-primary-soft active:bg-primary active:text-on-primary"
+                        className="flex min-h-12 items-center justify-center pressable rounded-full bg-fill text-body font-semibold tabular-nums text-ink transition-colors hover:bg-primary-soft hover:text-primary active:bg-primary active:text-on-primary"
                       >
                         {formatTime(slot.start, setup.timezone)}
                       </Link>
@@ -467,14 +467,14 @@ function Shell({
         </Link>
       </div>
       {step ? <StepIndicator step={step.step} of={step.of} /> : null}
-      <h1 className="mb-4 text-display font-bold tracking-tight">{title}</h1>
+      <h1 className="mb-4 text-display font-bold">{title}</h1>
       {children}
     </div>
   );
 }
 
 function Panel({ children }: { children: ReactNode }) {
-  return <p className="mb-4 rounded-card border border-border bg-card p-4 text-body text-ink-muted">{children}</p>;
+  return <p className="mb-4 rounded-card bg-card p-4 text-body text-ink-muted lift">{children}</p>;
 }
 
 function BackLink({ href, children }: { href: string; children: ReactNode }) {

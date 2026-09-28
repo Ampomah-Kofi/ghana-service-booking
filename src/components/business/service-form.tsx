@@ -31,7 +31,7 @@ export function ServiceForm({ businessId, serviceId, returnTo, currencySymbol, s
   const e = state.fieldErrors ?? {};
 
   return (
-    <form action={formAction} noValidate className="rounded-card bg-card p-5 border border-border">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 lift">
       <input type="hidden" name="businessId" value={businessId} />
       <input type="hidden" name="returnTo" value={returnTo} />
       {serviceId ? <input type="hidden" name="serviceId" value={serviceId} /> : null}

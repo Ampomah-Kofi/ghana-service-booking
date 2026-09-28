@@ -18,7 +18,7 @@ export default async function AccountPage() {
 
   return (
     <>
-      <h1 className="mb-6 text-display font-bold tracking-tight">{profile?.fullName ?? "Your account"}</h1>
+      <h1 className="mb-6 text-display font-bold">{profile?.fullName ?? "Your account"}</h1>
 
       <GroupedSection title="Profile">
         <GroupedRow label="Phone" value={user.phone ? formatPhoneInternational(user.phone) : "Not set"} />
@@ -61,7 +61,7 @@ export default async function AccountPage() {
       </GroupedSection>
 
       <form action={signOutAction}>
-        <Button type="submit" variant="plain" className="w-full rounded-card bg-card text-danger border border-border">
+        <Button type="submit" variant="plain" className="w-full rounded-card bg-card text-danger lift">
           Sign out
         </Button>
       </form>

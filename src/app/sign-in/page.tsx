@@ -19,7 +19,7 @@ export default async function SignInPage({ searchParams }: PageProps<"/sign-in">
 
   return (
     <div className="mx-auto max-w-sm pt-4">
-      <h1 className="text-display font-bold tracking-tight">Sign in</h1>
+      <h1 className="text-display font-bold">Sign in</h1>
       <p className="mb-6 mt-2 text-body text-ink-muted">
         {method === "phone" ? "Use your phone number. No password needed." : "Sign in with your email and password."}
       </p>
@@ -28,7 +28,7 @@ export default async function SignInPage({ searchParams }: PageProps<"/sign-in">
           That link is invalid or has expired. Please sign in again.
         </p>
       ) : null}
-      <div className="rounded-card bg-card p-5 border border-border">
+      <div className="rounded-card bg-card p-5 lift">
         {method === "phone" ? <PhoneSignInForm next={next} /> : <EmailSignInForm next={next} />}
       </div>
       <p className="mt-6 text-center text-small">

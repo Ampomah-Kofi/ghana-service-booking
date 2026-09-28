@@ -51,7 +51,7 @@ export function LocationForm({ businessId, cities, values }: { businessId: strin
   }
 
   return (
-    <form action={formAction} noValidate className="rounded-card bg-card p-5 border border-border">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 lift">
       <input type="hidden" name="businessId" value={businessId} />
       <input type="hidden" name="lat" value={coords?.lat ?? ""} />
       <input type="hidden" name="lng" value={coords?.lng ?? ""} />

@@ -20,7 +20,7 @@ export function MoveForm({
 }) {
   const [state, formAction] = useActionState<FormState, FormData>(moveAction.bind(null, businessId), {});
   return (
-    <form action={formAction} noValidate className="rounded-card border border-border bg-card p-5">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 lift">
       <input type="hidden" name="appointmentId" value={appointmentId} />
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
       <SelectField

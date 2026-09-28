@@ -18,7 +18,7 @@ export function CreateBusinessForm({ categories }: { categories: Category[] }) {
   const [state, formAction] = useActionState<FormState, FormData>(createBusinessAction, {});
 
   return (
-    <form action={formAction} noValidate className="rounded-card bg-card p-5 border border-border">
+    <form action={formAction} noValidate className="rounded-card bg-card p-5 lift">
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
 
       <fieldset className="mb-5">
@@ -27,7 +27,7 @@ export function CreateBusinessForm({ categories }: { categories: Category[] }) {
           {kinds.map((kind) => (
             <label
               key={kind.value}
-              className="flex min-h-11 cursor-pointer items-start gap-3 rounded-control border border-border p-3 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+              className="flex min-h-11 cursor-pointer items-start gap-3 rounded-full border border-border p-3 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
             >
               <input
                 type="radio"

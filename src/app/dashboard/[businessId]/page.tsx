@@ -32,7 +32,7 @@ export default async function TodayPage({ params }: PageProps<"/dashboard/[busin
   return (
     <>
       <header className="mb-5">
-        <h1 className="text-display font-bold tracking-tight">Today</h1>
+        <h1 className="text-display font-bold">Today</h1>
         <p className="text-body text-ink-muted">{formatLocalDateShort(summary.date)}</p>
       </header>
 
@@ -52,7 +52,7 @@ export default async function TodayPage({ params }: PageProps<"/dashboard/[busin
       {next ? (
         <section
           aria-labelledby="next-heading"
-          className="mb-5 overflow-hidden rounded-card border border-border bg-card"
+          className="mb-5 overflow-hidden rounded-card bg-card lift"
         >
           <div className={`h-1 ${STATUS[next.status].bar}`} aria-hidden="true" />
           <div className="p-4">
@@ -128,17 +128,17 @@ export default async function TodayPage({ params }: PageProps<"/dashboard/[busin
           </Link>
         </div>
         {summary.appointments.length === 0 ? (
-          <div className="rounded-card border border-border bg-card p-5 text-center">
+          <div className="rounded-card bg-card p-5 text-center lift">
             <p className="mb-3 text-body text-ink-muted">No appointments today. Add a walk-in when someone arrives.</p>
             <Link
               href={`${base}/appointments/new?walkIn=1`}
-              className="inline-flex min-h-12 items-center justify-center rounded-control bg-primary px-5 font-semibold text-on-primary hover:bg-primary-hover"
+              className="inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-5 font-semibold text-on-primary hover:bg-primary-hover"
             >
               Add walk-in
             </Link>
           </div>
         ) : (
-          <ul className="divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
+          <ul className="ios-list overflow-hidden rounded-card bg-card lift">
             {summary.appointments.map((a) => (
               <AppointmentListRow
                 key={a.id}
@@ -162,12 +162,12 @@ export default async function TodayPage({ params }: PageProps<"/dashboard/[busin
               All clients
             </Link>
           </div>
-          <ul className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
+          <ul className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none]">
             {summary.recentClients.map((c) => (
               <li key={c.id} className="shrink-0">
                 <Link
                   href={`${base}/clients/${c.id}`}
-                  className="flex w-24 flex-col items-center gap-1 rounded-card border border-border bg-card px-2 py-3 text-center hover:bg-fill"
+                  className="flex w-24 flex-col items-center gap-1 rounded-card bg-card px-2 py-3 text-center hover:bg-fill lift"
                 >
                   <span
                     aria-hidden="true"
@@ -199,7 +199,7 @@ export default async function TodayPage({ params }: PageProps<"/dashboard/[busin
 
 function Stat({ label, value, detail }: { label: string; value: string; detail?: string }) {
   return (
-    <div className="rounded-card border border-border bg-card p-4">
+    <div className="rounded-card bg-card p-4 lift">
       <p className="text-small text-ink-muted">{label}</p>
       <p className="truncate text-title font-semibold tabular-nums">{value}</p>
       {detail ? <p className="truncate text-caption text-ink-muted">{detail}</p> : null}
@@ -223,7 +223,7 @@ function IconLink({
       href={href}
       aria-label={label}
       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-      className="flex size-12 shrink-0 items-center justify-center rounded-control border border-border bg-card hover:bg-fill"
+      className="flex size-12 shrink-0 items-center justify-center rounded-full bg-fill hover:bg-ink/10"
     >
       {children}
     </a>

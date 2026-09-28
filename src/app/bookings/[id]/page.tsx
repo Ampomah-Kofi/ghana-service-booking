@@ -51,7 +51,7 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
               strokeLinejoin="round"
             />
           </svg>
-          <h2 className="text-display font-bold tracking-tight">
+          <h2 className="text-display font-bold">
             {a.status === "confirmed" ? "You're booked!" : "Request sent"}
           </h2>
           <p className="mt-1 text-body opacity-90">
@@ -69,7 +69,7 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
       <div className="mb-2">
         <StatusBadge status={a.status} />
       </div>
-      <h1 className="mb-1 text-display font-bold tracking-tight">{a.serviceName}</h1>
+      <h1 className="mb-1 text-display font-bold">{a.serviceName}</h1>
       <p className="mb-6 text-body text-ink-muted">
         {a.business.slug ? (
           <Link href={`/business/${a.business.slug}`} className="font-medium text-primary">
@@ -80,7 +80,7 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
         )}
       </p>
 
-      <dl className="mb-6 divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
+      <dl className="mb-6 ios-list overflow-hidden rounded-card bg-card lift">
         <Row label="Date">{formatDateShort(a.startsAt, tz)}</Row>
         <Row label="Time">
           <span className="tabular-nums">
@@ -107,7 +107,7 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
           {a.business.phone ? (
             <a
               href={telUrl(a.business.phone)}
-              className="flex min-h-11 items-center justify-center rounded-control bg-card px-3 text-body font-semibold text-primary border border-border"
+              className="flex min-h-11 items-center justify-center rounded-full bg-fill px-3 text-body font-semibold text-primary"
             >
               Call
             </a>
@@ -117,7 +117,7 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
               href={whatsappChatUrl(a.business.whatsapp)}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex min-h-11 items-center justify-center rounded-control bg-card px-3 text-body font-semibold text-primary border border-border"
+              className="flex min-h-11 items-center justify-center rounded-full bg-fill px-3 text-body font-semibold text-primary"
             >
               WhatsApp
             </a>
@@ -129,7 +129,7 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
         <section className="grid gap-3" aria-label="Change this booking">
           <Link
             href={`/business/${a.business.slug}/book?reschedule=${a.id}`}
-            className="flex min-h-11 items-center justify-center rounded-control bg-primary px-4 text-body font-semibold text-on-primary"
+            className="flex min-h-11 items-center justify-center rounded-full bg-primary px-4 text-body font-semibold text-on-primary"
           >
             Change time
           </Link>
@@ -138,7 +138,7 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
       ) : !live && a.business.slug ? (
         <Link
           href={rebookHref(a.business.slug, a.serviceId, a.staffId)}
-          className="pressable flex min-h-12 items-center justify-center rounded-control bg-primary px-4 text-body font-semibold text-on-primary hover:bg-primary-hover"
+          className="pressable flex min-h-12 items-center justify-center rounded-full bg-primary px-4 text-body font-semibold text-on-primary hover:bg-primary-hover"
         >
           Book again
         </Link>

@@ -19,7 +19,7 @@ export default async function ClientsPage({ params, searchParams }: PageProps<"/
 
   return (
     <>
-      <h1 className="mb-4 text-display font-bold tracking-tight">Clients</h1>
+      <h1 className="mb-4 text-display font-bold">Clients</h1>
       <form role="search" className="mb-4">
         <label htmlFor="q" className="sr-only">
           Search clients
@@ -35,13 +35,13 @@ export default async function ClientsPage({ params, searchParams }: PageProps<"/
       </form>
 
       {clients.length === 0 ? (
-        <p className="mb-6 rounded-card border border-border bg-card p-5 text-body text-ink-muted">
+        <p className="mb-6 rounded-card bg-card p-5 text-body text-ink-muted lift">
           {q
             ? `No clients match "${q}".`
             : "No clients yet. They're added automatically when someone books, or you can add one below."}
         </p>
       ) : (
-        <ul className="mb-6 divide-y divide-border overflow-hidden rounded-card border border-border bg-card">
+        <ul className="mb-6 ios-list overflow-hidden rounded-card bg-card lift">
           {clients.map((c) => (
             <li key={c.id}>
               <Link

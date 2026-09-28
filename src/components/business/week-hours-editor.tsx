@@ -55,7 +55,7 @@ export function WeekHoursEditor({ name, initial }: { name: string; initial: Hour
         name={name}
         value={JSON.stringify(ranges.map((r) => ({ ...r, closes: r.closes === "00:00" ? "24:00" : r.closes })))}
       />
-      <ul className="divide-y divide-border overflow-hidden rounded-card bg-card border border-border">
+      <ul className="ios-list overflow-hidden rounded-card bg-card lift">
         {WEEKDAYS.map(({ day, long }) => {
           const dayRanges = ranges.map((r, index) => ({ ...r, index })).filter((r) => r.weekday === day);
           const open = dayRanges.length > 0;
