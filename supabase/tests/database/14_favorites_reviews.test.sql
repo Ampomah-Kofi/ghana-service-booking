@@ -3,7 +3,7 @@
 -- rating totals; service photos stay within the business; account deletion anonymises.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(44);
+select plan(50);
 
 create function pg_temp.act_as(p_user uuid) returns void language plpgsql as $$
 begin
@@ -70,6 +70,10 @@ select throws_ok($$ insert into public.favorites (user_id, business_id)
 select is((select count(*)::int from public.favorites), 1, 'the customer sees their own favourite');
 select pg_temp.act_as('a0000000-0000-4000-8000-000000000001');
 select is((select count(*)::int from public.favorites), 0, 'the business owner cannot see who saved them');
+select is((select count(*)::int from public.my_favorite_businesses()), 0, 'favourite cards are per user');
+select pg_temp.act_as('a0000000-0000-4000-8000-000000000006');
+select results_eq($$ select slug from public.my_favorite_businesses() $$, $$ values ('kwame-cuts'::text) $$,
+                  'the customer gets their saved businesses as cards');
 
 -- ── Submitting reviews ───────────────────────────────────────────────────────
 select pg_temp.act_as('a0000000-0000-4000-8000-000000000006');
@@ -195,12 +199,19 @@ select lives_ok($$ update public.business_photos
 select alike((select public.account_deletion_blocker()), '%own a business%', 'business owners must hand over first');
 select pg_temp.act_as('a0000000-0000-4000-8000-000000000006');
 select is((select public.account_deletion_blocker()), null, 'a customer can delete their account');
+select pg_temp.act_as('a0000000-0000-4000-8000-000000000001');
+select throws_ok($$ select public.delete_my_account() $$, 'BZ422', null, 'an owner''s deletion is refused');
+select pg_temp.act_as('a0000000-0000-4000-8000-000000000006');
+select lives_ok($$ select public.delete_my_account() $$, 'a customer deletes their own account');
 reset role;
-delete from auth.users where id = 'a0000000-0000-4000-8000-000000000006';
+select is((select count(*)::int from auth.users where id = 'a0000000-0000-4000-8000-000000000006'), 0, 'the sign-in is gone');
+select is((select count(*)::int from public.favorites where user_id = 'a0000000-0000-4000-8000-000000000006'), 0, 'favourites are deleted');
 select results_eq($$ select user_id, author_name from public.reviews where appointment_id = (select id from ids where k = 'yaw_b2_done') $$,
-                  $$ values (null::uuid, 'Former customer'::text) $$, 'deleting the account keeps the review, anonymised');
-select results_eq($$ select count(*)::int from public.appointments where customer_user_id is null and id in (select id from ids where k like 'yaw%') $$,
-                  $$ values (3) $$, 'the business keeps its booking records, no longer linked to the account');
+                  $$ values (null::uuid, 'Former customer'::text) $$, 'the review stays, anonymised');
+select results_eq($$ select count(*)::int from public.appointments
+                     where id in (select id from ids where k like 'yaw%')
+                       and customer_user_id is null and customer_name = 'Deleted customer' and customer_phone_e164 is null $$,
+                  $$ values (3) $$, 'the business keeps its booking records without the customer''s name or phone');
 
 select * from finish();
 rollback;

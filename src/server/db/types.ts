@@ -1670,6 +1670,7 @@ export type Database = {
         };
         Returns: string;
       };
+      delete_my_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       get_busy_intervals: {
         Args: { p_business_id: string; p_from: string; p_to: string };
         Returns: {
@@ -1720,6 +1721,32 @@ export type Database = {
       move_appointment: {
         Args: { p_allow_outside_hours?: boolean; p_appointment_id: string; p_staff_id: string; p_starts_at: string };
         Returns: undefined;
+      };
+      my_favorite_businesses: {
+        Args: { p_limit?: number; p_offset?: number };
+        Returns: {
+          area_name: string;
+          category_name: string;
+          category_slug: string;
+          city_name: string;
+          currency_code: string;
+          distance_m: number;
+          has_from_price: boolean;
+          id: string;
+          locality_text: string;
+          logo_path: string;
+          min_price_minor: number;
+          name: string;
+          next_available_at: string;
+          photo_path: string;
+          published_at: string;
+          rank: number;
+          rating_avg: number;
+          rating_count: number;
+          saved_at: string;
+          slug: string;
+          total_count: number;
+        }[];
       };
       publish_business: { Args: { p_business_id: string }; Returns: undefined };
       remove_staff_member: { Args: { p_staff_id: string }; Returns: undefined };
