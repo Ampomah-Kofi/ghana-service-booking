@@ -14,9 +14,9 @@ export function Fab({ items }: { items: { href: string; label: string; hint?: st
       >
         <PlusIcon className="size-7" />
       </summary>
-      <ul className="absolute right-0 bottom-16 w-60 overflow-hidden rounded-card border border-border bg-card shadow-pop">
+      <ul className="glass-strong absolute right-0 bottom-16 w-60 overflow-hidden rounded-card">
         {items.map((item) => (
-          <li key={item.href} className="border-b border-border last:border-b-0">
+          <li key={item.href} className="border-b border-border/60 last:border-b-0">
             <Link href={item.href} className="block px-4 py-3 hover:bg-fill">
               <span className="block text-body font-medium">{item.label}</span>
               {item.hint ? <span className="block text-small text-ink-muted">{item.hint}</span> : null}

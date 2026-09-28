@@ -5,7 +5,11 @@ import { chromium } from "@playwright/test";
 
 const [outDir, ...paths] = process.argv.slice(2);
 const base = process.env.E2E_BASE_URL ?? "http://localhost:3000";
-const browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined });
+// Software GL so backdrop-filter (glass, ADR-0010) renders like on a real phone.
+const browser = await chromium.launch({
+  executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined,
+  args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"],
+});
 const variants = [
   { name: "360-light", width: 360, scheme: "light" },
   { name: "360-dark", width: 360, scheme: "dark" },

@@ -8,8 +8,8 @@ export type BookingSummary = { title: string; detail: string };
  */
 export function BookingBar({ summary, children }: { summary: BookingSummary; children?: ReactNode }) {
   return (
-    <div className="sticky bottom-0 z-10 -mx-4 mt-6 border-t border-border bg-card px-4 pb-safe-sm pt-3 shadow-sheet">
-      <div className="flex items-center gap-3">
+    <div className="sticky bottom-0 z-10 -mx-1 mt-6 pb-safe-sm pt-3">
+      <div className="glass-strong flex items-center gap-3 rounded-card py-2.5 pr-2.5 pl-4">
         <div className="min-w-0 flex-1">
           <p className="truncate text-body font-semibold">{summary.title}</p>
           <p className="truncate text-small tabular-nums text-ink-muted">{summary.detail}</p>

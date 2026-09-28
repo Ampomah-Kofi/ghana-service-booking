@@ -48,7 +48,7 @@ export function BusinessCard({
           className="transition-transform duration-300 group-hover:scale-102"
         />
         {card.rating ? null : (
-          <span className="absolute top-2.5 left-2.5 rounded-full bg-card/95 px-2.5 py-1 text-caption font-semibold text-primary">
+          <span className="glass absolute top-2.5 left-2.5 rounded-full px-2.5 py-1 text-caption font-semibold text-ink">
             New
           </span>
         )}

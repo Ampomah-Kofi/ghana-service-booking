@@ -65,7 +65,11 @@ export default async function HomePage() {
   );
 
   return (
-    <>
+    <div className="relative isolate">
+      <div
+        aria-hidden="true"
+        className="aurora bleed-top pointer-events-none absolute -right-4 -left-4 -z-10 h-80 md:mt-0"
+      />
       <header className="mb-5 pt-2">
         <p className="text-small font-medium text-primary">Akwaaba</p>
         <h1 className="text-display font-bold tracking-tight">What would you like to book?</h1>
@@ -174,7 +178,7 @@ export default async function HomePage() {
         </span>
         <ChevronRightIcon className="shrink-0" />
       </Link>
-    </>
+    </div>
   );
 }
 

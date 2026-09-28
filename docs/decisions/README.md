@@ -13,6 +13,7 @@ Changing an accepted decision means writing a new ADR (see CLAUDE.md §Architect
 | [0006](0006-notifications-abstraction.md) | Notification outbox + channel providers | Accepted |
 | [0007](0007-search.md) | Search on Postgres (FTS + trigram + PostGIS) | Accepted |
 | [0008](0008-design-language.md) | Apple-inspired design language | Accepted, amended by 0009 |
-| [0009](0009-combined-design-system.md) | Combined design system (Apple principles + owner DESIGN.md) | Accepted |
+| [0009](0009-combined-design-system.md) | Combined design system (Apple principles + owner DESIGN.md) | Accepted, amended by 0010 |
+| [0010](0010-glass-navigation-layer.md) | Glass for the navigation layer | Accepted |
 
 Accepted 2026-09-27 with Phase 0 approval.

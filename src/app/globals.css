@@ -258,10 +258,73 @@ input[type="checkbox"][role="switch"]:disabled {
 @utility pb-safe-sm {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
-/* Above the provider bottom tab bar (3.5rem + safe area). */
+/* Above the floating tab bar (4rem capsule + 0.75rem gap + safe area). */
 @utility above-tabs {
-  bottom: calc(4rem + env(safe-area-inset-bottom));
+  bottom: calc(5.25rem + env(safe-area-inset-bottom));
 }
 @utility above-tabs-fab {
-  bottom: calc(5rem + env(safe-area-inset-bottom));
+  bottom: calc(6rem + env(safe-area-inset-bottom));
+}
+
+/* ── Glass (ADR-0010): navigation and controls only; content stays solid ─────── */
+:root {
+  --glass: rgb(255 255 255 / 0.6);
+  --glass-strong: rgb(250 248 244 / 0.86);
+  --glass-rim: rgb(255 255 255 / 0.75);
+  --glass-line: rgb(20 32 27 / 0.08);
+  --glass-shadow: 0 10px 30px rgb(20 32 27 / 0.14), 0 1px 3px rgb(20 32 27 / 0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --glass: rgb(40 45 42 / 0.55);
+    --glass-strong: rgb(30 34 31 / 0.84);
+    --glass-rim: rgb(255 255 255 / 0.16);
+    --glass-line: rgb(255 255 255 / 0.08);
+    --glass-shadow: 0 10px 30px rgb(0 0 0 / 0.45), 0 1px 3px rgb(0 0 0 / 0.3);
+  }
+}
+@layer components {
+  .glass,
+  .glass-strong {
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    box-shadow:
+      inset 0 1px 0 var(--glass-rim),
+      inset 0 0 0 1px var(--glass-line),
+      var(--glass-shadow);
+  }
+  .glass-strong {
+    background: var(--glass-strong);
+    -webkit-backdrop-filter: blur(30px) saturate(190%);
+    backdrop-filter: blur(30px) saturate(190%);
+  }
+  /* The selected item inside a glass bar: a brighter lens. */
+  .glass-lens {
+    background: var(--glass-strong);
+    box-shadow:
+      inset 0 1px 0 var(--glass-rim),
+      0 1px 4px rgb(20 32 27 / 0.1);
+  }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  .glass-strong {
+    background: var(--card);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-strong {
+    background: var(--card);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* A soft light behind the top of Explore, so the glass has something to catch. */
+.aurora {
+  background:
+    radial-gradient(60% 50% at 15% 0%, rgb(15 107 79 / 0.16), transparent 70%),
+    radial-gradient(45% 40% at 90% 10%, rgb(224 165 38 / 0.14), transparent 70%);
 }

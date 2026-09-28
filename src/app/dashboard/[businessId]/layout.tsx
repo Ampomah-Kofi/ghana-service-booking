@@ -11,7 +11,7 @@ export default async function BusinessDashboardLayout({ children, params }: Layo
   const { business, canManage } = await memberBusinessOr404(businessId);
 
   return (
-    <div className="pb-20 md:pb-0">
+    <div className="pb-28 md:pb-0">
       <nav className="mb-4 flex items-center justify-between gap-3 text-small" aria-label="Business">
         <Link href={`/dashboard/${business.id}`} className="min-w-0 truncate font-semibold">
           {business.name}

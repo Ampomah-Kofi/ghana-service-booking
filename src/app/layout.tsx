@@ -32,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className="h-full">
       <body className="flex min-h-full flex-col">
         {/* Website header from tablet width; on phones each screen has its own large title and the app tab bar. */}
-        <header className="sticky top-0 z-10 hidden border-b border-border bg-surface md:block">
+        <header className="glass sticky top-0 z-10 hidden md:block">
           <nav className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4" aria-label="Main">
             <Link href="/" className="text-title font-bold tracking-tight">
               {BRAND.name}

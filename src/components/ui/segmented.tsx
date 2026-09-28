@@ -16,7 +16,7 @@ export function Segmented({
           href={item.href}
           aria-current={item.active ? "page" : undefined}
           className={`flex min-h-9 min-w-16 items-center justify-center rounded-inner px-3 text-small font-medium transition-colors ${
-            item.active ? "bg-card text-ink shadow-pop" : "text-ink-muted hover:text-ink"
+            item.active ? "glass-lens text-ink" : "text-ink-muted hover:text-ink"
           }`}
         >
           {item.label}

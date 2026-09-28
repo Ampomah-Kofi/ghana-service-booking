@@ -106,6 +106,12 @@ Always a text label, never colour alone.
 - **Business page:** full-bleed cover with round Back and Share, an info sheet overlapping it (name, category · area, "New", "Open · closes 8:00 pm"), a round action row (Call · WhatsApp · Directions · Share), and a sticky Book bar.
 - **Motion:** screens ease in (`src/app/template.tsx`), pressable cards and buttons dip on tap, times slide up, and booking success has a drawn tick. All of it is off with reduced motion.
 
+**Glass (ADR-0010)**
+- `.glass` / `.glass-strong` (see `globals.css`) are only for the navigation and control layer: the floating capsule tab bars, the desktop header, round buttons and chips over covers, the booking summary bar and the "+" menu. The selected tab is a brighter `glass-lens`.
+- Content (cards, lists, forms) stays solid.
+- Fallbacks: solid `card` without `backdrop-filter` support, and with `prefers-reduced-transparency`.
+- Explore has a soft `aurora` light at the top.
+
 **States copy**
 - Empty: one sentence plus one action ("No appointments today. Add a walk-in").
 - Error: plain cause plus "Try again".
@@ -118,5 +124,5 @@ Always a text label, never colour alone.
 
 ## 4. What we will not do
 - Ship custom web fonts on public pages (bandwidth).
-- Use blur or glass effects (costly on low-end phones; ADR-0009).
+- Use glass on content: cards, lists and full screens stay solid (ADR-0010).
 - Use Apple trademarks, SF Symbols, Apple product imagery, or pixel-copy any Apple or competitor layout.

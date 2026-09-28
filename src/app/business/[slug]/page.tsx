@@ -117,7 +117,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
             <Link
               href="/"
               aria-label="Back to explore"
-              className="pressable flex size-10 items-center justify-center rounded-full bg-card/95 text-ink shadow-pop"
+              className="glass pressable flex size-11 items-center justify-center rounded-full text-ink"
             >
               <ChevronLeftIcon />
             </Link>
@@ -125,7 +125,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
               <a
                 href="#share"
                 aria-label="Share"
-                className="pressable flex size-10 items-center justify-center rounded-full bg-card/95 text-ink shadow-pop"
+                className="glass pressable flex size-11 items-center justify-center rounded-full text-ink"
               >
                 <ShareIcon />
               </a>
@@ -134,7 +134,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
           {business.photos.length > 1 ? (
             <a
               href="#work-heading"
-              className="absolute right-3 bottom-9 rounded-full bg-ink/70 px-3 py-1 text-caption font-semibold text-surface"
+              className="glass absolute right-3 bottom-9 rounded-full px-3 py-1 text-caption font-semibold text-ink"
             >
               {business.photos.length} photos
             </a>
@@ -361,13 +361,15 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
       ) : null}
 
       {canBook ? (
-        <div className="sticky bottom-0 -mx-4 border-t border-border bg-surface px-4 py-3 shadow-sheet">
-          <Link
-            href={bookHref()}
-            className="flex min-h-11 w-full items-center justify-center rounded-control bg-primary px-4 text-body font-semibold text-on-primary"
-          >
-            Book an appointment
-          </Link>
+        <div className="sticky bottom-0 z-10 -mx-1 pt-3 pb-safe-sm">
+          <div className="glass rounded-full p-1.5">
+            <Link
+              href={bookHref()}
+              className="pressable flex min-h-12 w-full items-center justify-center rounded-full bg-primary px-4 text-body font-semibold text-on-primary hover:bg-primary-hover"
+            >
+              Book an appointment
+            </Link>
+          </div>
         </div>
       ) : null}
     </article>

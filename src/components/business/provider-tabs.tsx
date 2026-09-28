@@ -45,9 +45,9 @@ export function ProviderTabs({ businessId, canManage }: { businessId: string; ca
     <>
       <nav
         aria-label="Business"
-        className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-card pb-safe md:hidden"
+        className="pointer-events-none fixed inset-x-0 bottom-0 z-20 px-4 pb-safe-sm md:hidden"
       >
-        <ul className="mx-auto flex max-w-2xl">
+        <ul className="glass-strong pointer-events-auto mx-auto flex max-w-md rounded-full p-1.5">
           {tabs.map(({ href, label, icon: Icon, match }) => {
             const active = match(pathname);
             return (
@@ -55,8 +55,8 @@ export function ProviderTabs({ businessId, canManage }: { businessId: string; ca
                 <Link
                   href={href}
                   aria-current={active ? "page" : undefined}
-                  className={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-caption ${
-                    active ? "text-primary" : "text-ink-muted"
+                  className={`pressable flex min-h-13 flex-col items-center justify-center gap-0.5 rounded-full text-caption transition-colors ${
+                    active ? "glass-lens font-semibold text-primary" : "text-ink-muted"
                   }`}
                 >
                   <Icon className="size-6" />
@@ -77,7 +77,7 @@ export function ProviderTabs({ businessId, canManage }: { businessId: string; ca
                   href={href}
                   aria-current={active ? "page" : undefined}
                   className={`flex min-h-9 items-center rounded-inner px-4 text-small font-medium ${
-                    active ? "bg-card text-ink shadow-pop" : "text-ink-muted hover:text-ink"
+                    active ? "glass-lens text-ink" : "text-ink-muted hover:text-ink"
                   }`}
                 >
                   {label}

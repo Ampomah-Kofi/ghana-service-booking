@@ -33,16 +33,17 @@ export function CustomerTabs() {
 
   return (
     <>
-      <div aria-hidden="true" className="h-20 md:hidden" />
-      <nav aria-label="App" className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-card pb-safe md:hidden">
-        <ul className="mx-auto flex max-w-2xl">
+      <div aria-hidden="true" className="h-24 md:hidden" />
+      {/* Floating glass capsule (ADR-0010): content scrolls underneath, like current iOS. */}
+      <nav aria-label="App" className="pointer-events-none fixed inset-x-0 bottom-0 z-20 px-5 pb-safe-sm md:hidden">
+        <ul className="glass-strong pointer-events-auto mx-auto flex max-w-sm rounded-full p-1.5">
           {tabs.map(({ href, label, icon: Icon, active }) => (
             <li key={href} className="flex-1">
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`pressable flex min-h-14 flex-col items-center justify-center gap-0.5 text-caption ${
-                  active ? "font-semibold text-primary" : "text-ink-muted"
+                className={`pressable flex min-h-13 flex-col items-center justify-center gap-0.5 rounded-full text-caption transition-colors ${
+                  active ? "glass-lens font-semibold text-primary" : "text-ink-muted"
                 }`}
               >
                 <Icon className="size-6" />
