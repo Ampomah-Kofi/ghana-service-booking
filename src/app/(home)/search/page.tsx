@@ -12,6 +12,7 @@ import { createUserClient } from "@/server/db/supabase-server";
 import { serverEnv } from "@/server/env";
 import { nextAvailableToday } from "@/server/scheduling/next-available";
 import { searchMarketplace } from "@/server/search/marketplace";
+import { searchSuggestions } from "@/server/catalog/suggestions";
 
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
 
@@ -30,7 +31,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
   const todayOnly = one(p.today) === "1";
 
   const db = await createUserClient();
-  const [result, currencies] = await Promise.all([
+  const [result, currencies, suggestions] = await Promise.all([
     // "Available today" checks the best 50 matches and keeps those with a free time left today.
     searchMarketplace(
       db,
@@ -38,6 +39,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
       serverEnv().DEFAULT_COUNTRY_CODE,
     ),
     listCurrencies(db),
+    searchSuggestions(db, serverEnv().DEFAULT_COUNTRY_CODE),
   ]);
   const next = await nextAvailableToday(
     db,
@@ -64,7 +66,10 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
   return (
     <>
       <div className="mb-5">
-        <SearchForm defaultQuery={[q, where && !q.includes(" in ") ? `in ${where}` : ""].filter(Boolean).join(" ")} />
+        <SearchForm
+          suggestions={suggestions}
+          defaultQuery={[q, where && !q.includes(" in ") ? `in ${where}` : ""].filter(Boolean).join(" ")}
+        />
       </div>
 
       <h1 className="text-display font-bold">{heading}</h1>

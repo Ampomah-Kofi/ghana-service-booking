@@ -186,3 +186,29 @@ export function StoreIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function InfoIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5M12 8h.01" />
+    </svg>
+  );
+}
+
+export function CalendarPlusIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <rect x="3.5" y="5" width="17" height="15.5" rx="3" />
+      <path d="M8 3v4M16 3v4M3.5 10h17M12 13v5M9.5 15.5h5" />
+    </svg>
+  );
+}
+
+export function ExpandIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" />
+    </svg>
+  );
+}

@@ -7,7 +7,11 @@ import { StatusBadge } from "@/components/bookings/status-badge";
 import { formatDateShort, formatTime } from "@/lib/datetime";
 import { formatMoney, formatPrice } from "@/lib/money";
 import { formatPhoneInternational } from "@/lib/phone";
-import { telUrl, whatsappChatUrl } from "@/lib/share";
+import { businessPageUrl, mapsSearchUrl, mapsUrl, telUrl, whatsappChatUrl } from "@/lib/share";
+import { publicEnv } from "@/lib/public-env";
+import { formatPlace, getBusinessBySlug } from "@/server/businesses/queries";
+import { ShareButton } from "@/components/ui/share-button";
+import { CalendarPlusIcon, ChatIcon, NavigationIcon, PhoneIcon, ShareIcon } from "@/components/ui/icons";
 import { rebookHref } from "@/lib/rebook";
 import { requireUserOrRedirect } from "@/server/auth/session";
 import { customerCanChange, getAppointment } from "@/server/bookings/appointments";
@@ -20,7 +24,8 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
   const { id } = await params;
   const sp = await searchParams;
   const user = await requireUserOrRedirect(`/bookings/${id}`);
-  const appointment = await getAppointment(await createUserClient(), id);
+  const db = await createUserClient();
+  const appointment = await getAppointment(db, id);
   // This is the customer's page; providers manage bookings from their dashboard.
   if (!appointment || appointment.customerUserId !== user.id) notFound();
 
@@ -31,6 +36,16 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
   const canChange = customerCanChange(a);
   const live = a.status === "pending" || a.status === "confirmed" || a.status === "arrived";
   const justBooked = sp.booked === "1";
+  const business = a.business.slug ? await getBusinessBySlug(db, a.business.slug) : null;
+  const loc = business?.location ?? null;
+  const where = [loc?.addressLine, formatPlace(loc)].filter(Boolean).join(", ") || null;
+  const landmark = loc?.landmark ?? null;
+  const directions = loc
+    ? loc.lat != null && loc.lng != null
+      ? mapsUrl(loc.lat, loc.lng)
+      : mapsSearchUrl([a.business.name, where].filter(Boolean).join(", "))
+    : null;
+  const shareUrl = a.business.slug ? businessPageUrl(publicEnv().NEXT_PUBLIC_SITE_URL, a.business.slug) : null;
 
   return (
     <>
@@ -64,79 +79,141 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
         <Toast message="Your booking is cancelled" param="cancelled" />
       ) : null}
 
-      <div className="mb-2">
-        <StatusBadge status={a.status} />
-      </div>
-      <h1 className="mb-1 text-display font-bold">{a.serviceName}</h1>
-      <p className="mb-6 text-body text-ink-muted">
-        {a.business.slug ? (
-          <Link href={`/business/${a.business.slug}`} className="font-medium text-primary">
-            {a.business.name}
-          </Link>
-        ) : (
-          (a.business.name ?? "Business")
-        )}
-      </p>
+      {/* The booking as a ticket (ADR-0012): what, when, where, then a tear line and the details. */}
+      <article
+        aria-labelledby="ticket-title"
+        className={`mb-6 overflow-hidden rounded-card bg-card lift ${a.status === "cancelled" ? "opacity-75" : ""}`}
+      >
+        <div className="px-5 pt-5 pb-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <p className="min-w-0 truncate text-small font-semibold">
+              {a.business.slug ? (
+                <Link href={`/business/${a.business.slug}`} className="text-primary">
+                  {a.business.name}
+                </Link>
+              ) : (
+                (a.business.name ?? "Business")
+              )}
+            </p>
+            <StatusBadge status={a.status} />
+          </div>
+          <h1 id="ticket-title" className="text-title font-bold">
+            {a.serviceName}
+          </h1>
+          {a.staffName ? <p className="text-body text-ink-muted">with {a.staffName}</p> : null}
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div>
+              <p className="text-caption font-semibold tracking-wide text-ink-muted uppercase">Date</p>
+              <p className={`text-heading font-bold ${a.status === "cancelled" ? "line-through" : ""}`}>
+                {formatDateShort(a.startsAt, tz)}
+              </p>
+            </div>
+            <div>
+              <p className="text-caption font-semibold tracking-wide text-ink-muted uppercase">Time</p>
+              <p className={`text-heading font-bold tabular-nums ${a.status === "cancelled" ? "line-through" : ""}`}>
+                {formatTime(a.startsAt, tz)} – {formatTime(a.endsAt, tz)}
+              </p>
+            </div>
+          </div>
+          {where ? (
+            <div className="mt-3">
+              <p className="text-caption font-semibold tracking-wide text-ink-muted uppercase">Where</p>
+              <p className="text-body">{where}</p>
+              {landmark ? <p className="text-small text-ink-muted">Near {landmark}</p> : null}
+            </div>
+          ) : null}
+        </div>
 
-      <dl className="mb-6 ios-list overflow-hidden rounded-card bg-card lift">
-        <Row label="Date">{formatDateShort(a.startsAt, tz)}</Row>
-        <Row label="Time">
-          <span className="tabular-nums">
-            {formatTime(a.startsAt, tz)} – {formatTime(a.endsAt, tz)}
-          </span>
-        </Row>
-        {a.staffName ? <Row label="With">{a.staffName}</Row> : null}
-        <Row label="Price">{formatPrice(a.price.amountMinor, a.price.type, a.price.currency)}</Row>
-        {a.depositMinor ? (
-          <Row label="Deposit">
-            {money(a.depositMinor)} · {a.paymentStatus === "paid" ? "paid" : "the business will tell you how to pay"}
+        <div aria-hidden="true" className="relative h-5">
+          <span className="absolute top-0 -left-2.5 size-5 rounded-full bg-surface" />
+          <span className="absolute top-0 -right-2.5 size-5 rounded-full bg-surface" />
+          <span className="absolute inset-x-4 top-1/2 border-t-2 border-dashed border-border" />
+        </div>
+
+        <dl className="ios-list">
+          <Row label="Price">{formatPrice(a.price.amountMinor, a.price.type, a.price.currency)}</Row>
+          {a.depositMinor ? (
+            <Row label="Deposit">
+              {money(a.depositMinor)} · {a.paymentStatus === "paid" ? "paid" : "the business will tell you how to pay"}
+            </Row>
+          ) : null}
+          <Row label="Booked as">
+            {a.customerName}
+            {a.customerPhone ? `, ${formatPhoneInternational(a.customerPhone)}` : ""}
           </Row>
-        ) : null}
-        <Row label="Booked as">
-          {a.customerName}
-          {a.customerPhone ? `, ${formatPhoneInternational(a.customerPhone)}` : ""}
-        </Row>
-        {a.note ? <Row label="Your note">{a.note}</Row> : null}
-        {a.status === "cancelled" && a.cancellationReason ? <Row label="Reason">{a.cancellationReason}</Row> : null}
-      </dl>
+          {a.note ? <Row label="Your note">{a.note}</Row> : null}
+          {a.status === "cancelled" && a.cancellationReason ? <Row label="Reason">{a.cancellationReason}</Row> : null}
+        </dl>
 
-      {a.business.phone || a.business.whatsapp ? (
-        <section className="mb-6 grid grid-cols-2 gap-2" aria-label="Contact the business">
+        <nav
+          aria-label="Booking actions"
+          className="grid grid-flow-col auto-cols-fr gap-1 border-t border-border px-2 py-3"
+        >
+          {live ? (
+            <a href={`/bookings/${a.id}/ics`} download className={ACTION}>
+              <span className={ACTION_ICON}>
+                <CalendarPlusIcon />
+              </span>
+              Add to calendar
+            </a>
+          ) : null}
+          {directions ? (
+            <a href={directions} target="_blank" rel="noopener noreferrer" className={ACTION}>
+              <span className={ACTION_ICON}>
+                <NavigationIcon />
+              </span>
+              Directions
+            </a>
+          ) : null}
           {a.business.phone ? (
-            <a
-              href={telUrl(a.business.phone)}
-              className="flex min-h-11 items-center justify-center rounded-full bg-fill px-3 text-body font-semibold text-primary"
-            >
+            <a href={telUrl(a.business.phone)} className={ACTION}>
+              <span className={ACTION_ICON}>
+                <PhoneIcon />
+              </span>
               Call
             </a>
           ) : null}
           {a.business.whatsapp ? (
-            <a
-              href={whatsappChatUrl(a.business.whatsapp)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex min-h-11 items-center justify-center rounded-full bg-fill px-3 text-body font-semibold text-primary"
-            >
+            <a href={whatsappChatUrl(a.business.whatsapp)} target="_blank" rel="noopener noreferrer" className={ACTION}>
+              <span className={ACTION_ICON}>
+                <ChatIcon className="text-whatsapp" />
+              </span>
               WhatsApp
             </a>
           ) : null}
-        </section>
-      ) : null}
+          {shareUrl ? (
+            <ShareButton
+              url={shareUrl}
+              title={a.business.name ?? "Booking"}
+              text={`I'm booked at ${a.business.name} on ${formatDateShort(a.startsAt, tz)} at ${formatTime(a.startsAt, tz)}.`}
+              className={ACTION}
+            >
+              <span className={ACTION_ICON}>
+                <ShareIcon />
+              </span>
+              Share
+            </ShareButton>
+          ) : null}
+        </nav>
+      </article>
 
       {canChange && a.business.slug ? (
-        <section className="grid gap-3" aria-label="Change this booking">
+        <section className="grid gap-2" aria-label="Change this booking">
           <Link
             href={`/business/${a.business.slug}/book?reschedule=${a.id}`}
-            className="flex min-h-11 items-center justify-center rounded-full bg-primary px-4 text-body font-semibold text-on-primary"
+            className="pressable flex min-h-12 items-center justify-center rounded-full bg-primary px-5 font-semibold text-on-primary hover:bg-primary-hover"
           >
             Change time
           </Link>
-          <CancelBookingForm appointmentId={a.id} />
+          <CancelBookingForm
+            appointmentId={a.id}
+            summary={`${a.serviceName} at ${a.business.name ?? "the business"} on ${formatDateShort(a.startsAt, tz)} at ${formatTime(a.startsAt, tz)} will be cancelled and the time given to someone else.`}
+          />
         </section>
       ) : !live && a.business.slug ? (
         <Link
           href={rebookHref(a.business.slug, a.serviceId, a.staffId)}
-          className="pressable flex min-h-12 items-center justify-center rounded-full bg-primary px-4 text-body font-semibold text-on-primary hover:bg-primary-hover"
+          className="pressable flex min-h-12 items-center justify-center rounded-full bg-primary px-5 font-semibold text-on-primary hover:bg-primary-hover"
         >
           Book again
         </Link>
@@ -155,9 +232,12 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
   );
 }
 
+const ACTION = "pressable flex min-w-0 flex-col items-center gap-1.5 text-center text-caption font-medium";
+const ACTION_ICON = "flex size-11 items-center justify-center rounded-full bg-fill text-primary";
+
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex gap-4 px-4 py-3 text-body">
+    <div className="flex gap-4 px-5 py-3 text-body">
       <dt className="w-24 shrink-0 text-ink-muted">{label}</dt>
       <dd className="min-w-0">{children}</dd>
     </div>

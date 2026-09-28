@@ -14,8 +14,8 @@ test("search from the home page and open a provider", async ({ page }) => {
   await page.getByRole("link", { name: /Kwame Cuts/ }).click();
 
   await expect(page.getByRole("heading", { level: 1, name: "Kwame Cuts" })).toBeVisible();
-  await expect(page.getByText("Skin fade")).toBeVisible();
-  await expect(page.getByText("GH₵ 80")).toBeVisible();
+  await expect(page.getByRole("link", { name: /^Book Skin fade/ })).toBeVisible();
+  await expect(page.getByText("GH₵ 80").first()).toBeVisible();
 });
 
 test("a town with no matches explains itself instead of showing nothing", async ({ page }) => {

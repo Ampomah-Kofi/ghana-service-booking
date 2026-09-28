@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { PhotoCountChip, PhotoGallery } from "@/components/business/photo-viewer";
+import { ShareButton } from "@/components/ui/share-button";
 import { MorphCover } from "@/components/marketplace/business-card";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -127,23 +129,19 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
               <ChevronLeftIcon />
             </Link>
             {business.status === "published" ? (
-              <a
-                href="#share"
-                aria-label="Share"
+              <ShareButton
+                url={pageUrl}
+                title={business.name}
+                text={shareMessage(business.name, pageUrl)}
+                fallbackHref="#share"
+                label="Share"
                 className="glass pressable flex size-11 items-center justify-center rounded-full text-ink"
               >
                 <ShareIcon />
-              </a>
+              </ShareButton>
             ) : null}
           </div>
-          {business.photos.length > 1 ? (
-            <a
-              href="#work-heading"
-              className="glass absolute right-3 bottom-9 rounded-full px-3 py-1 text-caption font-semibold text-ink"
-            >
-              {business.photos.length} photos
-            </a>
-          ) : null}
+          {business.photos.length > 1 ? <PhotoCountChip count={business.photos.length} /> : null}
         </div>
         <div className="relative -mx-5 -mt-6 rounded-t-card bg-surface px-5 pt-5 sm:mx-0 sm:mt-0 sm:px-0">
           <div className="flex items-center gap-3.5">
@@ -227,6 +225,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
             {services.map((s) => (
               <li key={s.id}>
                 <ServiceRow
+                  id={s.id}
                   href={bookable(s.staffIds) ? bookHref(s.id) : null}
                   name={s.name}
                   meta={[
@@ -339,23 +338,10 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
           <h2 id="work-heading" className="mb-2 text-title font-semibold">
             Our work
           </h2>
-          <ul className="grid grid-cols-3 gap-1.5">
-            {business.photos.map((photo) => (
-              <li key={photo.id}>
-                <a href={media(photo.pathLarge)} target="_blank" rel="noopener noreferrer">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized 400px rendition */}
-                  <img
-                    src={media(photo.pathSmall)}
-                    alt={`Work by ${business.name}`}
-                    width={400}
-                    height={400}
-                    loading="lazy"
-                    className="aspect-square w-full rounded-control object-cover"
-                  />
-                </a>
-              </li>
-            ))}
-          </ul>
+          <PhotoGallery
+            businessName={business.name}
+            photos={business.photos.map((p) => ({ id: p.id, small: media(p.pathSmall), large: media(p.pathLarge) }))}
+          />
         </section>
       ) : null}
 

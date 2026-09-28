@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Countdown } from "./countdown";
+import { countdownLabel } from "@/lib/countdown";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SunIcon } from "@/components/ui/icons";
 import { LargeTitle } from "@/components/ui/large-title";
@@ -51,13 +53,11 @@ export default async function TodayPage({ params }: PageProps<"/dashboard/[busin
 
       {next ? (
         <section aria-labelledby="next-heading" className="mb-5 overflow-hidden rounded-card bg-card lift">
-          <div className={`h-1 ${STATUS[next.status].bar}`} aria-hidden="true" />
+          <div className={`h-1.5 ${STATUS[next.status].bar}`} aria-hidden="true" />
           <div className="p-4">
             <div className="mb-2 flex items-center justify-between gap-3">
-              <h2 id="next-heading" className="text-small font-medium text-ink-muted">
-                {new Date(next.startsAt) <= now
-                  ? "Happening now"
-                  : `Up next · ${relative(new Date(next.startsAt), now)}`}
+              <h2 id="next-heading" className="text-small font-semibold text-primary" aria-live="polite">
+                <Countdown at={next.startsAt} initial={countdownLabel(new Date(next.startsAt), now)} />
               </h2>
               <span className="flex gap-1.5">
                 <SourceBadge source={next.source} />
@@ -228,12 +228,4 @@ function IconLink({
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/);
   return ((parts[0]?.[0] ?? "") + (parts.length > 1 ? (parts.at(-1)?.[0] ?? "") : "")).toUpperCase();
-}
-
-function relative(start: Date, now: Date): string {
-  const minutes = Math.round((start.getTime() - now.getTime()) / 60_000);
-  if (minutes < 60) return `in ${minutes} min`;
-  const hours = Math.floor(minutes / 60);
-  const rest = minutes % 60;
-  return rest === 0 ? `in ${hours} hr` : `in ${hours} hr ${rest} min`;
 }

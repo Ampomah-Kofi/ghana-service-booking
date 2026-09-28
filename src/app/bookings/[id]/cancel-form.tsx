@@ -1,50 +1,58 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useActionState } from "react";
 import { Field, FormMessage } from "@/components/ui/field";
+import { Sheet } from "@/components/ui/sheet";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { valueOf } from "@/lib/form-values";
 import type { FormState } from "@/server/actions";
 import { cancelBookingAction } from "../actions";
 
-/** Two taps to cancel: a destructive action asks once more (docs/design.md: sheets over modals). */
-export function CancelBookingForm({ appointmentId }: { appointmentId: string }) {
+/**
+ * Cancelling asks once more in a bottom sheet that says exactly what will happen
+ * (docs/design.md: destructive actions confirm with a summary, not "Are you sure?").
+ */
+export function CancelBookingForm({ appointmentId, summary }: { appointmentId: string; summary: string }) {
   const [state, formAction] = useActionState<FormState, FormData>(cancelBookingAction, {});
-  const [asking, setAsking] = useState(false);
+  const sheetId = "cancel-booking";
 
-  if (!asking) {
-    return (
-      <Button
+  return (
+    <>
+      <button
         type="button"
-        variant="plain"
-        onClick={() => setAsking(true)}
-        className="w-full rounded-card bg-card text-danger lift"
+        popoverTarget={sheetId}
+        className="pressable flex min-h-12 w-full items-center justify-center rounded-full bg-danger/10 px-5 font-semibold text-danger hover:bg-danger/15"
       >
         Cancel booking
-      </Button>
-    );
-  }
-  return (
-    <form action={formAction} className="rounded-card bg-card p-5 lift">
-      <input type="hidden" name="appointmentId" value={appointmentId} />
-      <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
-      <Field
-        id="reason"
-        name="reason"
-        label="Reason (optional)"
-        maxLength={200}
-        defaultValue={valueOf(state.values, "reason", "")}
-        error={state.fieldErrors?.reason}
-      />
-      <div className="grid gap-2">
-        <SubmitButton pendingLabel="Cancelling…" className="bg-danger! hover:bg-danger!">
-          Yes, cancel it
-        </SubmitButton>
-        <Button type="button" variant="plain" onClick={() => setAsking(false)}>
-          Keep my booking
-        </Button>
-      </div>
-    </form>
+      </button>
+      <Sheet id={sheetId} title="Cancel this booking?">
+        <form action={formAction}>
+          <p className="mb-4 text-body text-ink-muted">{summary}</p>
+          <input type="hidden" name="appointmentId" value={appointmentId} />
+          <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
+          <Field
+            id="reason"
+            name="reason"
+            label="Reason (optional)"
+            maxLength={200}
+            defaultValue={valueOf(state.values, "reason", "")}
+            error={state.fieldErrors?.reason}
+          />
+          <div className="mt-2 grid gap-2">
+            <SubmitButton pendingLabel="Cancelling…" className="bg-danger! hover:bg-danger!">
+              Yes, cancel it
+            </SubmitButton>
+            <button
+              type="button"
+              popoverTarget={sheetId}
+              popoverTargetAction="hide"
+              className="flex min-h-12 items-center justify-center rounded-full font-semibold text-primary"
+            >
+              Keep my booking
+            </button>
+          </div>
+        </form>
+      </Sheet>
+    </>
   );
 }

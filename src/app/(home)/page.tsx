@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { toSuggestions } from "@/server/catalog/suggestions";
 import { LargeTitle } from "@/components/ui/large-title";
 import type { ReactNode } from "react";
 import { BusinessCard } from "@/components/marketplace/business-card";
@@ -95,7 +96,7 @@ export default async function HomePage() {
       />
 
       <section className="mb-7" aria-label="Search">
-        <SearchForm />
+        <SearchForm suggestions={toSuggestions(categories, cities)} />
         <ul className="rail -mx-5 mt-1 flex gap-2 overflow-x-auto px-5">
           {EXAMPLES.map((example) => (
             <li key={example} className="shrink-0">

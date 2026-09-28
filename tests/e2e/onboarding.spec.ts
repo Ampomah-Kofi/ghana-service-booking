@@ -115,7 +115,7 @@ test("solo provider onboards and publishes a shareable page", async ({ page, req
     "href",
     "https://wa.me/233241234567",
   );
-  await expect(visitor.getByRole("img", { name: `Work by ${name}` })).toHaveCount(1);
+  await expect(visitor.getByRole("button", { name: "Open photo 1 of 1" })).toHaveCount(1);
   await expect(visitor.getByText("Gel manicure")).toBeVisible();
   await expect(visitor.getByText("GH₵ 80.50")).toBeVisible();
   await expect(
