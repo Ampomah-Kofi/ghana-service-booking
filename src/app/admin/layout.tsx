@@ -9,21 +9,28 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   if (!(await isPlatformAdmin())) notFound();
   return (
     <div>
-      <nav aria-label="Admin" className="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-        <p className="text-heading font-semibold text-ink">Admin</p>
-        {[
-          ["/admin", "Overview"],
-          ["/admin/businesses", "Businesses"],
-          ["/admin/users", "People"],
-          ["/admin/verification", "Verification"],
-          ["/admin/reviews", "Reviews"],
-          ["/admin/categories", "Categories"],
-          ["/admin/audit", "Audit log"],
-        ].map(([href, label]) => (
-          <Link key={href} href={href} className="min-h-11 content-center text-small font-medium text-primary">
-            {label}
-          </Link>
-        ))}
+      <nav aria-label="Admin" className="-mx-4 mb-4 overflow-x-auto px-4 [scrollbar-width:none]">
+        <ul className="flex w-max items-center gap-2">
+          <li className="pr-1 text-heading font-semibold text-ink">Admin</li>
+          {[
+            ["/admin", "Overview"],
+            ["/admin/businesses", "Businesses"],
+            ["/admin/users", "People"],
+            ["/admin/verification", "Verification"],
+            ["/admin/reviews", "Reviews"],
+            ["/admin/categories", "Categories"],
+            ["/admin/audit", "Audit log"],
+          ].map(([href, label]) => (
+            <li key={href}>
+              <Link
+                href={href}
+                className="flex min-h-10 items-center rounded-full bg-fill px-3.5 text-small font-medium whitespace-nowrap text-ink hover:bg-ink/10"
+              >
+                {label}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </nav>
       {children}
     </div>

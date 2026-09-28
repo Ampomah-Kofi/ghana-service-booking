@@ -9,6 +9,7 @@ import { actionLabel } from "./audit/labels";
 export const metadata: Metadata = { title: "Overview · Admin" };
 
 const ADMIN_TZ = "Africa/Accra";
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 /** How the platform is doing (SPEC §17 platform stats), plus what's waiting for an admin. */
 export default async function AdminOverviewPage() {
@@ -22,11 +23,11 @@ export default async function AdminOverviewPage() {
 
   const tiles: [string, string, string?][] = [
     ["People", String(stats.users), `+${stats.users_new_7d} this week`],
-    ["Live businesses", String(biz.published ?? 0), `${biz.draft ?? 0} drafts · +${stats.businesses_new_7d} this week`],
+    ["Live businesses", String(biz.published ?? 0), `${plural(biz.draft ?? 0, "draft")} being set up`],
     ["Bookings, 7 days", String(stats.bookings_7d), `${stats.bookings_30d} in 30 days`],
-    ["Completed", pct(visits.completed ?? 0, past), "of visits in the last 30 days"],
-    ["Cancelled", pct(visits.cancelled ?? 0, past), "of visits in the last 30 days"],
-    ["No-shows", pct(visits.no_show ?? 0, kept), "of visits that were due"],
+    ["Completed", pct(visits.completed ?? 0, past), "past 30 days"],
+    ["Cancelled", pct(visits.cancelled ?? 0, past), "past 30 days"],
+    ["No-shows", pct(visits.no_show ?? 0, kept), "of visits due"],
   ];
   const todo: [string, number, string][] = [
     ["Verification requests", stats.verification_pending, "/admin/verification"],

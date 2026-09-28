@@ -35,14 +35,18 @@ export default async function InsightsPage({ params, searchParams }: PageProps<"
   const bars = bucketPerDay(s.per_day, weekly ? 7 : 1).map((d) => ({
     key: d.day,
     label: weekly ? `Week of ${dayLabel(d.day)}` : dayLabel(d.day, "long"),
-    short: weekly ? dayLabel(d.day) : dayLabel(d.day).split(" ")[0],
+    short: dayLabel(d.day),
     value: d.bookings,
   }));
   const walkIns = s.by_source.walk_in ?? 0;
   const empty = s.bookings === 0;
 
   const tiles: [string, string, string][] = [
-    ["Bookings", String(s.bookings - s.cancelled), walkIns > 0 ? `${walkIns} walk-ins` : "online and by phone"],
+    [
+      "Bookings",
+      String(s.bookings - s.cancelled),
+      walkIns > 0 ? `${walkIns} walk-in${walkIns === 1 ? "" : "s"}` : "online and by phone",
+    ],
     ["Completed", String(s.completed), `${money(s.completed_value_minor)} in visits`],
     ["Cancelled", pct(s.cancellationRate), `${s.cancelled} of ${s.bookings}`],
     ["No-shows", pct(s.noShowRate), `${s.noShows} didn't come`],
@@ -54,7 +58,7 @@ export default async function InsightsPage({ params, searchParams }: PageProps<"
       <p className="mb-4 text-body text-ink-muted">
         {dayLabel(s.from)} to {dayLabel(s.to)}, in your time zone.
       </p>
-      <nav aria-label="Period" className="mb-5 flex gap-2">
+      <nav aria-label="Period" className="mb-5 flex flex-wrap gap-2">
         {INSIGHT_PERIODS.map((p) => (
           <Link
             key={p}

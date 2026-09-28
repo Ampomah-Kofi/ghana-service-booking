@@ -3,10 +3,12 @@
 Started 28 Sep. The product owner said "approved" and "don't wait for my approval again", so this plan records the work rather than gating it.
 
 **Goal:**
+
 - Platform admins can see how the platform is doing, find any business or user, and suspend or restore them, with every action audited.
 - Business owners and managers get plain-language insights about their bookings (SPEC §16, §17).
 
 ## Scope
+
 1. **Admin overview** (`/admin`): users, businesses by status, bookings (7 and 30 days), completion, cancellation and no-show rates, verification queue, open review reports, recent admin actions.
 2. **Businesses** (`/admin/businesses`, `/admin/businesses/[id]`):
    - search by name, slug or town, and filter by status;
@@ -29,20 +31,22 @@ Started 28 Sep. The product owner said "approved" and "don't wait for my approva
 7. **API v1:** `GET /businesses/{slug}/insights?days=7|30|90` for owners and managers (future mobile apps). No admin API.
 
 ## Key decisions
+
 - **Admins read through audited, narrow functions, not wider RLS.**
   - `admin_list_businesses`, `admin_get_business`, `admin_list_users`, `admin_get_user` and `admin_platform_stats` are SECURITY DEFINER functions that check the admin role and return only the columns an admin needs.
   - Reads are not audit-logged; every change is (`admin_actions`).
   - This keeps the RLS surface as it is (tenant isolation unchanged).
-- **Suspension is enforced in the database.** A BEFORE INSERT trigger on appointments (online bookings by the person), reviews, review reports and businesses refuses a suspended account with BZ403. It does not depend on the UI.
+- **Suspension is enforced in the database.** A BEFORE INSERT trigger on appointments (online bookings by the person), reviews, review reports and businesses refuses a suspended account with BZ423 (so the message can say why). It does not depend on the UI.
 - **Insights come from one SQL function** (`business_insights`), for owners and managers only. It computes in the business's timezone. Money is integer minor units, and revenue is only what the business recorded.
 - **No new dependencies.** Bars are plain CSS, with exact numbers as text for screen readers.
 - **Disputes:** out of scope. No money moves through the app (ADR-0017), and customer-business problems arrive as review reports. This is noted as a gap.
 
 ## Files
+
 - `supabase/migrations/20261010090000_admin_analytics.sql`
 - `supabase/tests/database/19_admin_analytics.test.sql`
 - `src/server/admin/*`, `src/server/businesses/insights.ts`
 - `src/app/admin/*`, `src/app/dashboard/[businessId]/insights/*`
 - `src/app/api/v1/businesses/[slug]/insights/route.ts`, plus OpenAPI and `docs/api/v1.md`
-- Tests: integration (`admin.test.ts`, `insights.test.ts`) and E2E (`admin.spec.ts`)
+- Tests: unit (`insights.test.ts`), integration (`admin.test.ts`) and E2E (`admin.spec.ts`)
 - Docs: `architecture.md` (roles), `data-model.md`, `testing.md`

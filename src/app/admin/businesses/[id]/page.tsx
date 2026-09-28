@@ -45,7 +45,7 @@ export default async function AdminBusinessPage({ params }: PageProps<"/admin/bu
         {b.status === "published" ? (
           <>
             {" · "}
-            <Link href={`/business/${b.slug}`} className="text-primary">
+            <Link href={`/business/${b.slug}`} className="text-primary underline underline-offset-2">
               View page
             </Link>
           </>

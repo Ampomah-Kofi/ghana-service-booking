@@ -16,8 +16,6 @@ export function BarChart({
 }) {
   const max = Math.max(1, ...bars.map((b) => b.value));
   const plural = (v: number) => `${v} ${unit}${v === 1 ? "" : "s"}`;
-  // Label a handful of bars so labels never collide: first, last and a few in between.
-  const every = Math.max(1, Math.ceil(bars.length / 6));
   return (
     <figure className="m-0">
       <figcaption className="sr-only">{title}</figcaption>
@@ -40,34 +38,33 @@ export function BarChart({
             </div>
           ))}
         </div>
-        <div className="mt-1 flex gap-0.5">
-          {bars.map((b, i) => (
-            <span
-              key={b.key}
-              className="min-w-0 flex-1 overflow-visible text-center text-caption whitespace-nowrap text-ink-muted"
-            >
-              {i % every === 0 || i === bars.length - 1 ? b.short : ""}
-            </span>
+        {/* Three labels (first, middle, last) that wrap instead of overflowing at large text sizes. */}
+        <div className="mt-1 flex flex-wrap justify-between gap-x-2 text-caption text-ink-muted">
+          {[...new Set([0, Math.floor((bars.length - 1) / 2), bars.length - 1])].map((i) => (
+            <span key={bars[i]?.key ?? i}>{bars[i]?.short}</span>
           ))}
         </div>
       </div>
-      <table className="sr-only">
-        <caption>{title}</caption>
-        <thead>
-          <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Count</th>
-          </tr>
-        </thead>
-        <tbody>
-          {bars.map((b) => (
-            <tr key={b.key}>
-              <th scope="row">{b.label}</th>
-              <td>{plural(b.value)}</td>
+      {/* sr-only on a wrapper: a table ignores the 1px width and would widen the page at large text. */}
+      <div className="sr-only">
+        <table>
+          <caption>{title}</caption>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Count</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {bars.map((b) => (
+              <tr key={b.key}>
+                <th scope="row">{b.label}</th>
+                <td>{plural(b.value)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </figure>
   );
 }
