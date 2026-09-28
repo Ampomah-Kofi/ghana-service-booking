@@ -7,16 +7,10 @@ import { BookingBar, StepIndicator, type BookingSummary } from "@/components/boo
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 import { formatDuration } from "@/lib/hours";
 import { formatMoney, formatPrice } from "@/lib/money";
-import {
-  dayPill,
-  formatDateShort,
-  formatLocalDate,
-  formatLocalDateShort,
-  formatMonthYear,
-  formatTime,
-} from "@/lib/datetime";
+import { dayPill, formatDateShort, formatLocalDate, formatLocalDateShort, formatTime } from "@/lib/datetime";
 import { CenterSelected } from "@/components/booking/center-selected";
-import { addDays, groupByPartOfDay } from "@/lib/availability";
+import { DateJump } from "@/components/booking/date-jump";
+import { groupByPartOfDay } from "@/lib/availability";
 import { localDateSchema } from "@/schemas/booking";
 import { getCurrentUser } from "@/server/auth/session";
 import { customerCanChange, getAppointment, type AppointmentView } from "@/server/bookings/appointments";
@@ -327,8 +321,6 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
   ).filter((d) => d.date <= lastDate);
   const selected = days.find((d) => d.date === query.date) ?? days.find((d) => d.slots.length > 0) ?? days[0];
   const nextOpen = selected ? days.find((d) => d.date > selected.date && d.slots.length > 0) : undefined;
-  const earlier = from > today ? (addDays(from, -DAYS_PER_PAGE) < today ? today : addDays(from, -DAYS_PER_PAGE)) : null;
-  const later = addDays(from, DAYS_PER_PAGE) <= lastDate ? addDays(from, DAYS_PER_PAGE) : null;
   const fromParam = from === today ? undefined : from;
 
   return (
@@ -339,44 +331,12 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
       step={{ step: totalSteps - 1, of: totalSteps }}
     >
       <nav aria-label="Dates" className="mb-4">
-        {/* Month, a jump back to today, and paging, like the iOS calendar header. */}
-        <div className="mb-2 flex items-center gap-1">
-          <p className="flex-1 text-heading font-semibold">{formatMonthYear(selected?.date ?? from)}</p>
-          {from !== today || (selected && selected.date !== today) ? (
-            <Link
-              href={bookHref(slug, { ...withStaff })}
-              className="pressable mr-1 inline-flex min-h-9 items-center rounded-full bg-primary-soft px-3.5 text-small font-semibold text-primary"
-            >
-              Today
-            </Link>
-          ) : null}
-          {earlier ? (
-            <Link
-              href={bookHref(slug, { ...withStaff, from: earlier === today ? undefined : earlier })}
-              aria-label="Earlier dates"
-              className="pressable flex size-11 items-center justify-center rounded-full text-primary hover:bg-fill"
-            >
-              <ChevronLeftIcon />
-            </Link>
-          ) : (
-            <span aria-hidden="true" className="flex size-11 items-center justify-center text-ink-muted/40">
-              <ChevronLeftIcon />
-            </span>
-          )}
-          {later ? (
-            <Link
-              href={bookHref(slug, { ...withStaff, from: later })}
-              aria-label="Later dates"
-              className="pressable flex size-11 items-center justify-center rounded-full text-primary hover:bg-fill"
-            >
-              <ChevronRightIcon />
-            </Link>
-          ) : (
-            <span aria-hidden="true" className="flex size-11 items-center justify-center text-ink-muted/40">
-              <ChevronRightIcon />
-            </span>
-          )}
-        </div>
+        <DateJump
+          today={today}
+          lastDate={lastDate}
+          selected={selected?.date ?? from}
+          hrefFor={(d) => bookHref(slug, { ...withStaff, from: d === today ? undefined : d, date: d })}
+        />
         <ul id="day-strip" className="rail -mx-5 flex gap-1 overflow-x-auto px-5 pb-1">
           {days.map((d) => {
             const pill = dayPill(d.date);

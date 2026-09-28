@@ -117,7 +117,7 @@ Always a text label, never colour alone.
 - **Feedback:** `<Toast>` after moves, cancellations and additions; inline messages stay for form errors and saved settings.
 - **Loading and empty:** every main route has a skeleton (`src/components/ui/skeleton.tsx`) except the business page (keeps a real 404); empty screens use `<EmptyState>` (illustration, one sentence, one action).
 - **Booking ticket:** date, time and place first, a tear line, then details and round actions (Add to calendar · Directions · Call · WhatsApp · Share).
-- **Date strip:** month heading, Today, paging chevrons, weekday over a day circle (green when chosen, green number for today, dot when there are times).
+- **Date step:** the date is split into two taps, **Month** and **Day**. The open one is outlined in green and a short line joins it to a grid right under it (months in a 3-column grid; days as a Monday-first calendar, dates outside the booking window greyed). Borrowed as a *pattern* from an insurance app the owner liked (SPEC §1: patterns only, our own look). Built on exclusive `<details name>`, so no JavaScript. Below it, the day strip: weekday over a day circle (green when chosen, green number for today, dot when there are times), swipeable, with **Today** to jump back.
 - **Tabs:** tap the current tab to scroll up; the bar tucks away while scrolling down and returns on the way up; labels truncate rather than overflow at large text sizes.
 - **Search:** recent searches (on this phone only) and category/town suggestions under the field.
 

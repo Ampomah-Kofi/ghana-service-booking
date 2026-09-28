@@ -19,7 +19,7 @@ Each pattern uses the lightest platform feature that does the job, and degrades 
 | Skeleton screens | `loading.tsx` per route, shaped like the screen | — |
 | Illustrated empty states (`<EmptyState>`) | Inline SVG, category-cover style | — |
 | Pinned section headers | `position: sticky` | — |
-| iOS date strip: month header, Today, paging, day circles, centred selection | Server-rendered; centring is a tiny client effect | Not centred |
+| Date step: split Month / Day taps opening a grid under the tap (pattern borrowed from an app the owner liked), plus the day strip | Exclusive `<details name>` and links; centring the strip is a tiny client effect | Not centred |
 | Booking ticket with **Add to calendar** | Our own RFC 5545 file from `/bookings/[id]/ics` (owner only); no calendar API | — |
 | Native share sheet | Web Share API | Page's share section, or copy link |
 | "Next up" with a live countdown | Client component, 20 s tick | Server-rendered value |
