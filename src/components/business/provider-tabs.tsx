@@ -1,5 +1,6 @@
 "use client";
 
+import { TabLens } from "@/components/ui/tab-lens";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CalendarIcon, MoreIcon, SunIcon, UsersIcon } from "@/components/ui/icons";
@@ -55,10 +56,11 @@ export function ProviderTabs({ businessId, canManage }: { businessId: string; ca
                 <Link
                   href={href}
                   aria-current={active ? "page" : undefined}
-                  className={`pressable flex min-h-13 flex-col items-center justify-center gap-0.5 rounded-full text-caption transition-colors ${
-                    active ? "glass-lens font-semibold text-primary" : "text-ink-muted"
+                  className={`pressable relative isolate flex min-h-13 flex-col items-center justify-center gap-0.5 rounded-full text-caption transition-colors ${
+                    active ? "font-semibold text-primary" : "text-ink-muted"
                   }`}
                 >
+                  {active ? <TabLens name="provider-tab-lens" /> : null}
                   <Icon className="size-6" />
                   <span className="max-w-full truncate px-1">{label}</span>
                 </Link>

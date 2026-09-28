@@ -32,6 +32,8 @@ export function visibleWindow(open: MinuteRange[], items: MinuteRange[]): Minute
 /**
  * Places items in one column: vertical position from time, and side-by-side lanes when
  * items overlap (e.g. a block over a booking made with an override). Stable and deterministic.
+ * Short items are drawn at least `minPx` tall (one readable line), and lanes use that drawn size,
+ * so two short items close together sit side by side instead of covering each other.
  */
 export function placeInColumn<T extends TimedItem>(
   items: T[],
@@ -39,7 +41,9 @@ export function placeInColumn<T extends TimedItem>(
   timezone: string,
   window: MinuteRange,
   pxPerMinute: number,
+  minPx = 22,
 ): Placed<T>[] {
+  const minMinutes = Math.max(10, Math.ceil(minPx / pxPerMinute));
   const sorted = [...items].sort((a, b) => a.start.getTime() - b.start.getTime() || a.id.localeCompare(b.id));
   const placed: Placed<T>[] = [];
   let cluster: Placed<T>[] = [];
@@ -55,7 +59,7 @@ export function placeInColumn<T extends TimedItem>(
 
   for (const item of sorted) {
     const from = minuteOfDay(item.start, date, timezone);
-    const to = Math.max(from + 10, minuteOfDay(item.end, date, timezone)); // at least 10 minutes tall
+    const to = Math.max(from + minMinutes, minuteOfDay(item.end, date, timezone));
     if (from >= clusterEnd && cluster.length > 0) closeCluster();
     let lane = laneEnds.findIndex((end) => end <= from);
     if (lane === -1) lane = laneEnds.length;

@@ -27,20 +27,23 @@ export function Sheet({
       aria-labelledby={label ? undefined : `${id}-title`}
       className="sheet"
     >
-      <div aria-hidden="true" className="mx-auto mt-2 mb-1 h-1.5 w-10 rounded-full bg-ink/20 md:hidden" />
-      <div className="flex items-start gap-3 px-5 pt-2">
-        <h2 id={`${id}-title`} className="min-w-0 flex-1 pt-1.5 text-title font-bold">
-          {title}
-        </h2>
-        <button
-          type="button"
-          popoverTarget={id}
-          popoverTargetAction="hide"
-          aria-label="Close"
-          className="pressable -mr-1 flex size-9 shrink-0 items-center justify-center rounded-full bg-fill text-ink-muted"
-        >
-          <XIcon className="size-4.5" />
-        </button>
+      {/* Grab zone: drag down to close on phones (sheet-gestures.tsx); doesn't scroll, so touch-none. */}
+      <div data-sheet-grab className="touch-none">
+        <div aria-hidden="true" className="mx-auto mt-2 mb-1 h-1.5 w-10 rounded-full bg-ink/20 md:hidden" />
+        <div className="flex items-start gap-3 px-5 pt-2">
+          <h2 id={`${id}-title`} className="min-w-0 flex-1 pt-1.5 text-title font-bold">
+            {title}
+          </h2>
+          <button
+            type="button"
+            popoverTarget={id}
+            popoverTargetAction="hide"
+            aria-label="Close"
+            className="pressable -mr-1 flex size-9 shrink-0 items-center justify-center rounded-full bg-fill text-ink-muted"
+          >
+            <XIcon className="size-4.5" />
+          </button>
+        </div>
       </div>
       <div className="px-5 pt-3 pb-safe-sm">{children}</div>
     </div>

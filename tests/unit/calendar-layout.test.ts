@@ -44,8 +44,28 @@ describe("calendar layout", () => {
     expect(placed.map((p) => [p.id, p.top, p.height, p.lane, p.lanes])).toEqual([
       ["a", 0, 90, 0, 2],
       ["b", 45, 90, 1, 2],
-      ["c", 180, 15, 0, 1], // short items get a readable minimum height
+      ["c", 180, 22.5, 0, 1], // short items get a readable minimum height (22 px → 15 min at 1.5 px/min)
     ]);
+  });
+
+  it("puts short items side by side when their drawn boxes would touch", () => {
+    // Two walk-ins completed early: 1 minute each, 10 minutes apart. Drawn at the minimum height
+    // they would overlap on screen, so they share the row in two lanes.
+    const placed = placeInColumn(
+      [
+        { id: "x", start: at("11:00"), end: at("11:01") },
+        { id: "y", start: at("11:10"), end: at("11:11") },
+      ],
+      DAY,
+      ACCRA,
+      { from: 540, to: 1080 },
+      1.2,
+    );
+    expect(placed.map((p) => [p.id, p.lane, p.lanes])).toEqual([
+      ["x", 0, 2],
+      ["y", 1, 2],
+    ]);
+    expect(placed[0].height).toBeGreaterThanOrEqual(22);
   });
 
   it("builds weeks from Monday and 6-week month grids", () => {

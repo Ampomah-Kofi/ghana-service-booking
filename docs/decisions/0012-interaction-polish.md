@@ -23,9 +23,15 @@ Each pattern uses the lightest platform feature that does the job, and degrades 
 | Booking ticket with **Add to calendar** | Our own RFC 5545 file from `/bookings/[id]/ics` (owner only); no calendar API | — |
 | Native share sheet | Web Share API | Page's share section, or copy link |
 | "Next up" with a live countdown | Client component, 20 s tick | Server-rendered value |
+| Sheets slide in **and out** on the iOS sheet curve, frosted (90 % card + blur, solid with reduced transparency), backdrop dims and blurs; swipe down on the handle to close | `@starting-style` + `transition-behavior: allow-discrete`; one delegated pointer listener | Sheets appear and disappear instantly |
+| The selected tab / segment "lens" slides to the new tab | React `<ViewTransition name="…-lens">` (`<TabLens>`) | Switches instantly |
+| Rows grey out while pressed; no browser tap flash anywhere | CSS `:active` + `-webkit-tap-highlight-color` | — |
+| In-page jumps glide (`#rate`, `#share`) | `scroll-behavior: smooth` (no reduced motion) with `html[data-scroll-behavior="smooth"]`, so page changes stay instant (Next 16) | Instant jump |
 | Recent searches and instant suggestions | `localStorage` (this phone only, try/catch) + categories and towns already loaded as reference data | Plain search field |
 
 ## Consequences
+- **Sheets are frosted** (amends ADR-0010's "content stays solid"): a sheet is a temporary control layer over the page, like iOS. 90 % opaque, so text stays readable; solid when the user asks for reduced transparency.
+- **Calendar blocks** have a readable minimum height (one line, 22 px) and lanes are computed from that drawn size, so short items close together sit side by side instead of covering each other (found by the layout overlap check).
 - **No business page skeleton:** a `loading.tsx` there starts streaming before `notFound()`, so hidden or unknown businesses would answer HTTP 200 instead of 404. Correct status wins.
 - Toasts drop their `?flag` from the address after showing, except where the flag carries data another step needs (`?added=` on the calendar).
 - `.ics` is the only new route; it re-checks that the booking belongs to the signed-in customer (RLS also applies).

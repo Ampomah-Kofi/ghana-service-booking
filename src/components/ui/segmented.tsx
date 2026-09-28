@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TabLens } from "./tab-lens";
 
 /** iOS-style segmented control made of links (works before JavaScript loads). */
 export function Segmented({
@@ -15,10 +16,13 @@ export function Segmented({
           key={item.href}
           href={item.href}
           aria-current={item.active ? "page" : undefined}
-          className={`flex min-h-9 min-w-16 items-center justify-center rounded-inner px-3 text-small font-medium transition-colors ${
-            item.active ? "glass-lens text-ink" : "text-ink-muted hover:text-ink"
+          className={`relative isolate flex min-h-9 min-w-16 items-center justify-center rounded-inner px-3 text-small font-medium transition-colors ${
+            item.active ? "text-ink" : "text-ink-muted hover:text-ink"
           }`}
         >
+          {item.active ? (
+            <TabLens name={`segment-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} className="rounded-inner" />
+          ) : null}
           {item.label}
         </Link>
       ))}

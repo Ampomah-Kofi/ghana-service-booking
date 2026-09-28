@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { CustomerTabs } from "@/components/ui/customer-tabs";
+import { SheetGestures } from "@/components/ui/sheet-gestures";
 import { BRAND } from "@/lib/brand";
 import "./globals.css";
 
@@ -29,7 +30,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" data-scroll-behavior="smooth">
       <body className="flex min-h-full flex-col">
         {/* Website header from tablet width; on phones each screen has its own large title and the app tab bar. */}
         <header className="glass sticky top-0 z-10 hidden md:block">
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </header>
         <main className="mx-auto w-full max-w-2xl flex-1 px-5 pt-safe pb-10 md:pt-8">{children}</main>
         <CustomerTabs />
+        <SheetGestures />
       </body>
     </html>
   );

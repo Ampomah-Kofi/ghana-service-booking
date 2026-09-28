@@ -130,6 +130,12 @@ Always a text label, never colour alone.
 - **Service photos:** providers tag portfolio photos with a service; up to three thumbnails show in that service's row and a larger strip in its sheet.
 - **Account:** Name (editable in a sheet), your reviews, Sign out (grey capsule), and Delete account (red text) opening a sheet that says exactly what happens and asks you to type DELETE.
 
+**Smoothness (after Phase 7)**
+- Sheets: iOS curve in and out, frosted, dimmed and blurred page behind, swipe the handle down to close.
+- Tabs and segmented controls: the selected lens slides to the new item.
+- Pressed rows grey out; no browser tap flash; in-page jumps scroll smoothly; page changes cross-fade briefly.
+- Layout rule: nothing may overlap. `scripts/dev/overlap-check.mjs` runs over every main screen at 360 and 390 px, and sheets are checked open.
+
 **Glass (ADR-0010)**
 - `.glass` / `.glass-strong` (see `globals.css`) are only for the navigation and control layer: the floating capsule tab bars, the desktop header, round buttons and chips over covers, the booking summary bar and the "+" menu. The selected tab is a brighter `glass-lens`.
 - Content (cards, lists, forms) stays solid.
