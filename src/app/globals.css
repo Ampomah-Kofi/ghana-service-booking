@@ -24,6 +24,10 @@
   --whatsapp: #1f7a45;
   --focus-ring: rgb(15 107 79 / 0.45);
   --hatch: rgb(20 32 27 / 0.07);
+  /* "Up next" live card: the same deep brand green in light and dark (white text on it). */
+  --live-a: #16825f;
+  --live-b: #06291f;
+  --live-ink: #0b4a37;
 }
 
 /* Warm dark mode: same roles, tuned for contrast (AA on --card). */
@@ -68,6 +72,7 @@
   --color-info: var(--info);
   --color-success: var(--success);
   --color-star: var(--star);
+  --color-live-ink: var(--live-ink);
   --color-whatsapp: var(--whatsapp);
 
   /* Type scale (px): display 28 · title 20 · heading 17 · body 16 · small 14 · caption 12 */
@@ -617,4 +622,28 @@ button,
 summary,
 label {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Provider "Up next" (Live Activity style): deep green, a soft light in the corner, a rim of light. */
+.live-card {
+  color: #fff;
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgb(120 230 180 / 0.35) 0%, transparent 55%),
+    radial-gradient(90% 70% at 0% 100%, rgb(0 0 0 / 0.25) 0%, transparent 60%),
+    linear-gradient(155deg, var(--live-a), var(--live-b));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 14px 34px rgb(6 41 31 / 0.28);
+}
+.live-dot {
+  box-shadow: 0 0 0 0 rgb(134 239 172 / 0.7);
+  animation: live-pulse 1.8s ease-out infinite;
+}
+@keyframes live-pulse {
+  70% {
+    box-shadow: 0 0 0 7px rgb(134 239 172 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(134 239 172 / 0);
+  }
 }

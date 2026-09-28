@@ -24,12 +24,14 @@ export function StatusButton({
   status,
   label,
   variant = "primary",
+  className,
 }: {
   businessId: string;
   appointmentId: string;
   status: Status;
   label?: string;
   variant?: "primary" | "secondary";
+  className?: string;
 }) {
   const [state, formAction] = useActionState<FormState, FormData>(statusAction.bind(null, businessId), {});
   const [text, pending] = LABELS[status];
@@ -37,7 +39,7 @@ export function StatusButton({
     <form action={formAction} className="min-w-0 flex-1">
       <input type="hidden" name="appointmentId" value={appointmentId} />
       <input type="hidden" name="status" value={status} />
-      <SubmitButton pendingLabel={pending} variant={variant}>
+      <SubmitButton pendingLabel={pending} variant={variant} className={className}>
         {label ?? text}
       </SubmitButton>
       {state.message ? (

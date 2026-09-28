@@ -136,6 +136,9 @@ Always a text label, never colour alone.
 - Pressed rows grey out; no browser tap flash; in-page jumps scroll smoothly; page changes cross-fade briefly.
 - Layout rule: nothing may overlap. `scripts/dev/overlap-check.mjs` runs over every main screen at 360 and 390 px, and sheets are checked open.
 
+**"Up next" (provider Today)**
+- A Live Activity-style card: deep brand green in both themes with a light glow and rim; "UP NEXT" (a pulsing dot and "NOW" once started) and a frosted countdown pill ("in 25 min", "20 min left", "Running over"); a large start time with the end time beside it; the client's initial, name, service and person; a white progress bar while it's happening; one white capsule action (Confirm / Mark arrived / Complete, whichever is possible now, otherwise Details) beside frosted Call and WhatsApp buttons. Live values tick every 20 s.
+
 **Glass (ADR-0010)**
 - `.glass` / `.glass-strong` (see `globals.css`) are only for the navigation and control layer: the floating capsule tab bars, the desktop header, round buttons and chips over covers, the booking summary bar and the "+" menu. The selected tab is a brighter `glass-lens`.
 - Content (cards, lists, forms) stays solid.
