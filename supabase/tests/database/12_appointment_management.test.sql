@@ -26,6 +26,8 @@ select
   (current_date + (8 - extract(isodow from current_date)::int) + 7) as mon;
 -- Deterministic on any local database: demo data (pnpm db:demo) or E2E leftovers are removed
 -- inside this transaction, which is rolled back at the end.
+delete from public.payment_events;
+delete from public.payments;
 delete from public.appointments;
 create temp table t (key text primary key, id uuid);
 grant select on ids to anon, authenticated;

@@ -663,6 +663,63 @@ export type Database = {
           },
         ];
       };
+      business_payout_accounts: {
+        Row: {
+          account_name: string;
+          bank_account_number: string | null;
+          bank_name: string | null;
+          business_id: string;
+          method: Database["public"]["Enums"]["payout_method"];
+          momo_network: string | null;
+          momo_number_e164: string | null;
+          provider_account_ref: string | null;
+          status: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          account_name: string;
+          bank_account_number?: string | null;
+          bank_name?: string | null;
+          business_id: string;
+          method: Database["public"]["Enums"]["payout_method"];
+          momo_network?: string | null;
+          momo_number_e164?: string | null;
+          provider_account_ref?: string | null;
+          status?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          account_name?: string;
+          bank_account_number?: string | null;
+          bank_name?: string | null;
+          business_id?: string;
+          method?: Database["public"]["Enums"]["payout_method"];
+          momo_network?: string | null;
+          momo_number_e164?: string | null;
+          provider_account_ref?: string | null;
+          status?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_payout_accounts_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: true;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "business_payout_accounts_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       business_photos: {
         Row: {
           business_id: string;
@@ -2223,6 +2280,18 @@ export type Database = {
       set_business_hours: { Args: { p_business_id: string; p_hours: Json }; Returns: undefined };
       set_business_slug: { Args: { p_business_id: string; p_slug: string }; Returns: string };
       set_payment_reference: { Args: { p_payment_id: string; p_reference: string }; Returns: undefined };
+      set_payout_account: {
+        Args: {
+          p_account_name: string;
+          p_bank_account_number?: string;
+          p_bank_name?: string;
+          p_business_id: string;
+          p_method: Database["public"]["Enums"]["payout_method"];
+          p_momo_network?: string;
+          p_momo_number?: string;
+        };
+        Returns: undefined;
+      };
       set_primary_category: { Args: { p_business_id: string; p_category_id: string }; Returns: undefined };
       set_service_staff: { Args: { p_service_id: string; p_staff_ids: string[] }; Returns: undefined };
       set_staff_hours: {
@@ -2273,6 +2342,7 @@ export type Database = {
       payment_kind: "deposit" | "balance" | "full";
       payment_method: "mobile_money" | "card" | "cash" | "bank_transfer";
       payment_status: "pending" | "paid" | "partially_paid" | "failed" | "refunded";
+      payout_method: "mobile_money" | "bank";
       price_type: "fixed" | "from" | "on_request";
       review_status: "published" | "hidden" | "removed";
     };
@@ -2395,6 +2465,7 @@ export const Constants = {
       payment_kind: ["deposit", "balance", "full"],
       payment_method: ["mobile_money", "card", "cash", "bank_transfer"],
       payment_status: ["pending", "paid", "partially_paid", "failed", "refunded"],
+      payout_method: ["mobile_money", "bank"],
       price_type: ["fixed", "from", "on_request"],
       review_status: ["published", "hidden", "removed"],
     },

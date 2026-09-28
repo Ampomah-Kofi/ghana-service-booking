@@ -3,7 +3,7 @@
 -- reschedule keeps what was paid.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(45);
+select plan(50);
 
 create function pg_temp.act_as(p_user uuid) returns void language plpgsql as $$
 begin
@@ -32,9 +32,10 @@ end $$;
 -- Yaw (…006) and Kojo-the-customer (…007 has no business at b1) book as customers.
 create temp table ids (k text primary key, id uuid);
 grant all on ids to anon, authenticated, service_role;
-delete from public.payments;
 delete from public.reviews;
 delete from public.notifications;
+delete from public.payment_events;
+delete from public.payments;
 delete from public.appointments;
 
 -- The n-th opening day (Mon–Sat) from 2 days ahead, at an hour, Accra time.
@@ -56,6 +57,25 @@ end $$;
 create function pg_temp.a(p_key text) returns public.appointments language sql as $$
   select * from public.appointments where id = (select id from ids where k = p_key);
 $$;
+
+-- Online payments need a payout account first (the owner's Mobile Money wallet).
+update public.booking_rules set collect_deposits_online = false, allow_full_payment_online = false
+ where business_id = 'b0000000-0000-4000-8000-000000000001';
+delete from public.business_payout_accounts where business_id = 'b0000000-0000-4000-8000-000000000001';
+select throws_ok($$ update public.booking_rules set collect_deposits_online = true
+                    where business_id = 'b0000000-0000-4000-8000-000000000001' $$,
+                 'BZ409', null, 'no deposits online until the business says where it gets paid');
+select pg_temp.act_as('a0000000-0000-4000-8000-000000000002');
+select throws_ok($$ select public.set_payout_account('b0000000-0000-4000-8000-000000000001', 'mobile_money', 'Kwame Asante', 'mtn', '+233200000001') $$,
+                 'BZ403', null, 'Business B cannot set Business A''s payout account');
+select pg_temp.act_as('a0000000-0000-4000-8000-000000000001');
+select lives_ok($$ select public.set_payout_account('b0000000-0000-4000-8000-000000000001', 'mobile_money', 'Kwame Asante', 'mtn', '+233200000001') $$,
+                'the owner adds a Mobile Money payout account');
+select pg_temp.act_as('a0000000-0000-4000-8000-000000000002');
+select is((select count(*)::int from public.business_payout_accounts), 0, 'Business B cannot read it');
+select pg_temp.act_as('a0000000-0000-4000-8000-000000000006');
+select is((select count(*)::int from public.business_payout_accounts), 0, 'customers cannot read it');
+select pg_temp.as_system();
 
 -- Low cut: GH₵ 50, deposit GH₵ 20 collected online; auto-confirm on.
 update public.services set deposit_minor = 2000 where id = '520564cd-3082-4b79-a213-ffb210ee6a81';

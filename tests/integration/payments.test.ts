@@ -110,12 +110,28 @@ beforeAll(async () => {
     .from("businesses")
     .update({ status: "published", published_at: new Date().toISOString() })
     .eq("id", businessId);
-  await admin.from("booking_rules").update({ collect_deposits_online: true }).eq("business_id", businessId);
+  // Where the money goes, then switch deposits on (the database refuses the other order).
+  const { error: payoutError } = await owner.db.rpc("set_payout_account", {
+    p_business_id: businessId,
+    p_method: "mobile_money",
+    p_account_name: "Silk Studio",
+    p_momo_network: "mtn",
+    p_momo_number: "+233244555000",
+  });
+  if (payoutError) throw payoutError;
+  const { error: rulesError } = await owner.db
+    .from("booking_rules")
+    .update({ collect_deposits_online: true })
+    .eq("business_id", businessId);
+  if (rulesError) throw rulesError;
 }, 60_000);
 
 afterAll(async () => {
   const admin = adminClient();
   await admin.from("notifications").delete().eq("business_id", businessId);
+  const { data: pays } = await admin.from("payments").select("id").eq("business_id", businessId);
+  const ids = (pays ?? []).map((p) => p.id);
+  if (ids.length) await admin.from("payment_events").delete().in("payment_id", ids);
   await admin.from("payments").delete().eq("business_id", businessId);
   await cleanup(cleanupIds);
 });

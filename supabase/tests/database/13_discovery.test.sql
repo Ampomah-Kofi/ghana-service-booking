@@ -16,6 +16,8 @@ begin
 end $$;
 
 -- Deterministic on any local database (demo data, E2E leftovers); rolled back at the end.
+delete from public.payment_events;
+delete from public.payments;
 delete from public.appointments;
 
 -- One booking at the published Kwame Cuts and one at the draft Osu Glow Spa, tomorrow at 10:00.
