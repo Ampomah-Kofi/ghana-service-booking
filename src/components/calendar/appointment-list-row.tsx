@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { STATUS, StatusBadge } from "@/components/bookings/status-badge";
+import { PaymentBadge, STATUS, StatusBadge } from "@/components/bookings/status-badge";
 import { ChevronRightIcon } from "@/components/ui/icons";
 import { formatTime } from "@/lib/datetime";
 import type { AppointmentView } from "@/server/bookings/appointments";
@@ -47,8 +47,9 @@ export function AppointmentListRow({
               .filter(Boolean)
               .join(" · ")}
           </span>
-          <span className="mt-1 flex">
+          <span className="mt-1 flex flex-wrap gap-1">
             <StatusBadge status={a.status} />
+            <PaymentBadge status={a.paymentStatus} paying={a.holdExpiresAt !== null} />
           </span>
         </span>
         <ChevronRightIcon className="shrink-0 self-center text-ink-muted" />

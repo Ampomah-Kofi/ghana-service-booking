@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { CountryCode } from "libphonenumber-js/max";
+import { parseMoneyInput } from "@/lib/money";
 import { phoneInputSchema } from "./auth";
 
 /** Phase 9. Shared by the Pay screen (Server Action) and POST /api/v1/appointments/{id}/payments. */
@@ -22,22 +23,29 @@ export function startPaymentSchema(defaultCountry: CountryCode) {
     .and(z.object({ kind: z.enum(["deposit", "full"]).default("deposit") }));
 }
 
-/** The business records money received at the visit. Amount in main units ("30" or "30.50"). */
-export const manualPaymentSchema = z.object({
-  method: z.enum(["cash", "mobile_money"], { message: "Choose cash or Mobile Money." }),
-  amount: z
-    .string()
-    .trim()
-    .regex(/^\d{1,7}(\.\d{1,2})?$/, "Enter the amount, e.g. 30 or 30.50.")
-    .transform((v) => Math.round(Number(v) * 100))
-    .refine((v) => v > 0, "Enter the amount received."),
-  note: z
-    .string()
-    .trim()
-    .max(200, "Use at most 200 characters.")
-    .optional()
-    .transform((v) => (v ? v : null)),
-});
+/** The business records money received at the visit. Amount typed in main units ("30" or "30.50"). */
+export function manualPaymentSchema(minorUnit: number) {
+  return z.object({
+    method: z.enum(["cash", "mobile_money"], { message: "Choose cash or Mobile Money." }),
+    amount: z
+      .string()
+      .trim()
+      .transform((v, ctx) => {
+        const minor = parseMoneyInput(v, minorUnit);
+        if (minor === null || minor <= 0) {
+          ctx.addIssue({ code: "custom", message: "Enter the amount received, e.g. 30 or 30.50." });
+          return z.NEVER;
+        }
+        return minor;
+      }),
+    note: z
+      .string()
+      .trim()
+      .max(200, "Use at most 200 characters.")
+      .optional()
+      .transform((v) => (v ? v : null)),
+  });
+}
 
 export const refundSchema = z.object({
   reason: z.string().trim().min(3, "Say why (the customer sees it).").max(200),

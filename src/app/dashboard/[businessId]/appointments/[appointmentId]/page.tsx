@@ -3,12 +3,15 @@ import { Toast } from "@/components/ui/toast";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
-import { SourceBadge, STATUS, StatusBadge } from "@/components/bookings/status-badge";
+import { PaymentBadge, SourceBadge, STATUS, StatusBadge } from "@/components/bookings/status-badge";
 import { ChatIcon, ChevronLeftIcon, ChevronRightIcon, PhoneIcon } from "@/components/ui/icons";
 import { localDateOf } from "@/lib/availability";
 import { formatDateShort, formatDateTime, formatTime } from "@/lib/datetime";
 import { formatDuration } from "@/lib/hours";
-import { formatMoney, formatPrice } from "@/lib/money";
+import { formatMoney, formatPrice, minorToInput } from "@/lib/money";
+import { AppointmentPayments } from "@/components/payments/appointment-payments";
+import { paymentMethodLabel } from "@/components/bookings/payment-summary";
+import { listAppointmentPayments } from "@/server/payments/service";
 import { formatPhoneInternational } from "@/lib/phone";
 import { telUrl, whatsappChatUrl } from "@/lib/share";
 import { memberBusinessOr404 } from "@/server/businesses/access";
@@ -29,7 +32,10 @@ export default async function AppointmentPage({
   const { db, business, canManage } = await memberBusinessOr404(businessId);
   const a = await getAppointment(db, appointmentId);
   if (!a || a.business.id !== business.id) notFound();
-  const history = await getAppointmentHistory(db, a.id);
+  const [history, payments] = await Promise.all([
+    getAppointmentHistory(db, a.id),
+    canManage ? listAppointmentPayments(db, a.id) : Promise.resolve([]),
+  ]);
 
   const tz = business.timezone;
   const base = `/dashboard/${business.id}`;
@@ -40,6 +46,26 @@ export default async function AppointmentPage({
   const undo = undoStatus(a.status, new Date(a.endsAt));
   const minutes = Math.round((new Date(a.endsAt).getTime() - new Date(a.startsAt).getTime()) / 60_000);
   const live = a.status === "pending" || a.status === "confirmed";
+  const due = a.finalPriceMinor ?? (a.price.type === "fixed" ? a.price.amountMinor : null);
+  const paid = payments
+    .filter((p) => p.status === "paid" || p.status === "refund_pending")
+    .reduce((s, p) => s + p.amountMinor, 0);
+  const left = due === null ? null : Math.max(0, due - paid);
+  const moneySummary = !canManage
+    ? a.paymentStatus === "paid"
+      ? "Paid in full."
+      : a.paymentStatus === "partially_paid"
+        ? "Part paid. Ask the owner what's left."
+        : null
+    : paid === 0
+      ? null
+      : left === null
+        ? `${money(paid)} paid`
+        : left === 0
+          ? `Paid in full · ${money(paid)}`
+          : `${money(paid)} paid · ${money(left)} to collect`;
+  const shownPayments = payments.filter((p) => p.status !== "failed" && p.status !== "expired");
+  const kept = ["arrived", "completed", "confirmed", "pending"].includes(a.status);
 
   return (
     <div className="mx-auto max-w-xl">
@@ -57,6 +83,7 @@ export default async function AppointmentPage({
           <div className="mb-3 flex flex-wrap gap-1.5">
             <StatusBadge status={a.status} />
             <SourceBadge source={a.source} />
+            <PaymentBadge status={a.paymentStatus} paying={a.holdExpiresAt !== null} />
           </div>
           <h1 className="text-display font-bold">{a.customerName}</h1>
           <p
@@ -105,12 +132,39 @@ export default async function AppointmentPage({
             )}
           </Row>
           {a.depositMinor ? <Row label="Deposit">{money(a.depositMinor)}</Row> : null}
+          {a.holdExpiresAt ? <Row label="Waiting">Customer is paying the deposit</Row> : null}
           {a.customerPhone ? <Row label="Phone">{formatPhoneInternational(a.customerPhone)}</Row> : null}
           {a.note ? <Row label="Note">{a.note}</Row> : null}
           <Row label="Booked">{`${SOURCE[a.source]} · ${formatDateTime(a.createdAt, tz)}`}</Row>
           {a.status === "cancelled" && a.cancellationReason ? <Row label="Reason">{a.cancellationReason}</Row> : null}
         </dl>
       </article>
+
+      <AppointmentPayments
+        businessId={business.id}
+        appointmentId={a.id}
+        canRecord={kept && !a.holdExpiresAt && left !== 0 && a.paymentStatus !== "paid"}
+        canSeeMoney={canManage}
+        currencySymbol={a.price.currency.symbol ?? a.price.currency.code}
+        leftInput={canManage && left ? minorToInput(left, a.price.currency.minorUnit) : ""}
+        summary={moneySummary}
+        lines={shownPayments.map((p) => ({
+          id: p.id,
+          label: `${p.kind === "deposit" ? "Deposit" : p.kind === "balance" ? "Balance" : "Payment"} · ${paymentMethodLabel(p)}`,
+          status:
+            p.status === "paid"
+              ? "Paid"
+              : p.status === "pending"
+                ? "Waiting for the customer"
+                : p.status === "refund_pending"
+                  ? "Refund on its way"
+                  : "Refunded",
+          tone: p.status === "paid" ? "text-success" : p.status === "pending" ? "text-warning" : "text-info",
+          amount: money(p.amountMinor),
+          refundable: p.status === "paid",
+          note: p.note,
+        }))}
+      />
 
       <section aria-label="Actions" className="mt-4 grid gap-2">
         <AppointmentActions

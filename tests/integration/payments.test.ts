@@ -6,7 +6,8 @@ import { listActiveCategories } from "@/server/catalog/categories";
 import { handlePaymentWebhook, runPaymentJobs } from "@/server/jobs/payments";
 import { getPaymentProvider } from "@/server/payments";
 import { MOCK_SIGNATURE_HEADER, MockPaymentProvider } from "@/server/payments/mock-payment-provider";
-import { listAppointmentPayments, startPayment } from "@/server/payments/service";
+import { listAppointmentPayments, recordManualPayment, startPayment } from "@/server/payments/service";
+import { getPayoutAccount, savePaymentRules, setPayoutAccount } from "@/server/payments/settings";
 import { adminClient, cleanup, signedInUser, type SignedInUser } from "./support";
 
 /**
@@ -206,6 +207,49 @@ describe("payments", () => {
     expect(r2.refunded).toBeGreaterThanOrEqual(1);
     expect((await listAppointmentPayments(customer.db, id))[0].status).toBe("refunded");
     expect((await appointment(id)).payment_status).toBe("refunded");
+  });
+
+  it("shows the owner a masked payout account, hides it from others, and needs one before online payments", async () => {
+    expect(await getPayoutAccount(owner.db, businessId)).toMatchObject({
+      method: "mobile_money",
+      network: "mtn",
+      last4: "5000",
+      status: "unverified",
+    });
+    expect(await getPayoutAccount(stranger.db, businessId)).toBeNull();
+    await expect(
+      setPayoutAccount(stranger.db, businessId, {
+        method: "bank",
+        accountName: "Thief",
+        bankName: "Any Bank",
+        accountNumber: "12345678",
+      }),
+    ).rejects.toThrow();
+
+    // A second business with no payout details can't switch online payments on.
+    const [cat] = (await listActiveCategories(owner.db)).filter((c) => c.slug === "hair-salons");
+    const second = (await createBusiness(owner.db, { kind: "solo", name: "Second Studio", categoryId: cat.id }, "GH"))
+      .id;
+    const rules = { collectDepositsOnline: true, allowFullPaymentOnline: false, refundDepositOnNoShow: false };
+    await expect(savePaymentRules(owner.db, second, rules)).rejects.toThrow(/where you get paid/i);
+    await setPayoutAccount(owner.db, second, {
+      method: "bank",
+      accountName: "Second Studio",
+      bankName: "GCB Bank",
+      accountNumber: "1234 5678 9012",
+    });
+    await expect(savePaymentRules(owner.db, second, rules)).resolves.toBeUndefined();
+    expect(await getPayoutAccount(owner.db, second)).toMatchObject({ method: "bank", last4: "9012" });
+    await expect(savePaymentRules(stranger.db, second, rules)).rejects.toThrow();
+  });
+
+  it("the business records cash at the visit, capped at the price", async () => {
+    const id = await heldBooking();
+    await adminClient().from("appointments").update({ status: "confirmed", hold_expires_at: null }).eq("id", id);
+    await recordManualPayment(owner.db, id, 12000, "cash", null);
+    expect((await appointment(id)).payment_status).toBe("paid");
+    await expect(recordManualPayment(owner.db, id, 100, "cash", null)).rejects.toThrow(/more than the price/i);
+    await expect(recordManualPayment(stranger.db, id, 100, "cash", null)).rejects.toThrow();
   });
 
   it("catches a lost webhook by asking the provider (reconciliation)", async () => {

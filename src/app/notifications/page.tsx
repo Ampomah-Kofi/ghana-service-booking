@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/ui/empty-state";
-import { BellIcon, CalendarIcon, ChevronRightIcon, StarIcon, StoreIcon, WalletIcon, XIcon } from "@/components/ui/icons";
+import {
+  BellIcon,
+  CalendarIcon,
+  ChevronRightIcon,
+  StarIcon,
+  StoreIcon,
+  WalletIcon,
+  XIcon,
+} from "@/components/ui/icons";
 import { LargeTitle } from "@/components/ui/large-title";
 import { requireUserOrRedirect } from "@/server/auth/session";
 import { createUserClient } from "@/server/db/supabase-server";

@@ -27,3 +27,29 @@ export function SourceBadge({ source }: { source: "online" | "manual" | "walk_in
     </span>
   );
 }
+
+/** Money at a glance on appointment rows (Phase 9). Nothing when nothing's been paid or asked for. */
+export function PaymentBadge({
+  status,
+  paying,
+}: {
+  status: "pending" | "paid" | "partially_paid" | "failed" | "refunded" | null;
+  /** A deposit hold is open: the customer is paying right now. */
+  paying: boolean;
+}) {
+  const badge = paying
+    ? { label: "Paying deposit", tone: "bg-warning/12 text-warning" }
+    : status === "paid"
+      ? { label: "Paid", tone: "bg-success/10 text-success" }
+      : status === "partially_paid"
+        ? { label: "Part paid", tone: "bg-success/10 text-success" }
+        : status === "refunded"
+          ? { label: "Refunded", tone: "bg-fill text-ink-muted" }
+          : null;
+  if (!badge) return null;
+  return (
+    <span className={`inline-flex shrink-0 items-center rounded-chip px-2 py-0.5 text-caption ${badge.tone}`}>
+      {badge.label}
+    </span>
+  );
+}
