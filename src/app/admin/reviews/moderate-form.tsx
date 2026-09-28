@@ -11,7 +11,7 @@ export function ModerateForm({ reviewId }: { reviewId: string }) {
   const [state, formAction] = useActionState<FormState, FormData>(moderateReviewAction, {});
   if (state.ok) return <p className="text-small font-medium text-success">{state.notice}</p>;
   return (
-    <form action={formAction} className="grid gap-2">
+    <form action={formAction} className="grid grid-cols-[minmax(0,1fr)] gap-2">
       <input type="hidden" name="reviewId" value={reviewId} />
       <FormMessage tone="error" message={state.fieldErrors?.reason ?? state.message} />
       <label htmlFor={`reason-${reviewId}`} className="sr-only">

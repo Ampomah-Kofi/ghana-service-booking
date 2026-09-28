@@ -126,7 +126,7 @@ export default async function TodayPage({ params }: PageProps<"/dashboard/[busin
 
           <LiveProgress start={next.startsAt} end={next.endsAt} renderedAt={now.toISOString()} />
 
-          <div className="mt-5 flex items-center gap-2">
+          <div className="mt-5 flex flex-wrap items-center gap-2">
             {nextAction === null ? (
               <Link
                 href={`${base}/appointments/${next.id}`}
@@ -182,7 +182,7 @@ export default async function TodayPage({ params }: PageProps<"/dashboard/[busin
       ) : null}
 
       <section aria-labelledby="list-heading" className="mb-6">
-        <div className="mb-2 flex items-baseline justify-between">
+        <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3">
           <h2 id="list-heading" className="text-title font-semibold">
             Appointments
           </h2>
@@ -215,7 +215,7 @@ export default async function TodayPage({ params }: PageProps<"/dashboard/[busin
 
       {canManage && summary.recentClients.length > 0 ? (
         <section aria-labelledby="clients-heading" className="mb-6">
-          <div className="mb-2 flex items-baseline justify-between">
+          <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3">
             <h2 id="clients-heading" className="text-title font-semibold">
               Recent clients
             </h2>

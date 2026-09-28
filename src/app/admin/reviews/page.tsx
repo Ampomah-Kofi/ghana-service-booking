@@ -20,7 +20,7 @@ export default async function AdminReviewsPage() {
       {reported.length === 0 ? (
         <p className="rounded-card bg-card p-4 text-body text-ink-muted lift">Nothing reported. All clear.</p>
       ) : (
-        <ul className="grid gap-4">
+        <ul className="grid grid-cols-[minmax(0,1fr)] gap-4">
           {reported.map((r) => (
             <li key={r.id} className="overflow-hidden rounded-card bg-card lift">
               <p className="px-4 pt-3 text-small font-semibold">{r.businessName}</p>

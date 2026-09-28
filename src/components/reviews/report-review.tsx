@@ -28,7 +28,7 @@ export function ReportReview({ reviewId }: { reviewId: string }) {
             {state.notice}
           </p>
         ) : (
-          <form action={formAction} className="grid gap-3">
+          <form action={formAction} className="grid grid-cols-[minmax(0,1fr)] gap-3">
             <input type="hidden" name="reviewId" value={reviewId} />
             <FormMessage
               tone="error"

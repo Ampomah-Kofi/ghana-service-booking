@@ -34,7 +34,7 @@ export function StarInput({
       <legend className="sr-only">Your rating</legend>
       <div
         ref={row}
-        className="flex w-fit touch-none gap-1"
+        className="flex w-fit max-w-full touch-none flex-wrap gap-1"
         onPointerMove={(e) => {
           if (e.pointerType === "mouse" && e.buttons === 0) setHover(valueAt(e.clientX));
           else if (e.buttons) setValue(valueAt(e.clientX));

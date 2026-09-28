@@ -28,7 +28,7 @@ export function DateJump({
   const pill = dayPill(selected);
 
   return (
-    <div className="relative mb-3 flex items-center gap-2">
+    <div className="relative mb-3 flex flex-wrap items-center gap-2">
       <Segment label="Month" value={showYear ? `${current.label} ${current.year}` : current.label}>
         <p className="mb-3 text-heading font-semibold">Select month</p>
         <ul className="grid grid-cols-3 gap-2">

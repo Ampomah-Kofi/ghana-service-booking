@@ -37,7 +37,7 @@ export function NewAppointmentForm({
   const [clientMode, setClientMode] = useState<"new" | "existing">("new");
 
   return (
-    <form action={formAction} noValidate className="grid gap-5">
+    <form action={formAction} noValidate className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <input type="hidden" name="walkIn" value={walkIn ? "1" : "0"} />
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
 
@@ -46,7 +46,7 @@ export function NewAppointmentForm({
         {services.length === 0 ? (
           <p className="text-body text-ink-muted">Add a service first (More → Services).</p>
         ) : (
-          <div className="grid gap-2">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-2">
             {services.map((s) => (
               <label
                 key={s.id}

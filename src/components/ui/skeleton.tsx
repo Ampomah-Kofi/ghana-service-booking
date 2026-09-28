@@ -65,7 +65,7 @@ export function SkeletonResults({ count = 3 }: { count?: number }) {
     <div className="space-y-3">
       {Array.from({ length: count }, (_, i) => (
         <div key={i} className="flex items-center gap-3 rounded-card bg-card p-2.5">
-          <Bone className="size-22 shrink-0 rounded-control" />
+          <Bone className="size-[88px] shrink-0 rounded-control" />
           <div className="min-w-0 flex-1">
             <Bone className="mb-2 h-4 w-2/3" />
             <Bone className="mb-2 h-3 w-1/2" />

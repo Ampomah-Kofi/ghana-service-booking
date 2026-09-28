@@ -13,7 +13,7 @@ export const STATUS: Record<AppointmentStatus, { label: string; bar: string; bad
 export function StatusBadge({ status }: { status: AppointmentStatus }) {
   const s = STATUS[status];
   return (
-    <span className={`inline-flex shrink-0 items-center rounded-chip px-2 py-0.5 text-caption ${s.badge}`}>
+    <span className={`inline-flex max-w-full shrink-0 items-center rounded-chip px-2 py-0.5 text-caption ${s.badge}`}>
       {s.label}
     </span>
   );

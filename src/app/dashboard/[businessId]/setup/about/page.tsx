@@ -20,7 +20,7 @@ export default async function AboutStepPage({ params }: PageProps<"/dashboard/[b
         title="About your business"
         subtitle="The basics customers see first."
       />
-      <div className="grid gap-6">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
         <AboutForm
           businessId={business.id}
           categories={categories.map(({ id, name }) => ({ id, name }))}

@@ -57,7 +57,7 @@ export function ServiceForm({ businessId, serviceId, returnTo, currencySymbol, s
           <div
             className={`flex min-h-11 items-center rounded-control border border-border bg-card focus-within:border-primary transition-opacity ${onRequest ? "opacity-45" : ""}`}
           >
-            <span className="pl-3 text-body text-ink-muted">{currencySymbol}</span>
+            <span className="shrink-0 whitespace-nowrap pl-3 text-body text-ink-muted">{currencySymbol}</span>
             <input
               id="price"
               name="price"
@@ -138,7 +138,7 @@ export function ServiceForm({ businessId, serviceId, returnTo, currencySymbol, s
       {staff ? (
         <fieldset className="mb-4">
           <legend className="mb-1.5 text-small font-medium">Who does this service?</legend>
-          <div className="grid gap-1">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-1">
             {staff.map((s) => (
               <label key={s.id} className="flex min-h-11 items-center gap-3 text-body">
                 <input

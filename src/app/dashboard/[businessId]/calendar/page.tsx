@@ -296,7 +296,7 @@ function WeekAgenda({
   showStaff: boolean;
 }) {
   return (
-    <div className="grid gap-4">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4">
       {columns.map((c) => (
         <section key={c.key} aria-label={formatLocalDate(c.date)}>
           <h2 className={`mb-1.5 text-small font-semibold ${c.highlight ? "text-primary" : "text-ink-muted"}`}>

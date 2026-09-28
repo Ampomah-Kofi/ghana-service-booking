@@ -11,7 +11,7 @@ export function RatingSummary({ summary }: { summary: Summary }) {
         <p className="mt-1 text-caption text-ink-muted">out of 5</p>
       </div>
       <div className="min-w-0 flex-1">
-        <ul aria-label="Ratings by stars" className="grid gap-1">
+        <ul aria-label="Ratings by stars" className="grid grid-cols-[minmax(0,1fr)] gap-1">
           {[5, 4, 3, 2, 1].map((star) => {
             const n = summary.distribution[star - 1];
             return (

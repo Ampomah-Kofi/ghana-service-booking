@@ -16,7 +16,7 @@ export function EditNameSheet({ current }: { current: string }) {
     <>
       {state.ok ? <Toast message={state.notice ?? "Saved"} /> : null}
       <Sheet id="edit-name" title="Your name">
-        <form action={formAction} className="grid gap-3">
+        <form action={formAction} className="grid grid-cols-[minmax(0,1fr)] gap-3">
           <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
           <label htmlFor="fullName" className="text-small font-medium">
             Full name
@@ -48,7 +48,7 @@ export function DeleteAccountSheet({ blocker }: { blocker: string | null }) {
       {blocker ? (
         <p className="pb-2 text-body">{blocker}</p>
       ) : (
-        <form action={formAction} className="grid gap-3">
+        <form action={formAction} className="grid grid-cols-[minmax(0,1fr)] gap-3">
           <ul className="grid list-disc gap-1.5 pl-5 text-body text-ink-muted">
             <li>Your profile, favourites and sign-in are deleted.</li>
             <li>Businesses keep their booking records, without your name or phone number.</li>

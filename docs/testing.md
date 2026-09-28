@@ -85,9 +85,13 @@ CI (`.github/workflows/ci.yml`) runs all of these on every PR, plus a check that
 - Phone OTP sign-in is covered in E2E with the seed test code. The SMS hook path for other numbers is covered by unit tests and a manual check.
 - The engine↔SQL parity check is a set of targeted cases, not the randomised fixture run described in architecture §6.
 
-## Accessibility audit (manual, after the interaction polish)
-There's no axe dependency in the project yet (it would be added with Phase 11). The audit after ADR-0012 ran axe-core 4.13 from a throwaway copy, injected into every main screen at 360 px in light and dark: public pages, the booking steps, bookings, the ticket, account, and the provider's Today, calendar (day/week/month), clients and more. Rules: WCAG 2.0/2.1/2.2 A and AA. It also set the root font size to 200% and checked for sideways scrolling.
-Result: no violations after two fixes (faint other-month days in the month grid; tab labels overflowing at 200% text now truncate).
+## Accessibility check
+`node scripts/dev/a11y-check.mjs <storage-state.json|-> <path…>` (app on :3000) runs axe-core (WCAG 2.0–2.2 A/AA) on each path at 360 px in light and dark, and fails if the page scrolls sideways at 200% text size. axe-core is not a project dependency: the script uses the copy `eslint-plugin-jsx-a11y` already installs.
+
+Last run (ADR-0014, 28 Sep): 27 customer and provider screens. Fixed along the way: dark-mode contrast of the unread badge (new `on-danger` token), and sideways scrolling at 200% text on search, booking, notifications, Today, calendar, the service list, new appointment and settings (wrapping rows, `minmax(0,1fr)` single-column grids, fieldsets allowed to shrink, long words break instead of overflowing).
+Two accepted findings, both `target-size`:
+- **Calendar "tap an empty half hour to add"** slots are partly covered by appointments. WCAG 2.5.8's equivalent-control exception applies: the "+" button (and "New appointment") does the same thing at full size. The slots stay keyboard-reachable and labelled.
+- **The last service row on a business page** is flagged because the sticky "Book an appointment" bar sits over it at load; scrolling uncovers it (the bar reserves space at the end of the page).
 
 ## Layout overlap check
 `node scripts/dev/overlap-check.mjs <storage-state.json|-> <path…>` (app running on :3000; storage states from `scripts/dev/login-state.mjs`) flags, at 360 and 390 px:

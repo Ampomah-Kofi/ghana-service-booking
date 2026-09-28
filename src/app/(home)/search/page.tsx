@@ -86,7 +86,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
       <p className="mb-3 text-small text-ink-muted" aria-live="polite">
         {todayOnly ? `${cards.length} available today` : result.total === 1 ? "1 result" : `${result.total} results`}
       </p>
-      <nav aria-label="Filters" className="mb-5 flex gap-2">
+      <nav aria-label="Filters" className="mb-5 flex flex-wrap gap-2">
         {[
           { label: "Any day", active: !todayOnly, href: filterHref(false) },
           { label: "Available today", active: todayOnly, href: filterHref(true) },

@@ -23,7 +23,7 @@ export function ReviewForm({
   if (state.ok) return <Toast message={state.notice ?? "Saved"} />;
   const rating = Number(valueOf(state.values, "rating", String(review?.rating ?? 0)));
   return (
-    <form action={formAction} className="grid gap-3">
+    <form action={formAction} className="grid grid-cols-[minmax(0,1fr)] gap-3">
       <input type="hidden" name="appointmentId" value={appointmentId} />
       {review ? <input type="hidden" name="reviewId" value={review.id} /> : null}
       <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />

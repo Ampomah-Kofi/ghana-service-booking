@@ -65,7 +65,7 @@ export default async function PhotosStepPage({ params }: PageProps<"/dashboard/[
       </section>
 
       <section className="mb-8" aria-labelledby="portfolio-heading">
-        <div className="mb-3 flex items-baseline justify-between">
+        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3">
           <h2 id="portfolio-heading" className="text-title font-semibold">
             Portfolio
           </h2>

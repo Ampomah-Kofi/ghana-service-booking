@@ -17,6 +17,7 @@
   --primary-soft: #e4f2ec;
   --on-primary: #ffffff;
   --danger: #b42318;
+  --on-danger: #ffffff;
   --warning: #b54708;
   --info: #1d4ed8;
   --success: #1f7a3a;
@@ -44,6 +45,7 @@
     --primary-soft: rgb(76 197 150 / 0.16);
     --on-primary: #04150e;
     --danger: #ff8a7e;
+    --on-danger: #2a0805;
     --warning: #f5a54a;
     --info: #8ab4ff;
     --success: #5fd38b;
@@ -68,6 +70,7 @@
   --color-primary-soft: var(--primary-soft);
   --color-on-primary: var(--on-primary);
   --color-danger: var(--danger);
+  --color-on-danger: var(--on-danger);
   --color-warning: var(--warning);
   --color-info: var(--info);
   --color-success: var(--success);
@@ -103,6 +106,17 @@
   --shadow-pop: 0 4px 12px rgb(20 32 27 / 0.1);
 }
 
+h1,
+h2,
+h3 {
+  hyphens: auto;
+}
+
+/* Fieldsets default to min-width: min-content, which lets long content push a form wider than the phone. */
+fieldset {
+  min-inline-size: 0;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   color-scheme: light dark;
@@ -114,6 +128,9 @@ body {
   font-family: var(--font-sans);
   font-size: var(--text-body);
   line-height: 1.5;
+  /* A word that can't fit its line (large text settings, long names) breaks instead of pushing
+     the page sideways. Normal-size text never hits this. */
+  overflow-wrap: anywhere;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -133,6 +150,7 @@ body {
 
 /* iOS-style switch for every <input type="checkbox" role="switch"> (docs/design.md). */
 input[type="checkbox"][role="switch"] {
+  flex-shrink: 0;
   appearance: none;
   position: relative;
   flex-shrink: 0;

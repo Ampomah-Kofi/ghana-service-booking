@@ -261,7 +261,7 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
       ) : null}
 
       {canChange && a.business.slug ? (
-        <section className="grid gap-2" aria-label="Change this booking">
+        <section className="grid grid-cols-[minmax(0,1fr)] gap-2" aria-label="Change this booking">
           <Link
             href={`/business/${a.business.slug}/book?reschedule=${a.id}`}
             className="pressable flex min-h-12 items-center justify-center rounded-full bg-primary px-5 font-semibold text-on-primary hover:bg-primary-hover"

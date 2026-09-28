@@ -44,13 +44,13 @@ export function AppointmentActions({
   const canCancel = actions.includes("cancelled");
 
   return (
-    <div className="grid gap-2">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-2">
       {state.message && !state.fieldErrors ? <FormMessage tone="error" message={state.message} /> : null}
       {main.map((status, i) => {
         const a = ACTION[status];
         if (!a) return null;
         return (
-          <form key={status} action={formAction} className="grid gap-2">
+          <form key={status} action={formAction} className="grid grid-cols-[minmax(0,1fr)] gap-2">
             <input type="hidden" name="appointmentId" value={appointmentId} />
             <input type="hidden" name="status" value={status} />
             {status === "completed" && askFinalPrice ? (

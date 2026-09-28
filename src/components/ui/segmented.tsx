@@ -10,13 +10,13 @@ export function Segmented({
   items: { href: string; label: string; active: boolean }[];
 }) {
   return (
-    <nav aria-label={label} className="inline-flex rounded-control bg-fill p-0.5">
+    <nav aria-label={label} className="inline-flex max-w-full rounded-control bg-fill p-0.5">
       {items.map((item) => (
         <Link
           key={item.href}
           href={item.href}
           aria-current={item.active ? "page" : undefined}
-          className={`relative isolate flex min-h-9 min-w-16 items-center justify-center rounded-inner px-3 text-small font-medium transition-colors ${
+          className={`relative isolate flex min-h-9 min-w-0 flex-1 basis-16 items-center justify-center rounded-inner px-3 text-small font-medium transition-colors ${
             item.active ? "text-ink" : "text-ink-muted hover:text-ink"
           }`}
         >

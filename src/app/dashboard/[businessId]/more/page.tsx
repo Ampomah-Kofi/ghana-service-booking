@@ -132,7 +132,7 @@ export default async function MorePage({ params }: PageProps<"/dashboard/[busine
               aria-hidden="true"
               className={`flex size-6 shrink-0 items-center justify-center rounded-full text-small font-bold ${
                 item.done
-                  ? "bg-success text-white"
+                  ? "bg-success text-on-primary"
                   : item.required
                     ? "border-2 border-danger"
                     : "border-2 border-border"

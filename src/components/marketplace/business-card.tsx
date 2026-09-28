@@ -48,7 +48,7 @@ export function BusinessCard({
     .join(" · ");
 
   const rating = card.rating ? (
-    <span className="shrink-0 text-small font-semibold tabular-nums">
+    <span className="max-w-full shrink-0 text-small font-semibold tabular-nums">
       <span className="text-star" aria-hidden="true">
         ★
       </span>{" "}
@@ -90,7 +90,7 @@ export function BusinessCard({
           className="pressable group flex items-center gap-3 rounded-card bg-card p-2.5 lift"
         >
           <MorphCover id={card.id} enabled={morph}>
-            <div className="relative size-22 shrink-0 overflow-hidden rounded-control bg-fill">
+            <div className="relative size-[88px] shrink-0 overflow-hidden rounded-control bg-fill">
               <Cover
                 imageUrl={image ? publicMediaUrl(supabaseUrl, image) : null}
                 categorySlug={card.categorySlug}

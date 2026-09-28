@@ -13,7 +13,7 @@ export function NotificationBell({ unread, className = "bg-fill text-ink" }: { u
       {unread > 0 ? (
         <span
           aria-hidden="true"
-          className="pop absolute -top-0.5 -right-0.5 flex min-w-5 items-center justify-center rounded-full bg-danger px-1 text-caption leading-5 font-bold text-white ring-2 ring-surface"
+          className="pop absolute -top-0.5 -right-0.5 flex min-w-5 items-center justify-center rounded-full bg-danger px-1 text-caption leading-5 font-bold text-on-danger ring-2 ring-surface"
         >
           {unread > 9 ? "9+" : unread}
         </span>
