@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Toast } from "@/components/ui/toast";
 import { heartsFor } from "@/server/favorites/favorites";
 import { toSuggestions } from "@/server/catalog/suggestions";
 import { LargeTitle } from "@/components/ui/large-title";
@@ -24,7 +25,8 @@ import { PlaceCard } from "@/components/marketplace/place-card";
 const EXAMPLES = ["Barber in East Legon", "Braids in Kumasi", "Nails near me", "Home cleaning"];
 
 /** Explore: search first, then categories and swipeable rows of providers (SPEC §11). */
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: PageProps<"/">) {
+  const deleted = (await searchParams).deleted === "1";
   const db = await createUserClient();
   const user = await getCurrentUser();
   const country = serverEnv().DEFAULT_COUNTRY_CODE;
@@ -80,6 +82,7 @@ export default async function HomePage() {
         aria-hidden="true"
         className="aurora bleed-top pointer-events-none absolute -right-5 -left-5 -z-10 h-80 md:mt-0"
       />
+      {deleted ? <Toast message="Your account has been deleted" param="deleted" /> : null}
       <LargeTitle
         title="Explore"
         eyebrow={formatDayLong(new Date(), timezone)}

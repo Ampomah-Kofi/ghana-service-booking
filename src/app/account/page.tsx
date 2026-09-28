@@ -1,4 +1,9 @@
 import type { Metadata } from "next";
+import { DeleteAccountSheet, EditNameSheet } from "./account-forms";
+import { Stars } from "@/components/reviews/stars";
+import { accountDeletionBlocker } from "@/server/account/account";
+import { listMyReviews } from "@/server/reviews/reviews";
+import { createUserClient } from "@/server/db/supabase-server";
 import { LargeTitle } from "@/components/ui/large-title";
 import Link from "next/link";
 import { GroupedRow, GroupedSection } from "@/components/ui/card";
@@ -15,19 +20,34 @@ const roleLabel: Record<MemberRole, string> = { owner: "Owner", manager: "Manage
 
 export default async function AccountPage() {
   const user = await requireUserOrRedirect("/account");
-  const [profile, memberships, admin] = await Promise.all([getMyProfile(), listMyMemberships(), isPlatformAdmin()]);
+  const db = await createUserClient();
+  const [profile, memberships, admin, reviews, blocker] = await Promise.all([
+    getMyProfile(),
+    listMyMemberships(),
+    isPlatformAdmin(),
+    listMyReviews(db, user.id),
+    accountDeletionBlocker(db),
+  ]);
 
   return (
     <>
       <LargeTitle title={profile?.fullName ?? "Your account"} eyebrow="Account" className="mb-6" />
 
       <GroupedSection title="Profile">
+        <button type="button" popoverTarget="edit-name" className="block w-full text-left hover:bg-fill">
+          <GroupedRow label="Name" value={`${profile?.fullName ?? "Add your name"} ›`} />
+        </button>
         <GroupedRow label="Phone" value={user.phone ? formatPhoneInternational(user.phone) : "Not set"} />
         <GroupedRow label="Email" value={user.email ?? "Not set"} />
         {admin ? (
-          <Link href="/admin/categories" className="block hover:bg-fill">
-            <GroupedRow label="Access" value="Platform admin ›" />
-          </Link>
+          <>
+            <Link href="/admin/categories" className="block hover:bg-fill">
+              <GroupedRow label="Categories" value="Platform admin ›" />
+            </Link>
+            <Link href="/admin/reviews" className="block hover:bg-fill">
+              <GroupedRow label="Reported reviews" value="Platform admin ›" />
+            </Link>
+          </>
         ) : null}
       </GroupedSection>
 
@@ -36,6 +56,27 @@ export default async function AccountPage() {
           <GroupedRow label="Your bookings" value="›" />
         </Link>
       </GroupedSection>
+
+      {reviews.length > 0 ? (
+        <GroupedSection title="Your reviews">
+          {reviews.map((r) => (
+            <Link
+              key={r.id}
+              href={`/bookings/${r.appointmentId}#rate`}
+              className="flex min-h-14 items-center gap-3 px-4 py-3 hover:bg-fill"
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-body">{r.businessName}</span>
+                <span className="block truncate text-small text-ink-muted">
+                  {r.serviceName}
+                  {r.status === "published" ? "" : " · hidden"}
+                </span>
+              </span>
+              <Stars value={r.rating} className="size-3.5" />
+            </Link>
+          ))}
+        </GroupedSection>
+      ) : null}
 
       <GroupedSection
         title="Your businesses"
@@ -61,11 +102,20 @@ export default async function AccountPage() {
         )}
       </GroupedSection>
 
-      <form action={signOutAction}>
-        <Button type="submit" variant="plain" className="w-full rounded-card bg-card text-danger lift">
+      <form action={signOutAction} className="mb-3">
+        <Button type="submit" variant="secondary">
           Sign out
         </Button>
       </form>
+      <button
+        type="button"
+        popoverTarget="delete-account"
+        className="flex min-h-12 w-full items-center justify-center rounded-full text-body font-semibold text-danger hover:bg-danger/5"
+      >
+        Delete account
+      </button>
+      <EditNameSheet current={profile?.fullName ?? ""} />
+      <DeleteAccountSheet blocker={blocker} />
     </>
   );
 }
