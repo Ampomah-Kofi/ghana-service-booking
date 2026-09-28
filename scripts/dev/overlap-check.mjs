@@ -15,6 +15,10 @@ for (const width of [360, 390]) {
     await p.goto("http://localhost:3000" + path, { waitUntil: "load" });
     await p.waitForTimeout(700);
     const r = await p.evaluate(async () => {
+      const isFixedOnly = (el) => {
+        for (let e = el; e; e = e.parentElement) if (getComputedStyle(e).position === "fixed") return true;
+        return false;
+      };
       const isFixed = (el) => {
         for (let e = el; e; e = e.parentElement) {
           const s = getComputedStyle(e);
@@ -37,7 +41,8 @@ for (const width of [360, 390]) {
       };
       // 1) In-flow text overlapping other in-flow text.
       const leaves = [...document.querySelectorAll("main *")].filter(
-        (el) => visible(el) && !isFixed(el) && [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()),
+        (el) =>
+          visible(el) && !isFixedOnly(el) && [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()),
       );
       const boxes = leaves.map((el) => {
         const rs = [...el.getClientRects()];
@@ -76,7 +81,7 @@ for (const width of [360, 390]) {
                   r.top > innerHeight / 2 &&
                   r.bottom <= innerHeight + 1 &&
                   (s.backgroundColor !== "rgba(0, 0, 0, 0)" || s.backdropFilter !== "none") &&
-                  isFixed(el) &&
+                  isFixedOnly(el) &&
                   r.height < 200 &&
                   r.width > 100
                 );
@@ -85,7 +90,7 @@ for (const width of [360, 390]) {
           )
         : innerHeight;
       const content = [...document.querySelectorAll("main *")].filter(
-        (el) => visible(el) && !isFixed(el) && el.children.length === 0,
+        (el) => visible(el) && !isFixedOnly(el) && el.children.length === 0,
       );
       const lastBottom = Math.max(...content.map((el) => el.getBoundingClientRect().bottom));
       return { hits: [...new Set(hits)].slice(0, 6), hidden: Math.round(lastBottom - barTop) };
