@@ -260,9 +260,10 @@ export default async function TodayPage({ params }: PageProps<"/dashboard/[busin
 
 function Stat({ label, value, detail }: { label: string; value: string; detail?: string }) {
   return (
-    <div className="rounded-card bg-card p-4 lift">
+    <div className="@container rounded-card bg-card p-4 lift">
       <p className="text-small text-ink-muted">{label}</p>
-      <p className="truncate text-title font-semibold tabular-nums">{value}</p>
+      {/* Shrinks with the tile (container units) so "GH₵ 12,500" fits a half-width phone tile uncut. */}
+      <p className="truncate text-title font-semibold tabular-nums [font-size:min(var(--text-title),14cqi)]">{value}</p>
       {detail ? <p className="truncate text-caption text-ink-muted">{detail}</p> : null}
     </div>
   );

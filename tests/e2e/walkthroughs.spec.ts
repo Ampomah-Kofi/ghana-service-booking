@@ -11,14 +11,23 @@ import { createTestUser, deleteTestUser, type TestUser } from "./support/admin";
  */
 const SHOTS = process.env.WALKTHROUGH_SHOTS;
 let step = 0;
-async function shot(page: Page, name: string) {
+async function shot(page: Page, name: string, scrollTo?: string) {
   if (!SHOTS) return;
   step += 1;
+  if (scrollTo)
+    await page
+      .getByRole("heading", { name: scrollTo, exact: true })
+      .first()
+      .evaluate((el) =>
+        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 24, behavior: "instant" }),
+      );
+  await page.waitForTimeout(700); // let page-in animations settle, so the shot shows the screen as a person sees it
   await page.screenshot({
     path: `${SHOTS}/${String(step).padStart(2, "0")}-${name}.jpg`,
     type: "jpeg",
-    quality: 70,
-    fullPage: true,
+    quality: 80,
+    // WALKTHROUGH_FULL=1 for whole pages; otherwise what fits on the phone screen.
+    fullPage: process.env.WALKTHROUGH_FULL === "1",
   });
 }
 
@@ -144,6 +153,7 @@ test("an electrician lists a job with price on request and his Instagram", async
   );
   await expect(page.getByRole("link", { name: /^Book Socket repair, Price on request/ })).toBeVisible();
   await shot(page, "electrician-public-page");
+  await shot(page, "electrician-services", "Services");
 });
 
 test("an influencer lists priced deliverables with her socials", async ({ page }) => {
@@ -172,6 +182,7 @@ test("an influencer lists priced deliverables with her socials", async ({ page }
   );
   await expect(page.getByRole("link", { name: /YouTube/ })).toHaveAttribute("href", "https://youtube.com/@esicreates");
   await shot(page, "influencer-public-page");
+  await shot(page, "influencer-services", "Services");
 });
 
 test("a brand finds the influencer, books a TikTok video, and both are notified", async ({
@@ -218,5 +229,7 @@ test("a brand finds the influencer, books a TikTok video, and both are notified"
   await expect(esiPage.getByText(/New booking|Needs your OK/).first()).toBeVisible();
   await expect(esiPage.getByText(/TikTok video/).first()).toBeVisible();
   await shot(esiPage, "influencer-inbox");
+  await esiPage.goto("/dashboard");
+  await shot(esiPage, "influencer-today");
   await ctx.close();
 });
