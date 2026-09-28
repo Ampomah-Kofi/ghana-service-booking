@@ -27,7 +27,7 @@
 | `primary-soft` | `#E4F2EC` | green at 16 % | Selected-but-secondary (chosen staff, active chip). Never text |
 | `danger` · `warning` · `info` · `success` | `#B42318` · `#B54708` · `#1D4ED8` · `#1F7A3A` | lighter equivalents | Status and errors only, always with a label |
 | `star` | `#E0A526` | same | Stars only, next to the number |
-| `whatsapp` | `#1F7A45` | `#4CC07A` | The WhatsApp button only |
+| `whatsapp` | `#1A6C3D` | `#4CC07A` | The WhatsApp button only |
 
 - **Type (ADR-0014, phone first):** system font stack, zero downloads. `display` 28/34 bold (large titles), `title` 20/26, `heading` 17/22, `body` 16/24, `small` 14/20, `caption` 12/16; from 640 px `display` 32/40 and `title` 22/28. Display, title and heading carry their own negative tracking (ADR-0011); don't add `tracking-*` or per-screen font sizes.
 - **Prices in lists:** always `PriceTag` (amount at body size, "from" as a caption above, "Price on request" quiet and wrapping).

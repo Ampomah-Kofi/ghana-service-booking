@@ -22,7 +22,7 @@
   --info: #1d4ed8;
   --success: #1f7a3a;
   --star: #e0a526;
-  --whatsapp: #1f7a45;
+  --whatsapp: #1a6c3d;
   --focus-ring: rgb(15 107 79 / 0.45);
   --hatch: rgb(20 32 27 / 0.07);
   /* "Up next" live card: the same deep brand green in light and dark (white text on it). */
@@ -296,7 +296,7 @@ input[type="checkbox"][role="switch"]:disabled {
 /* ── Glass (ADR-0010): navigation and controls only; content stays solid ─────── */
 :root {
   --glass: rgb(255 255 255 / 0.6);
-  --glass-strong: rgb(246 244 240 / 0.86);
+  --glass-strong: rgb(246 244 240 / 0.92);
   --glass-rim: rgb(255 255 255 / 0.75);
   --glass-line: rgb(20 32 27 / 0.08);
   --glass-shadow: 0 10px 30px rgb(20 32 27 / 0.14), 0 1px 3px rgb(20 32 27 / 0.08);
@@ -304,7 +304,7 @@ input[type="checkbox"][role="switch"]:disabled {
 @media (prefers-color-scheme: dark) {
   :root {
     --glass: rgb(40 45 42 / 0.55);
-    --glass-strong: rgb(30 34 31 / 0.84);
+    --glass-strong: rgb(30 34 31 / 0.9);
     --glass-rim: rgb(255 255 255 / 0.16);
     --glass-line: rgb(255 255 255 / 0.08);
     --glass-shadow: 0 10px 30px rgb(0 0 0 / 0.45), 0 1px 3px rgb(0 0 0 / 0.3);
@@ -354,6 +354,16 @@ input[type="checkbox"][role="switch"]:disabled {
   background:
     radial-gradient(60% 50% at 15% 0%, rgb(15 107 79 / 0.16), transparent 70%),
     radial-gradient(45% 40% at 90% 10%, rgb(224 165 38 / 0.14), transparent 70%);
+}
+/* On phones the glow runs edge to edge; wider, it sits inside the content column, so fade its edges
+   instead of showing a pale rectangle. */
+@media (min-width: 48rem) {
+  .aurora {
+    mask-image:
+      linear-gradient(to right, transparent, #000 18%, #000 82%, transparent),
+      linear-gradient(to bottom, transparent, #000 25%, #000 55%, transparent);
+    mask-composite: intersect;
+  }
 }
 
 /* iOS inset-grouped list: separators start after the leading inset, never edge to edge. */
