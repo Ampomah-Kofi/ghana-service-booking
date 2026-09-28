@@ -9,11 +9,14 @@ export function LargeTitle({
   eyebrow,
   trailing,
   className = "mb-5",
+  onColor = false,
 }: {
   title: string;
   eyebrow?: ReactNode;
   trailing?: ReactNode;
   className?: string;
+  /** On a coloured hero (ADR-0016): the eyebrow turns soft white. */
+  onColor?: boolean;
 }) {
   return (
     <>
@@ -26,7 +29,11 @@ export function LargeTitle({
       <header className={`flex items-end justify-between gap-3 pt-3 ${className}`}>
         <div className="large-title min-w-0">
           {eyebrow ? (
-            <p className="text-caption font-semibold tracking-wide text-ink-muted uppercase">{eyebrow}</p>
+            <p
+              className={`text-caption font-semibold tracking-wide uppercase ${onColor ? "hero-muted" : "text-ink-muted"}`}
+            >
+              {eyebrow}
+            </p>
           ) : null}
           <h1 className="text-display font-bold">{title}</h1>
         </div>

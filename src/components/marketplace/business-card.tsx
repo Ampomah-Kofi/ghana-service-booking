@@ -109,7 +109,9 @@ export function BusinessCard({
             {meta ? <p className="truncate text-small text-ink-muted">{meta}</p> : null}
             <p className="mt-0.5 flex min-w-0 flex-wrap items-center gap-x-2 text-small">
               {rating ?? (
-                <span className="rounded-full bg-primary-soft px-1.5 text-caption font-semibold text-primary">New</span>
+                <span className="rounded-full bg-accent-soft px-1.5 text-caption font-semibold text-accent-ink">
+                  New
+                </span>
               )}
               {price ? (
                 <span>
@@ -146,7 +148,7 @@ export function BusinessCard({
               className="transition-transform duration-300 group-hover:scale-102"
             />
             {card.rating ? null : (
-              <span className="glass absolute top-2.5 left-2.5 rounded-full px-2.5 py-1 text-caption font-semibold text-ink">
+              <span className="absolute top-2.5 left-2.5 rounded-full bg-accent px-2.5 py-1 text-caption font-semibold text-on-accent shadow-pop">
                 New
               </span>
             )}

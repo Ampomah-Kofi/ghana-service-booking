@@ -88,44 +88,44 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
 
   return (
     <div className="relative isolate">
-      <div
-        aria-hidden="true"
-        className="aurora bleed-top pointer-events-none absolute -right-5 -left-5 -z-10 h-80 md:mt-0"
-      />
       {deleted ? <Toast message="Your account has been deleted" param="deleted" /> : null}
-      <LargeTitle
-        title="Explore"
-        eyebrow={formatDayLong(new Date(), timezone)}
-        className="mb-4"
-        trailing={
-          <div className="mb-0.5 flex items-center gap-2">
-            {user ? <NotificationBell unread={unread} /> : null}
-            <Link
-              href={user ? "/account" : "/sign-in"}
-              aria-label={user ? "Your account" : "Sign in"}
-              className="pressable flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary"
-            >
-              <UserIcon className="size-5" />
-            </Link>
-          </div>
-        }
-      />
-
-      <section className="mb-7" aria-label="Search">
-        <SearchForm suggestions={toSuggestions(categories, cities)} />
-        <ul className="rail -mx-5 mt-1 flex gap-2 overflow-x-auto px-5">
-          {EXAMPLES.map((example) => (
-            <li key={example} className="shrink-0">
+      <div className="hero bleed-top -mx-5 mb-7 rounded-b-[28px] px-5 pt-safe pb-5 md:mx-0 md:mt-0 md:rounded-[28px] md:pt-5">
+        <LargeTitle
+          title="Explore"
+          eyebrow={formatDayLong(new Date(), timezone)}
+          className="mb-1"
+          onColor
+          trailing={
+            <div className="mb-0.5 flex items-center gap-2">
+              {user ? <NotificationBell unread={unread} className="bg-white/16 text-white" /> : null}
               <Link
-                href={`/search?q=${encodeURIComponent(example)}`}
-                className="pressable inline-flex min-h-9 items-center rounded-full bg-fill px-3.5 text-small"
+                href={user ? "/account" : "/sign-in"}
+                aria-label={user ? "Your account" : "Sign in"}
+                className="pressable flex size-10 shrink-0 items-center justify-center rounded-full bg-white/16 text-white"
               >
-                {example}
+                <UserIcon className="size-5" />
               </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+            </div>
+          }
+        />
+        <p className="hero-muted mb-4 text-body">Book barbers, braiders, electricians, DJs and more near you.</p>
+
+        <section aria-label="Search">
+          <SearchForm suggestions={toSuggestions(categories, cities)} />
+          <ul className="rail -mx-5 mt-2 flex gap-2 overflow-x-auto px-5">
+            {EXAMPLES.map((example) => (
+              <li key={example} className="shrink-0">
+                <Link
+                  href={`/search?q=${encodeURIComponent(example)}`}
+                  className="pressable inline-flex min-h-9 items-center rounded-full bg-white/14 px-3.5 text-small text-white ring-1 ring-white/20 ring-inset"
+                >
+                  {example}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
 
       {places.length > 0 ? (
         <Section title="Your places" id="places">
@@ -199,16 +199,13 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         </ul>
       </Section>
 
-      <Link
-        href="/onboarding"
-        className="pressable mb-4 flex items-center gap-4 overflow-hidden rounded-card bg-primary p-5 text-on-primary"
-      >
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-on-primary/15">
+      <Link href="/onboarding" className="hero pressable mb-4 flex items-center gap-4 overflow-hidden rounded-card p-5">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent">
           <StoreIcon className="size-6" />
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-heading font-semibold">Are you a professional?</span>
-          <span className="block text-small opacity-90">Get a booking page and calendar, free.</span>
+          <span className="hero-muted block text-small">Get a booking page and calendar, free.</span>
         </span>
         <ChevronRightIcon className="shrink-0" />
       </Link>

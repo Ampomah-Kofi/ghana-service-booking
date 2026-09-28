@@ -23,12 +23,15 @@
 | `ink` / `ink-muted` | `#14201B` / `#5B6660` | `#EEF0EC` / `#A6AEA8` | Text; muted text ≥ 14 px, never for prices or actions |
 | `border` | `#E4E0D8` | `#2E3430` | Inset list separators, input outlines, calendar grid (not cards) |
 | `fill` | ink at 6 % | ink at 8 % | Skeletons, quiet chips, pressed rows |
-| `primary` / `primary-hover` | `#0F6B4F` / `#0B5540` | `#4CC596` / `#3DB386` | One filled primary button per screen, links, selected time |
-| `primary-soft` | `#E4F2EC` | green at 16 % | Selected-but-secondary (chosen staff, active chip). Never text |
+| `primary` / `primary-hover` | `#0A7350` / `#085F42` (ADR-0016) | `#4CC596` / `#3DB386` | One filled primary button per screen, links, selected time. Filled green gets a soft top sheen |
+| `primary-soft` | `#DDF3E9` | green at 16 % | Selected-but-secondary (chosen staff, active chip). Never text |
 | `danger` · `warning` · `info` · `success` | `#B42318` · `#B54708` · `#1D4ED8` · `#1F7A3A` | lighter equivalents | Status and errors only, always with a label |
+| `accent` / `on-accent` (ADR-0016) | `#F4B400` / `#14201B` | `#F5C542` / `#1A1400` | Warm gold for highlights: "New" badges, the professional banner icon. A background behind dark text, never text on light |
+| `accent-soft` / `accent-ink` | `#FDF1CC` / `#8A5A00` | gold at 16 % / `#F5C542` | Quiet gold chips ("New" in result rows) |
 | `star` | `#E0A526` | same | Stars only, next to the number |
 | `whatsapp` | `#1A6C3D` | `#4CC07A` | The WhatsApp button only |
 
+- **Brand hero (ADR-0016):** `.hero` is deep emerald with a gold glow and white text; the top of Explore and the "Are you a professional?" banner only. Muted text on it uses `.hero-muted`; the search field on it is white.
 - **Type (ADR-0014, phone first):** system font stack, zero downloads. `display` 28/34 bold (large titles), `title` 20/26, `heading` 17/22, `body` 16/24, `small` 14/20, `caption` 12/16; from 640 px `display` 32/40 and `title` 22/28. Display, title and heading carry their own negative tracking (ADR-0011); don't add `tracking-*` or per-screen font sizes.
 - **Prices in lists:** always `PriceTag` (amount at body size, "from" as a caption above, "Price on request" quiet and wrapping).
 - **Layers:** page content, including sticky headers and calendar gutters, stays at `z-20` or below; navigation (tab bars, compact title bar) and the floating "+" are `z-30`; toasts `z-40`; sheets use the top layer. `overlap-check.mjs` fails if anything covers a navigation bar.
