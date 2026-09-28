@@ -14,7 +14,8 @@ export function BookingBar({ summary, children }: { summary: BookingSummary; chi
           <p className="truncate text-body font-semibold">{summary.title}</p>
           <p className="truncate text-small tabular-nums text-ink-muted">{summary.detail}</p>
         </div>
-        {children ? <div className="w-44 shrink-0">{children}</div> : null}
+        {/* The button keeps its label on one line; the summary gives way (truncates) instead. */}
+        {children ? <div className="min-w-40 shrink-0 whitespace-nowrap">{children}</div> : null}
       </div>
     </div>
   );
