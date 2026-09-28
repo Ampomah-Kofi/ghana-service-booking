@@ -51,7 +51,7 @@ export function ProviderTabs({ businessId, canManage }: { businessId: string; ca
           {tabs.map(({ href, label, icon: Icon, match }) => {
             const active = match(pathname);
             return (
-              <li key={href} className="flex-1">
+              <li key={href} className="min-w-0 flex-1">
                 <Link
                   href={href}
                   aria-current={active ? "page" : undefined}
@@ -60,7 +60,7 @@ export function ProviderTabs({ businessId, canManage }: { businessId: string; ca
                   }`}
                 >
                   <Icon className="size-6" />
-                  {label}
+                  <span className="max-w-full truncate px-1">{label}</span>
                 </Link>
               </li>
             );

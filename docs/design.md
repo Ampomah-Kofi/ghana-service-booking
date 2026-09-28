@@ -111,6 +111,16 @@ Always a text label, never colour alone.
 - The business page header is an App Store-style row (logo, name, capsule **Book**) above a facts strip: reviews · open status · number of services.
 - Times are grey capsules; the chosen time turns green.
 
+**Interaction polish (ADR-0012)**
+- **Titles:** list screens use `<LargeTitle>`; it shrinks while a compact glass bar fades in (CSS only).
+- **Sheets:** details and destructive confirmations open in `<Sheet>` (HTML popover): grab handle, ✕, tap outside or Escape to close; a centred card from `md`.
+- **Feedback:** `<Toast>` after moves, cancellations and additions; inline messages stay for form errors and saved settings.
+- **Loading and empty:** every main route has a skeleton (`src/components/ui/skeleton.tsx`) except the business page (keeps a real 404); empty screens use `<EmptyState>` (illustration, one sentence, one action).
+- **Booking ticket:** date, time and place first, a tear line, then details and round actions (Add to calendar · Directions · Call · WhatsApp · Share).
+- **Date strip:** month heading, Today, paging chevrons, weekday over a day circle (green when chosen, green number for today, dot when there are times).
+- **Tabs:** tap the current tab to scroll up; the bar tucks away while scrolling down and returns on the way up; labels truncate rather than overflow at large text sizes.
+- **Search:** recent searches (on this phone only) and category/town suggestions under the field.
+
 **Glass (ADR-0010)**
 - `.glass` / `.glass-strong` (see `globals.css`) are only for the navigation and control layer: the floating capsule tab bars, the desktop header, round buttons and chips over covers, the booking summary bar and the "+" menu. The selected tab is a brighter `glass-lens`.
 - Content (cards, lists, forms) stays solid.

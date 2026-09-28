@@ -38,7 +38,7 @@ export function MonthGrid({
                 prefetch={false}
                 href={dayHref(d)}
                 aria-label={`${d}${count ? `, ${count} appointment${count === 1 ? "" : "s"}` : ", nothing booked"}`}
-                className={`flex min-h-16 flex-col items-center gap-1 px-1 py-1.5 hover:bg-fill ${inMonth ? "" : "text-ink-muted/60"}`}
+                className={`flex min-h-16 flex-col items-center gap-1 px-1 py-1.5 hover:bg-fill ${inMonth ? "" : "text-ink-muted"}`}
               >
                 <span
                   className={`flex size-7 items-center justify-center rounded-full text-small tabular-nums ${

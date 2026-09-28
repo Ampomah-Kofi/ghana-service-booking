@@ -78,3 +78,7 @@ CI (`.github/workflows/ci.yml`) runs all of these on every PR, plus a check that
 ## Known gaps
 - Phone OTP sign-in is covered in E2E with the seed test code. The SMS hook path for other numbers is covered by unit tests and a manual check.
 - The engine↔SQL parity check is a set of targeted cases, not the randomised fixture run described in architecture §6.
+
+## Accessibility audit (manual, after the interaction polish)
+There's no axe dependency in the project yet (it would be added with Phase 11). The audit after ADR-0012 ran axe-core 4.13 from a throwaway copy, injected into every main screen at 360 px in light and dark: public pages, the booking steps, bookings, the ticket, account, and the provider's Today, calendar (day/week/month), clients and more. Rules: WCAG 2.0/2.1/2.2 A and AA. It also set the root font size to 200% and checked for sideways scrolling.
+Result: no violations after two fixes (faint other-month days in the month grid; tab labels overflowing at 200% text now truncate).

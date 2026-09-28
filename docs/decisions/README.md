@@ -16,5 +16,6 @@ Changing an accepted decision means writing a new ADR (see CLAUDE.md §Architect
 | [0009](0009-combined-design-system.md) | Combined design system (Apple principles + owner DESIGN.md) | Accepted, amended by 0010 and 0011 |
 | [0010](0010-glass-navigation-layer.md) | Glass for the navigation layer | Accepted |
 | [0011](0011-ios-refinement.md) | iOS-grade refinement of type, depth and controls | Accepted |
+| [0012](0012-interaction-polish.md) | Interaction polish (iOS patterns on the web) | Accepted |
 
 Accepted 2026-09-27 with Phase 0 approval.
