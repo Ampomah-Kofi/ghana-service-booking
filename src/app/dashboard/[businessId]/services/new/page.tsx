@@ -28,7 +28,6 @@ export default async function NewServicePage({
           price: "",
           priceType: "fixed",
           durationMinutes: 30,
-          deposit: "",
           isActive: true,
           staffIds: staff.map((s) => s.id),
         }}

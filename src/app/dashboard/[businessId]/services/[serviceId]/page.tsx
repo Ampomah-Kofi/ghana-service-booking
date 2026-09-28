@@ -39,7 +39,6 @@ export default async function EditServicePage({
           price: minorToInput(service.priceMinor, unit),
           priceType: service.priceType,
           durationMinutes: service.durationMinutes,
-          deposit: service.depositMinor ? minorToInput(service.depositMinor, unit) : "",
           isActive: service.isActive,
           staffIds: service.staffIds,
         }}

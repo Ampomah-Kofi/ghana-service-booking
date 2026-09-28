@@ -82,30 +82,24 @@ describe("serviceSchema", () => {
     price: "50",
     priceType: "fixed",
     durationMinutes: "30",
-    deposit: "",
     isActive: "on",
     staffIds: [],
   };
   it("converts prices to pesewas and blanks optional fields", () => {
     expect(schema.parse(base)).toMatchObject({
       price: 5000,
-      deposit: null,
       description: null,
       isActive: true,
       durationMinutes: 30,
     });
   });
-  it("rejects bad prices, deposits above price and odd durations", () => {
+  it("rejects bad prices and odd durations", () => {
     expect(schema.safeParse({ ...base, price: "" }).error?.issues[0]).toMatchObject({
       path: ["price"],
       message: "Enter a price, or choose “On request”.",
     });
-    // "On request" needs no price, stores 0 and refuses a deposit.
-    expect(schema.parse({ ...base, price: "", priceType: "on_request" })).toMatchObject({ price: 0, deposit: null });
-    expect(
-      schema.safeParse({ ...base, price: "", priceType: "on_request", deposit: "20" }).error?.issues[0].path,
-    ).toEqual(["deposit"]);
-    expect(schema.safeParse({ ...base, deposit: "60" }).error?.issues[0].path).toEqual(["deposit"]);
+    // "On request" needs no price and stores 0.
+    expect(schema.parse({ ...base, price: "", priceType: "on_request" })).toMatchObject({ price: 0 });
     expect(schema.safeParse({ ...base, durationMinutes: "33" }).success).toBe(false);
     expect(schema.safeParse({ ...base, price: "12.345" }).success).toBe(false);
   });

@@ -53,7 +53,6 @@ export const TEMPLATE_KEYS = [
   "provider.moved_by_customer",
   "provider.upcoming",
   "payment.received",
-  "payment.refunded",
 ] as const;
 export type TemplateKey = (typeof TEMPLATE_KEYS)[number];
 
@@ -218,18 +217,12 @@ export function renderNotification(key: string, p: NotificationPayload, siteUrl:
         `: ${service}, ${p.customer_name ?? "your client"}.`,
       ]);
     case "payment.received":
+      // In-app receipt when the business marks money received (ADR-0017: it's paid to them directly).
       return customer(
         "Payment received",
-        `${amount} received for ${service} at ${biz}, ${when}. You're booked.`,
-        [`${amount} received. `, `${service} at ${biz}`, `, ${when}. Details: ${link}`],
+        `${biz} marked ${amount} as received for ${service}, ${when}.`,
+        [`${biz} received `, `${amount} for ${service}`, `. Details: ${link}`],
         "Payment received",
-      );
-    case "payment.refunded":
-      return customer(
-        "Refund sent",
-        `${amount} for ${service} at ${biz} is on its way back to you. It can take a few days to arrive.`,
-        [`Refund of ${amount} sent for `, `${service} at ${biz}`, `. It can take a few days to arrive.`],
-        "Refund sent",
       );
     default:
       return {

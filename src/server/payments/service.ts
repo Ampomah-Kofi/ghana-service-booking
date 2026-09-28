@@ -1,87 +1,71 @@
 import "server-only";
 import { AppError } from "@/lib/errors";
+import type { PaymentMethod } from "@/lib/payment-methods";
 import { toAppError } from "@/server/businesses/errors";
 import type { Db } from "@/server/db/client";
 import { nullableArg } from "@/server/db/client";
-import type { Database } from "@/server/db/types";
-import { getPaymentProvider } from "./index";
-import type { ChargeNext, MomoNetwork, PaymentMethod } from "./provider";
 
-export type PaymentKind = Database["public"]["Enums"]["payment_kind"];
-export type PaymentAttemptStatus = Database["public"]["Enums"]["payment_attempt_status"];
-
+/**
+ * Payments are a record of money the business says it received (ADR-0017). Nothing here moves
+ * money: the customer pays the business directly (cash, Mobile Money, bank, card at the shop).
+ */
 export type PaymentView = {
   id: string;
   appointmentId: string;
-  kind: PaymentKind;
-  method: Database["public"]["Enums"]["payment_method"];
-  provider: string;
-  status: PaymentAttemptStatus;
+  method: PaymentMethod;
   amountMinor: number;
   currency: string;
-  network: MomoNetwork | null;
-  failureReason: string | null;
   note: string | null;
-  /** Our merchant reference for the attempt (shown to the payer and the business for support). */
-  reference: string | null;
-  paidAt: string | null;
+  paidAt: string;
   refundedAt: string | null;
-  createdAt: string;
+  refundNote: string | null;
 };
 
-const select =
-  "id, appointment_id, kind, method, provider, status, amount_minor, currency_code, momo_network, failure_reason, note, provider_reference, paid_at, refunded_at, created_at";
+const select = "id, appointment_id, method, amount_minor, currency_code, note, paid_at, refunded_at, refund_note";
 
 type Row = {
   id: string;
   appointment_id: string;
-  kind: PaymentKind;
-  method: PaymentView["method"];
-  provider: string;
-  status: PaymentAttemptStatus;
+  method: PaymentMethod;
   amount_minor: number;
   currency_code: string;
-  momo_network: string | null;
-  failure_reason: string | null;
   note: string | null;
-  provider_reference: string | null;
-  paid_at: string | null;
+  paid_at: string;
   refunded_at: string | null;
-  created_at: string;
+  refund_note: string | null;
 };
 
 const toView = (r: Row): PaymentView => ({
   id: r.id,
   appointmentId: r.appointment_id,
-  kind: r.kind,
   method: r.method,
-  provider: r.provider,
-  status: r.status,
   amountMinor: r.amount_minor,
   currency: r.currency_code,
-  network: (r.momo_network as MomoNetwork | null) ?? null,
-  failureReason: r.failure_reason,
   note: r.note,
-  reference: r.provider_reference,
   paidAt: r.paid_at,
   refundedAt: r.refunded_at,
-  createdAt: r.created_at,
+  refundNote: r.refund_note,
 });
 
-/** Payments on one booking the caller may see (RLS: the customer, owners/managers, admins). */
+/** What has been paid (not refunded) across a booking's payments. */
+export function paidTotal(payments: Pick<PaymentView, "amountMinor" | "refundedAt">[]): number {
+  return payments.filter((p) => p.refundedAt === null).reduce((sum, p) => sum + p.amountMinor, 0);
+}
+
+/** Payments recorded on one booking that the caller may see (RLS: its customer, owners/managers, admins). */
 export async function listAppointmentPayments(db: Db, appointmentId: string): Promise<PaymentView[]> {
   const { data, error } = await db
     .from("payments")
     .select(select)
     .eq("appointment_id", appointmentId)
-    .order("created_at", { ascending: true });
+    .order("paid_at", { ascending: true });
   if (error) throw toAppError(error);
   return data.map(toView);
 }
 
-export type BusinessPaymentRow = PaymentView & { customerName: string; serviceName: string; startsAt: string };
+export type BusinessPaymentRow = PaymentView & { customerName: string; serviceName: string };
 
-/** A business's payments in a time range, newest first (owners and managers; RLS). */
+/** A business's recorded payments since a date, newest first (owners and managers; RLS). */
 export async function listBusinessPayments(
   db: Db,
   businessId: string,
@@ -90,92 +74,77 @@ export async function listBusinessPayments(
 ): Promise<BusinessPaymentRow[]> {
   const { data, error } = await db
     .from("payments")
-    .select(`${select}, appointments ( customer_name, service_name, starts_at )`)
+    .select(`${select}, appointments ( customer_name, service_name )`)
     .eq("business_id", businessId)
-    .gte("created_at", since.toISOString())
-    .order("created_at", { ascending: false })
+    .gte("paid_at", since.toISOString())
+    .order("paid_at", { ascending: false })
     .limit(limit);
   if (error) throw toAppError(error);
   return data.map((r) => ({
     ...toView(r),
     customerName: r.appointments?.customer_name ?? "",
     serviceName: r.appointments?.service_name ?? "",
-    startsAt: r.appointments?.starts_at ?? r.created_at,
   }));
 }
 
-export type StartPaymentInput = {
-  appointmentId: string;
-  kind: PaymentKind;
-  method: PaymentMethod;
-  phoneE164?: string;
-  network?: MomoNetwork;
-  customerName: string;
-  description: string;
-  returnUrl: string;
-};
-
-/**
- * The customer starts paying, entirely with their own session: the database records the attempt
- * (checks the owner, the hold and the amount) and gives it a unique reference; the provider is then
- * asked for a charge under that reference. If the provider refuses, the attempt is closed.
- */
-export async function startPayment(
-  db: Db,
-  input: StartPaymentInput,
-): Promise<{ paymentId: string; amountMinor: number; currency: string; next: ChargeNext }> {
-  const provider = getPaymentProvider();
-  if (!provider) throw new AppError("CONFLICT", "Online payments aren't available yet. Pay at the visit.");
-  const { data, error } = await db.rpc("start_payment", {
-    p_appointment_id: input.appointmentId,
-    p_kind: input.kind,
-    p_method: input.method,
-    p_provider: provider.id,
-    p_phone: nullableArg(input.phoneE164 ?? null),
-    p_network: nullableArg(input.network ?? null),
-  });
-  if (error) throw toAppError(error);
-  const row = data[0];
-  if (!row) throw new AppError("INTERNAL", "Something went wrong. Please try again.");
-  try {
-    const charge = await provider.createCharge({
-      paymentId: row.payment_id,
-      reference: row.idempotency_key,
-      amountMinor: row.amount_minor,
-      currency: row.currency_code,
-      method: input.method,
-      customer: { name: input.customerName, phoneE164: input.phoneE164, network: input.network },
-      description: input.description,
-      returnUrl: input.returnUrl,
-    });
-    return { paymentId: row.payment_id, amountMinor: row.amount_minor, currency: row.currency_code, next: charge.next };
-  } catch (e) {
-    console.error("[payments] createCharge failed", e);
-    await db.rpc("abandon_payment", {
-      p_payment_id: row.payment_id,
-      p_reason: "The payment service didn't respond",
-    });
-    throw new AppError("CONFLICT", "The payment service didn't respond. Please try again.");
-  }
-}
-
-export async function recordManualPayment(
+/** Any member of the business marks money received. The database caps it at the price. */
+export async function recordPayment(
   db: Db,
   appointmentId: string,
   amountMinor: number,
-  method: "cash" | "mobile_money",
+  method: PaymentMethod,
   note: string | null,
-): Promise<void> {
-  const { error } = await db.rpc("record_manual_payment", {
+): Promise<string> {
+  const { data, error } = await db.rpc("record_payment", {
     p_appointment_id: appointmentId,
     p_amount_minor: amountMinor,
     p_method: method,
     p_note: nullableArg(note),
   });
   if (error) throw toAppError(error);
+  return data;
 }
 
-export async function requestRefund(db: Db, paymentId: string, reason: string): Promise<void> {
-  const { error } = await db.rpc("request_refund", { p_payment_id: paymentId, p_reason: reason });
+/** Owners and managers record money given back. */
+export async function markPaymentRefunded(db: Db, paymentId: string, note: string): Promise<void> {
+  const { error } = await db.rpc("mark_payment_refunded", { p_payment_id: paymentId, p_note: note });
   if (error) throw toAppError(error);
+}
+
+/** The customer says how they'll pay (information only; one of the business's accepted methods). */
+export async function choosePaymentMethod(db: Db, appointmentId: string, method: PaymentMethod): Promise<void> {
+  const { error } = await db.rpc("choose_payment_method", { p_appointment_id: appointmentId, p_method: method });
+  if (error) throw toAppError(error);
+}
+
+export type BookingPaymentDetails = {
+  momo: { network: string | null; number: string; name: string | null } | null;
+  bank: { bankName: string | null; accountName: string | null; accountNumber: string } | null;
+};
+
+/**
+ * The business's own Mobile Money / bank details for this booking's customer (or the business).
+ * Only the chosen method's details come back; null when the business hasn't added any.
+ */
+export async function getBookingPaymentDetails(db: Db, appointmentId: string): Promise<BookingPaymentDetails | null> {
+  const { data, error } = await db.rpc("get_booking_payment_details", { p_appointment_id: appointmentId });
+  if (error) {
+    if (error.code === "BZ404") return null;
+    throw toAppError(error);
+  }
+  const row = data[0];
+  if (!row) return null;
+  const details: BookingPaymentDetails = {
+    momo: row.momo_number_e164
+      ? { network: row.momo_network, number: row.momo_number_e164, name: row.momo_account_name }
+      : null,
+    bank: row.bank_account_number
+      ? { bankName: row.bank_name, accountName: row.bank_account_name, accountNumber: row.bank_account_number }
+      : null,
+  };
+  return details.momo || details.bank ? details : null;
+}
+
+export function assertAccepted(accepted: PaymentMethod[], method: PaymentMethod): void {
+  if (!accepted.includes(method)) throw new AppError("VALIDATION", "The business doesn't take that way of paying.");
 }

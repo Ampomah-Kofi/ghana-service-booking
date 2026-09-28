@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { getBookingRules } from "@/server/businesses/schedule";
+import { acceptedSummary } from "@/lib/payment-methods";
 import { SOCIAL_LABELS, socialDisplay, socialHref, type SocialLinks } from "@/lib/social";
 import { ReviewCard } from "@/components/reviews/review-card";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
@@ -34,7 +36,7 @@ import { listServices } from "@/server/businesses/catalog";
 import { getBusinessHours } from "@/server/businesses/schedule";
 import { listStaff } from "@/server/businesses/team";
 import { describeWeek, formatDuration, openStatus } from "@/lib/hours";
-import { formatMoney, formatPrice } from "@/lib/money";
+import { formatPrice } from "@/lib/money";
 import { ServiceRow } from "@/components/business/service-row";
 import { Cover } from "@/components/marketplace/cover";
 import { ChatIcon, ChevronLeftIcon, NavigationIcon, PhoneIcon, ShareIcon } from "@/components/ui/icons";
@@ -74,13 +76,14 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
 
   const db = await createUserClient();
   const user = await getCurrentUser();
-  const [allServices, allStaff, hours, summary, reviews, saved] = await Promise.all([
+  const [allServices, allStaff, hours, summary, reviews, saved, rules] = await Promise.all([
     listServices(db, business.id),
     listStaff(db, business.id, { withInvites: false }),
     getBusinessHours(db, business.id),
     ratingSummary(db, business.id),
     listBusinessReviews(db, business.id, { limit: 3, viewerId: user?.id ?? null }),
     user ? isFavorite(db, user.id, business.id) : Promise.resolve(null),
+    getBookingRules(db, business.id).catch(() => null),
   ]);
   // Members previewing a draft also receive hidden items; show exactly what customers will see.
   const services = allServices.filter((s) => s.isActive);
@@ -286,6 +289,11 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
         <h2 id="services-heading" className="mb-2 text-title font-semibold">
           Services
         </h2>
+        {rules ? (
+          <p className="-mt-1 mb-2 text-small text-ink-muted">
+            Pays: {acceptedSummary(rules.accepted_payment_methods)} · paid to {business.name} directly
+          </p>
+        ) : null}
         {services.length === 0 ? (
           <p className="rounded-card bg-card p-4 text-body text-ink-muted lift">Services coming soon.</p>
         ) : (
@@ -312,11 +320,6 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
                     .join(" · ")}
                   description={s.description}
                   price={formatPrice(s.priceMinor, s.priceType, business.currency)}
-                  deposit={
-                    s.depositMinor
-                      ? `${formatMoney({ amountMinor: s.depositMinor, currency: business.currency.code }, business.currency)} deposit to book`
-                      : null
-                  }
                 />
               </li>
             ))}

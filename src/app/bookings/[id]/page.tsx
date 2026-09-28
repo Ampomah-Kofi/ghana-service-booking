@@ -22,7 +22,7 @@ import { customerCanChange, getAppointment } from "@/server/bookings/appointment
 import { createUserClient } from "@/server/db/supabase-server";
 import { CancelBookingForm } from "./cancel-form";
 import { PaymentSummary } from "@/components/bookings/payment-summary";
-import { listAppointmentPayments } from "@/server/payments/service";
+import { getBookingPaymentDetails, listAppointmentPayments } from "@/server/payments/service";
 
 export const metadata: Metadata = { title: "Booking" };
 
@@ -41,8 +41,11 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
     formatMoney({ amountMinor, currency: a.price.currency.code }, a.price.currency);
   const canChange = customerCanChange(a);
   const live = a.status === "pending" || a.status === "confirmed" || a.status === "arrived";
-  const justBooked = sp.booked === "1" || sp.payment === "paid";
-  const payments = await listAppointmentPayments(db, a.id);
+  const justBooked = sp.booked === "1";
+  const [payments, paymentDetails] = await Promise.all([
+    listAppointmentPayments(db, a.id),
+    getBookingPaymentDetails(db, a.id),
+  ]);
   const business = a.business.slug ? await getBusinessBySlug(db, a.business.slug) : null;
   const loc = business?.location ?? null;
   const where = [loc?.addressLine, formatPlace(loc)].filter(Boolean).join(", ") || null;
@@ -205,19 +208,16 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
         </nav>
       </article>
 
-      {sp.payment === "failed" ? (
-        <p role="alert" className="mb-4 rounded-control bg-danger/10 px-3 py-2 text-small text-danger">
-          The payment didn&apos;t go through. You can try again below.
-        </p>
-      ) : null}
       <PaymentSummary
         appointmentId={a.id}
+        businessName={a.business.name ?? "the business"}
+        choice={a.paymentMethodChoice}
+        accepted={a.business.acceptedPaymentMethods}
+        details={paymentDetails}
         payments={payments}
-        priceMinor={a.finalPriceMinor ?? a.price.amountMinor}
-        depositMinor={a.depositMinor}
-        holdExpiresAt={a.holdExpiresAt}
-        canPayRest={a.business.allowFullPaymentOnline && a.price.type === "fixed"}
-        live={a.status === "pending" || a.status === "confirmed"}
+        dueMinor={a.finalPriceMinor ?? (a.price.type === "fixed" ? a.price.amountMinor : null)}
+        live={a.status === "pending" || a.status === "confirmed" || a.status === "arrived"}
+        timezone={tz}
         money={money}
       />
 

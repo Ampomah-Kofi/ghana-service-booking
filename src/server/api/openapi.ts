@@ -30,9 +30,8 @@ import {
   notificationPreferences,
   notificationPreferencesResponse,
   notificationsResponse,
+  paymentDetailsResponse,
   paymentsResponse,
-  startPaymentBody,
-  startPaymentResponse,
 } from "@/schemas/api-v1";
 
 const schema = (s: z.ZodType) => z.toJSONSchema(s, { target: "openapi-3.0", io: "output", unrepresentable: "any" });
@@ -85,7 +84,7 @@ export function buildOpenApiDocument(serverUrl: string) {
         Notifications: schema(notificationsResponse),
         NotificationPreferences: schema(notificationPreferencesResponse),
         Payments: schema(paymentsResponse),
-        StartedPayment: schema(startPaymentResponse),
+        PaymentDetails: schema(paymentDetailsResponse),
       },
     },
     paths: {
@@ -299,8 +298,9 @@ export function buildOpenApiDocument(serverUrl: string) {
       },
       "/appointments/{id}/payments": {
         get: {
-          summary: "Payments on a booking",
-          description: "Visible to the booking's customer and the business's owners and managers.",
+          summary: "What the business marked paid on a booking",
+          description:
+            "Visible to the booking's customer and the business's owners and managers. A record, not a transaction.",
           security: [{ bearer: [] }],
           parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
           responses: {
@@ -309,19 +309,21 @@ export function buildOpenApiDocument(serverUrl: string) {
             "404": errorResponse("Not your booking"),
           },
         },
-        post: {
-          summary: "Pay the deposit (or in full) for your booking",
+      },
+      "/appointments/{id}/payment-details": {
+        get: {
+          summary: "Where to pay the business for this booking",
           description:
-            "Only the booking's customer. While a deposit is due, the booking has `hold_expires_at`; pay before then or it is released. `next` says what to do: open `url` (card, bank), or approve the Mobile Money prompt on the phone and poll GET. The booking confirms itself when the provider reports the payment.",
+            "The business's own Mobile Money or bank details, for the method the customer chose, plus a reference to put on the transfer. Only the booking's customer and the business. Nothing is paid through the API: the customer pays the business directly (ADR-0017).",
           security: [{ bearer: [] }],
           parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
-          requestBody: { required: true, content: { "application/json": { schema: body(startPaymentBody) } } },
           responses: {
-            "201": { description: "Started", content: json("StartedPayment") },
+            "200": {
+              description: "Details (null sides when the business hasn't added them)",
+              content: json("PaymentDetails"),
+            },
             "401": errorResponse("Not signed in"),
             "404": errorResponse("Not your booking"),
-            "409": errorResponse("Nothing to pay, time's up, or online payments are off"),
-            "422": errorResponse("Invalid input"),
           },
         },
       },

@@ -1,8 +1,8 @@
 -- After Phase 7: social links on profiles (format rules, owners only, tenant isolation) and
--- "price on request" services (no amount, no deposit, never a starting price in search).
+-- "price on request" services (no amount, never a starting price in search).
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(11);
+select plan(10);
 
 create function pg_temp.act_as(p_user uuid) returns void language plpgsql as $$
 begin
@@ -39,9 +39,6 @@ select pg_temp.act_as('a0000000-0000-4000-8000-000000000001');
 select throws_ok($$ insert into public.services (business_id, name, price_minor, price_type, duration_minutes, currency_code)
                     values ('b0000000-0000-4000-8000-000000000001', 'House call', 5000, 'on_request', 60, 'GHS') $$,
                  '23514', null, '"on request" carries no amount');
-select throws_ok($$ insert into public.services (business_id, name, price_minor, price_type, duration_minutes, currency_code, deposit_minor)
-                    values ('b0000000-0000-4000-8000-000000000001', 'House call', 0, 'on_request', 60, 'GHS', 2000) $$,
-                 '23514', null, '"on request" has no deposit');
 select lives_ok($$ insert into public.services (business_id, name, price_minor, price_type, duration_minutes, currency_code)
                    values ('b0000000-0000-4000-8000-000000000001', 'House call', 0, 'on_request', 60, 'GHS') $$,
                 'an owner adds an on-request service');
@@ -51,7 +48,7 @@ select is((select min_price_minor from public.search_businesses('Kwame Cuts') wh
 
 -- A business whose only services are on request shows no starting price at all.
 reset role;
-update public.services set price_type = 'on_request', price_minor = 0, deposit_minor = null
+update public.services set price_type = 'on_request', price_minor = 0
  where business_id = 'b0000000-0000-4000-8000-000000000001';
 select pg_temp.act_as(null);
 select is((select min_price_minor from public.search_businesses('Kwame Cuts') where slug = 'kwame-cuts'), null,

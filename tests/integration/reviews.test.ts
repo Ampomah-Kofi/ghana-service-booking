@@ -76,7 +76,6 @@ beforeAll(async () => {
       price: 12000,
       priceType: "fixed",
       durationMinutes: 30,
-      deposit: null,
       isActive: true,
       staffIds: [staffId],
     },

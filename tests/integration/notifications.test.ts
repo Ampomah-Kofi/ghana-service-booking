@@ -40,7 +40,6 @@ beforeAll(async () => {
       price: 0,
       priceType: "on_request",
       durationMinutes: 60,
-      deposit: null,
       isActive: true,
       staffIds: [staffId],
     },

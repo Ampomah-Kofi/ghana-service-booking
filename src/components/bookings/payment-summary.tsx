@@ -1,115 +1,132 @@
-import Link from "next/link";
-import { HoldCountdown } from "@/components/booking/hold-countdown";
-import { MOMO_NETWORKS } from "@/schemas/payments";
-import type { PaymentView } from "@/server/payments/service";
+import { CopyButton } from "@/components/ui/copy-button";
+import { formatDateShort } from "@/lib/datetime";
+import { MOMO_NETWORKS, PAYMENT_METHODS, paymentReference, type PaymentMethod } from "@/lib/payment-methods";
+import { formatPhoneLocal } from "@/lib/phone";
+import type { BookingPaymentDetails, PaymentView } from "@/server/payments/service";
+import { ChoosePaymentForm } from "./choose-payment-form";
 
-const KIND = { deposit: "Deposit", full: "Payment", balance: "Balance" } as const;
-const STATUS: Record<PaymentView["status"], { label: string; tone: string }> = {
-  pending: { label: "Waiting", tone: "text-warning" },
-  paid: { label: "Paid", tone: "text-success" },
-  failed: { label: "Didn't go through", tone: "text-ink-muted" },
-  expired: { label: "Timed out", tone: "text-ink-muted" },
-  refund_pending: { label: "Refund on its way", tone: "text-info" },
-  refunded: { label: "Refunded", tone: "text-info" },
-};
-
-export function paymentMethodLabel(p: Pick<PaymentView, "method" | "network" | "provider">): string {
-  if (p.method === "cash") return "Cash";
-  if (p.method === "mobile_money") return p.network ? MOMO_NETWORKS[p.network] : "Mobile Money";
-  if (p.method === "bank_transfer") return "Bank transfer";
-  return "Card";
+export function paymentMethodLabel(method: PaymentMethod): string {
+  return PAYMENT_METHODS[method].label;
 }
 
 /**
- * The money side of a booking (Phase 9): what's paid, what's left for the visit, and a Pay button
- * while a deposit holds the slot. Failed and timed-out attempts are left out once something is paid.
+ * The money side of a booking for its customer (ADR-0017): how they said they'll pay, the
+ * business's own Mobile Money or bank details for that, and what the business has marked received.
+ * Booker GH never takes the money.
  */
 export function PaymentSummary({
   appointmentId,
+  businessName,
+  choice,
+  accepted,
+  details,
   payments,
-  priceMinor,
-  depositMinor,
-  holdExpiresAt,
-  canPayRest,
+  dueMinor,
   live,
+  timezone,
   money,
 }: {
   appointmentId: string;
+  businessName: string;
+  choice: PaymentMethod | null;
+  accepted: PaymentMethod[];
+  details: BookingPaymentDetails | null;
   payments: PaymentView[];
-  priceMinor: number;
-  depositMinor: number | null;
-  holdExpiresAt: string | null;
-  canPayRest: boolean;
+  /** The price to pay, when it's known (fixed, or the final price). */
+  dueMinor: number | null;
   live: boolean;
+  timezone: string;
   money: (minor: number) => string;
 }) {
-  const paid = payments
-    .filter((p) => p.status === "paid" || p.status === "refund_pending")
-    .reduce((s, p) => s + p.amountMinor, 0);
-  const visible =
-    paid > 0 ? payments.filter((p) => p.status !== "failed" && p.status !== "expired") : payments.slice(-1);
-  const left = Math.max(0, priceMinor - paid);
-  if (payments.length === 0 && !holdExpiresAt && !(canPayRest && live && left > 0)) {
-    return depositMinor && live ? (
-      <p className="mb-6 rounded-card bg-card px-4 py-3 text-small text-ink-muted lift">
-        Deposit {money(depositMinor)}: the business will tell you how to pay it.
-      </p>
-    ) : null;
-  }
+  const paid = payments.filter((p) => p.refundedAt === null).reduce((s, p) => s + p.amountMinor, 0);
+  const left = dueMinor === null ? null : Math.max(0, dueMinor - paid);
+  const method = choice ?? accepted[0] ?? "cash";
+  const reference = paymentReference(appointmentId);
+  const sendTo =
+    method === "mobile_money" && details?.momo
+      ? {
+          title: `${details.momo.network ? MOMO_NETWORKS[details.momo.network as keyof typeof MOMO_NETWORKS] : "Mobile Money"}`,
+          number: formatPhoneLocal(details.momo.number),
+          raw: details.momo.number,
+          name: details.momo.name,
+        }
+      : method === "bank_transfer" && details?.bank
+        ? {
+            title: details.bank.bankName ?? "Bank transfer",
+            number: details.bank.accountNumber,
+            raw: details.bank.accountNumber,
+            name: details.bank.accountName,
+          }
+        : null;
+
   return (
     <section aria-labelledby="payment-heading" className="mb-6 overflow-hidden rounded-card bg-card lift">
-      <h2 id="payment-heading" className="px-4 pt-4 text-heading font-semibold">
-        Payment
-      </h2>
-      {holdExpiresAt && live ? (
-        <div className="grid gap-3 p-4">
-          <p className="text-body">
-            Pay the {money(depositMinor ?? 0)} deposit to keep this time.{" "}
-            <span className="font-semibold text-accent-ink">
-              <HoldCountdown until={holdExpiresAt} />
-            </span>
-          </p>
-          <Link
-            href={`/bookings/${appointmentId}/pay`}
-            className="pressable flex min-h-12 items-center justify-center rounded-full bg-primary font-semibold text-on-primary"
-          >
-            Pay deposit {money(depositMinor ?? 0)}
-          </Link>
+      <div className="px-4 pt-3.5 pb-2">
+        <h2 id="payment-heading" className="text-heading font-semibold">
+          Payment
+        </h2>
+        <p className="text-small text-ink-muted">You pay {businessName} directly.</p>
+      </div>
+
+      <dl className="ios-list border-t border-border">
+        <div className="flex items-center justify-between gap-3 px-4 py-3">
+          <dt className="text-small text-ink-muted">You&apos;ll pay with</dt>
+          <dd className="text-body font-medium">{PAYMENT_METHODS[method].label}</dd>
         </div>
-      ) : null}
-      {visible.length > 0 ? (
-        <ul className="ios-list">
-          {visible.map((p) => (
-            <li key={p.id} className="flex items-center gap-3 px-4 py-3">
-              <span className="min-w-0 flex-1">
-                <span className="block text-body">
-                  {KIND[p.kind]} · {paymentMethodLabel(p)}
-                </span>
-                <span className={`block text-small ${STATUS[p.status].tone}`}>
-                  {STATUS[p.status].label}
-                  {p.status === "failed" && p.failureReason ? `: ${p.failureReason}` : ""}
-                </span>
+        {sendTo && live && left !== 0 ? (
+          <div className="grid gap-1 px-4 py-3">
+            <dt className="text-small text-ink-muted">
+              Send {left !== null ? money(left) : "the amount"} to · {sendTo.title}
+            </dt>
+            <dd className="flex items-center justify-between gap-2">
+              <span className="min-w-0">
+                <span className="block text-body font-semibold tabular-nums select-all">{sendTo.number}</span>
+                {sendTo.name ? <span className="block text-small text-ink-muted">{sendTo.name}</span> : null}
               </span>
-              <span className="shrink-0 text-body font-semibold tabular-nums">{money(p.amountMinor)}</span>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-      {paid > 0 ? (
+              <CopyButton value={sendTo.raw} label="number" />
+            </dd>
+            <dd className="flex items-center justify-between gap-2">
+              <span className="text-small">
+                Reference <span className="font-semibold tabular-nums select-all">{reference}</span>
+              </span>
+              <CopyButton value={reference} label="reference" />
+            </dd>
+          </div>
+        ) : live && (method === "mobile_money" || method === "bank_transfer") && left !== 0 ? (
+          <p className="px-4 py-3 text-small text-ink-muted">
+            {businessName} will tell you where to send it. Use reference{" "}
+            <span className="font-semibold text-ink">{reference}</span>.
+          </p>
+        ) : null}
+        {payments.map((p) => (
+          <div key={p.id} className="flex items-center justify-between gap-3 px-4 py-3">
+            <dt className="min-w-0">
+              <span className="block text-body">{PAYMENT_METHODS[p.method].label}</span>
+              <span className={`block text-small ${p.refundedAt ? "text-info" : "text-success"}`}>
+                {p.refundedAt
+                  ? `Refunded${p.refundNote ? ` · ${p.refundNote}` : ""}`
+                  : `Received ${formatDateShort(p.paidAt, timezone)}`}
+              </span>
+            </dt>
+            <dd className={`text-body font-semibold tabular-nums ${p.refundedAt ? "text-ink-muted line-through" : ""}`}>
+              {money(p.amountMinor)}
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      {paid > 0 || left === 0 ? (
         <p className="border-t border-border px-4 py-3 text-small text-ink-muted">
-          Paid {money(paid)}
-          {left > 0 && live ? ` · ${money(left)} at the visit` : ""}
+          {left === 0
+            ? "Paid in full, as recorded by the business."
+            : left !== null
+              ? `${money(paid)} paid · ${money(left)} left, as recorded by the business.`
+              : `${money(paid)} paid, as recorded by the business.`}
         </p>
       ) : null}
-      {canPayRest && live && !holdExpiresAt && left > 0 ? (
-        <div className="px-4 pb-4">
-          <Link
-            href={`/bookings/${appointmentId}/pay?kind=full`}
-            className="pressable flex min-h-11 items-center justify-center rounded-full bg-fill text-small font-semibold text-primary"
-          >
-            Pay {money(left)} now (optional)
-          </Link>
-        </div>
+
+      {live && accepted.length > 1 && paid === 0 ? (
+        <ChoosePaymentForm appointmentId={appointmentId} accepted={accepted} current={method} />
       ) : null}
     </section>
   );

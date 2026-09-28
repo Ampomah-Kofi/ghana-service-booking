@@ -4,6 +4,7 @@ import type { Database } from "@/server/db/types";
 import { toAppError } from "@/server/businesses/errors";
 import { AppError } from "@/lib/errors";
 import type { CurrencyInfo } from "@/lib/money";
+import type { PaymentMethod } from "@/lib/payment-methods";
 import { candidatesFor, getBookingSetup, staffForService, type BookingSetup } from "@/server/scheduling/availability";
 
 export type AppointmentStatus = Database["public"]["Enums"]["appointment_status"];
@@ -21,8 +22,9 @@ export type AppointmentView = {
   staffId: string;
   staffName: string | null;
   price: { amountMinor: number; type: PriceType; currency: CurrencyInfo };
-  depositMinor: number | null;
   paymentStatus: PaymentStatus | null;
+  /** How the customer said they'll pay (information only; ADR-0017). */
+  paymentMethodChoice: PaymentMethod | null;
   customerUserId: string | null;
   clientId: string | null;
   finalPriceMinor: number | null;
@@ -31,8 +33,6 @@ export type AppointmentView = {
   customerPhone: string | null;
   note: string | null;
   cancellationReason: string | null;
-  /** Waiting for a deposit (Phase 9): the slot is held until this time. */
-  holdExpiresAt: string | null;
   business: {
     id: string;
     name: string | null;
@@ -41,10 +41,8 @@ export type AppointmentView = {
     phone: string | null;
     whatsapp: string | null;
     cancellationWindowHours: number | null;
-    /** Customers may pay the whole price online (Phase 9). */
-    allowFullPaymentOnline: boolean;
-    /** No-shows get their deposit back (otherwise the business keeps it). */
-    refundDepositOnNoShow: boolean;
+    /** Ways the business takes payment (always at least one). */
+    acceptedPaymentMethods: PaymentMethod[];
   };
 };
 
@@ -52,11 +50,11 @@ export type AppointmentView = {
 // booking if the business later unpublishes, just without those details.
 const appointmentSelect = `
   id, status, source, starts_at, ends_at, service_id, service_name, staff_id, price_minor, price_type,
-  currency_code, deposit_minor, payment_status, customer_user_id, client_id, final_price_minor, created_at, customer_name, customer_phone_e164, customer_note,
-  cancellation_reason, business_id, hold_expires_at,
+  currency_code, payment_status, payment_method_choice, customer_user_id, client_id, final_price_minor, created_at, customer_name, customer_phone_e164, customer_note,
+  cancellation_reason, business_id,
   currencies ( code, symbol, minor_unit ),
   staff ( display_name ),
-  businesses ( name, slug, timezone, phone_e164, whatsapp_e164, booking_rules ( cancellation_window_hours, allow_full_payment_online, refund_deposit_on_no_show ) )
+  businesses ( name, slug, timezone, phone_e164, whatsapp_e164, booking_rules ( cancellation_window_hours, accepted_payment_methods ) )
 ` as const;
 
 type AppointmentRow = {
@@ -71,8 +69,8 @@ type AppointmentRow = {
   price_minor: number;
   price_type: PriceType;
   currency_code: string;
-  deposit_minor: number | null;
   payment_status: PaymentStatus | null;
+  payment_method_choice: PaymentMethod | null;
   customer_user_id: string | null;
   client_id: string | null;
   final_price_minor: number | null;
@@ -82,7 +80,6 @@ type AppointmentRow = {
   customer_note: string | null;
   cancellation_reason: string | null;
   business_id: string;
-  hold_expires_at: string | null;
   currencies: { code: string; symbol: string; minor_unit: number } | null;
   staff: { display_name: string } | null;
   businesses: {
@@ -93,8 +90,7 @@ type AppointmentRow = {
     whatsapp_e164: string | null;
     booking_rules: {
       cancellation_window_hours: number;
-      allow_full_payment_online: boolean;
-      refund_deposit_on_no_show: boolean;
+      accepted_payment_methods: PaymentMethod[];
     } | null;
   } | null;
 };
@@ -119,8 +115,8 @@ function toView(row: AppointmentRow): AppointmentView {
         minorUnit: row.currencies?.minor_unit ?? 2,
       },
     },
-    depositMinor: row.deposit_minor,
     paymentStatus: row.payment_status,
+    paymentMethodChoice: row.payment_method_choice,
     customerUserId: row.customer_user_id,
     clientId: row.client_id,
     finalPriceMinor: row.final_price_minor,
@@ -129,7 +125,6 @@ function toView(row: AppointmentRow): AppointmentView {
     customerPhone: row.customer_phone_e164,
     note: row.customer_note,
     cancellationReason: row.cancellation_reason,
-    holdExpiresAt: row.hold_expires_at,
     business: {
       id: row.business_id,
       name: row.businesses?.name ?? null,
@@ -138,8 +133,7 @@ function toView(row: AppointmentRow): AppointmentView {
       phone: row.businesses?.phone_e164 ?? null,
       whatsapp: row.businesses?.whatsapp_e164 ?? null,
       cancellationWindowHours: row.businesses?.booking_rules?.cancellation_window_hours ?? null,
-      allowFullPaymentOnline: row.businesses?.booking_rules?.allow_full_payment_online ?? false,
-      refundDepositOnNoShow: row.businesses?.booking_rules?.refund_deposit_on_no_show ?? false,
+      acceptedPaymentMethods: row.businesses?.booking_rules?.accepted_payment_methods ?? ["cash"],
     },
   };
 }
@@ -167,6 +161,8 @@ export type NewBooking = {
   customerPhone: string | null;
   note: string | null;
   idempotencyKey: string;
+  /** How the customer says they'll pay (one of the business's accepted methods). */
+  paymentMethod?: PaymentMethod | null;
 };
 
 /**
@@ -193,6 +189,14 @@ export async function bookAppointment(
     p_idempotency_key: input.idempotencyKey,
   });
   if (error) throw toAppError(error);
+  if (input.paymentMethod) {
+    // Information only (ADR-0017); a retried booking just sets the same choice again.
+    const { error: choiceError } = await db.rpc("choose_payment_method", {
+      p_appointment_id: data,
+      p_method: input.paymentMethod,
+    });
+    if (choiceError) throw toAppError(choiceError);
+  }
   return data;
 }
 

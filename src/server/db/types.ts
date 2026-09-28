@@ -118,13 +118,12 @@ export type Database = {
           customer_note: string | null;
           customer_phone_e164: string | null;
           customer_user_id: string | null;
-          deposit_minor: number | null;
           ends_at: string;
           final_price_minor: number | null;
-          hold_expires_at: string | null;
           id: string;
           idempotency_key: string | null;
           occupied: unknown;
+          payment_method_choice: Database["public"]["Enums"]["payment_method"] | null;
           payment_status: Database["public"]["Enums"]["payment_status"] | null;
           price_minor: number;
           price_type: Database["public"]["Enums"]["price_type"];
@@ -152,13 +151,12 @@ export type Database = {
           customer_note?: string | null;
           customer_phone_e164?: string | null;
           customer_user_id?: string | null;
-          deposit_minor?: number | null;
           ends_at: string;
           final_price_minor?: number | null;
-          hold_expires_at?: string | null;
           id?: string;
           idempotency_key?: string | null;
           occupied: unknown;
+          payment_method_choice?: Database["public"]["Enums"]["payment_method"] | null;
           payment_status?: Database["public"]["Enums"]["payment_status"] | null;
           price_minor: number;
           price_type: Database["public"]["Enums"]["price_type"];
@@ -186,13 +184,12 @@ export type Database = {
           customer_note?: string | null;
           customer_phone_e164?: string | null;
           customer_user_id?: string | null;
-          deposit_minor?: number | null;
           ends_at?: string;
           final_price_minor?: number | null;
-          hold_expires_at?: string | null;
           id?: string;
           idempotency_key?: string | null;
           occupied?: unknown;
+          payment_method_choice?: Database["public"]["Enums"]["payment_method"] | null;
           payment_status?: Database["public"]["Enums"]["payment_status"] | null;
           price_minor?: number;
           price_type?: Database["public"]["Enums"]["price_type"];
@@ -364,52 +361,46 @@ export type Database = {
       };
       booking_rules: {
         Row: {
-          allow_full_payment_online: boolean;
+          accepted_payment_methods: Database["public"]["Enums"]["payment_method"][];
           allow_guest_booking: boolean;
           auto_confirm: boolean;
           buffer_after_minutes: number;
           buffer_before_minutes: number;
           business_id: string;
           cancellation_window_hours: number;
-          collect_deposits_online: boolean;
           max_advance_days: number;
           min_notice_minutes: number;
           pending_hold_minutes: number;
-          refund_deposit_on_no_show: boolean;
           reschedule_window_hours: number;
           slot_interval_minutes: number;
           updated_at: string;
         };
         Insert: {
-          allow_full_payment_online?: boolean;
+          accepted_payment_methods?: Database["public"]["Enums"]["payment_method"][];
           allow_guest_booking?: boolean;
           auto_confirm?: boolean;
           buffer_after_minutes?: number;
           buffer_before_minutes?: number;
           business_id: string;
           cancellation_window_hours?: number;
-          collect_deposits_online?: boolean;
           max_advance_days?: number;
           min_notice_minutes?: number;
           pending_hold_minutes?: number;
-          refund_deposit_on_no_show?: boolean;
           reschedule_window_hours?: number;
           slot_interval_minutes?: number;
           updated_at?: string;
         };
         Update: {
-          allow_full_payment_online?: boolean;
+          accepted_payment_methods?: Database["public"]["Enums"]["payment_method"][];
           allow_guest_booking?: boolean;
           auto_confirm?: boolean;
           buffer_after_minutes?: number;
           buffer_before_minutes?: number;
           business_id?: string;
           cancellation_window_hours?: number;
-          collect_deposits_online?: boolean;
           max_advance_days?: number;
           min_notice_minutes?: number;
           pending_hold_minutes?: number;
-          refund_deposit_on_no_show?: boolean;
           reschedule_window_hours?: number;
           slot_interval_minutes?: number;
           updated_at?: string;
@@ -663,56 +654,50 @@ export type Database = {
           },
         ];
       };
-      business_payout_accounts: {
+      business_payment_details: {
         Row: {
-          account_name: string;
+          bank_account_name: string | null;
           bank_account_number: string | null;
           bank_name: string | null;
           business_id: string;
-          method: Database["public"]["Enums"]["payout_method"];
+          momo_account_name: string | null;
           momo_network: string | null;
           momo_number_e164: string | null;
-          provider_account_ref: string | null;
-          status: string;
           updated_at: string;
           updated_by: string | null;
         };
         Insert: {
-          account_name: string;
+          bank_account_name?: string | null;
           bank_account_number?: string | null;
           bank_name?: string | null;
           business_id: string;
-          method: Database["public"]["Enums"]["payout_method"];
+          momo_account_name?: string | null;
           momo_network?: string | null;
           momo_number_e164?: string | null;
-          provider_account_ref?: string | null;
-          status?: string;
           updated_at?: string;
           updated_by?: string | null;
         };
         Update: {
-          account_name?: string;
+          bank_account_name?: string | null;
           bank_account_number?: string | null;
           bank_name?: string | null;
           business_id?: string;
-          method?: Database["public"]["Enums"]["payout_method"];
+          momo_account_name?: string | null;
           momo_network?: string | null;
           momo_number_e164?: string | null;
-          provider_account_ref?: string | null;
-          status?: string;
           updated_at?: string;
           updated_by?: string | null;
         };
         Relationships: [
           {
-            foreignKeyName: "business_payout_accounts_business_id_fkey";
+            foreignKeyName: "business_payment_details_business_id_fkey";
             columns: ["business_id"];
             isOneToOne: true;
             referencedRelation: "businesses";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "business_payout_accounts_updated_by_fkey";
+            foreignKeyName: "business_payment_details_updated_by_fkey";
             columns: ["updated_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
@@ -1230,44 +1215,6 @@ export type Database = {
           },
         ];
       };
-      payment_events: {
-        Row: {
-          id: string;
-          payload: NonNullable<Json>;
-          payment_id: string | null;
-          provider: string;
-          provider_event_id: string;
-          received_at: string;
-          result: string | null;
-        };
-        Insert: {
-          id?: string;
-          payload?: NonNullable<Json>;
-          payment_id?: string | null;
-          provider: string;
-          provider_event_id: string;
-          received_at?: string;
-          result?: string | null;
-        };
-        Update: {
-          id?: string;
-          payload?: NonNullable<Json>;
-          payment_id?: string | null;
-          provider?: string;
-          provider_event_id?: string;
-          received_at?: string;
-          result?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "payment_events_payment_id_fkey";
-            columns: ["payment_id"];
-            isOneToOne: false;
-            referencedRelation: "payments";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
       payments: {
         Row: {
           amount_minor: number;
@@ -1276,24 +1223,14 @@ export type Database = {
           created_at: string;
           currency_code: string;
           customer_user_id: string | null;
-          failure_reason: string | null;
           id: string;
-          idempotency_key: string;
-          kind: Database["public"]["Enums"]["payment_kind"];
           method: Database["public"]["Enums"]["payment_method"];
-          momo_network: string | null;
-          next_refund_at: string | null;
           note: string | null;
-          paid_at: string | null;
-          payer_phone_e164: string | null;
-          provider: string;
-          provider_reference: string | null;
+          paid_at: string;
           recorded_by: string | null;
-          refund_attempts: number;
-          refund_reference: string | null;
-          refund_requested_at: string | null;
+          refund_note: string | null;
           refunded_at: string | null;
-          status: Database["public"]["Enums"]["payment_attempt_status"];
+          refunded_by: string | null;
           updated_at: string;
         };
         Insert: {
@@ -1303,24 +1240,14 @@ export type Database = {
           created_at?: string;
           currency_code: string;
           customer_user_id?: string | null;
-          failure_reason?: string | null;
           id?: string;
-          idempotency_key: string;
-          kind: Database["public"]["Enums"]["payment_kind"];
           method: Database["public"]["Enums"]["payment_method"];
-          momo_network?: string | null;
-          next_refund_at?: string | null;
           note?: string | null;
-          paid_at?: string | null;
-          payer_phone_e164?: string | null;
-          provider: string;
-          provider_reference?: string | null;
+          paid_at?: string;
           recorded_by?: string | null;
-          refund_attempts?: number;
-          refund_reference?: string | null;
-          refund_requested_at?: string | null;
+          refund_note?: string | null;
           refunded_at?: string | null;
-          status?: Database["public"]["Enums"]["payment_attempt_status"];
+          refunded_by?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -1330,24 +1257,14 @@ export type Database = {
           created_at?: string;
           currency_code?: string;
           customer_user_id?: string | null;
-          failure_reason?: string | null;
           id?: string;
-          idempotency_key?: string;
-          kind?: Database["public"]["Enums"]["payment_kind"];
           method?: Database["public"]["Enums"]["payment_method"];
-          momo_network?: string | null;
-          next_refund_at?: string | null;
           note?: string | null;
-          paid_at?: string | null;
-          payer_phone_e164?: string | null;
-          provider?: string;
-          provider_reference?: string | null;
+          paid_at?: string;
           recorded_by?: string | null;
-          refund_attempts?: number;
-          refund_reference?: string | null;
-          refund_requested_at?: string | null;
+          refund_note?: string | null;
           refunded_at?: string | null;
-          status?: Database["public"]["Enums"]["payment_attempt_status"];
+          refunded_by?: string | null;
           updated_at?: string;
         };
         Relationships: [
@@ -1382,6 +1299,13 @@ export type Database = {
           {
             foreignKeyName: "payments_recorded_by_fkey";
             columns: ["recorded_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payments_refunded_by_fkey";
+            columns: ["refunded_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
@@ -1670,7 +1594,6 @@ export type Database = {
           created_at: string;
           currency_code: string;
           deleted_at: string | null;
-          deposit_minor: number | null;
           description: string | null;
           duration_minutes: number;
           id: string;
@@ -1687,7 +1610,6 @@ export type Database = {
           created_at?: string;
           currency_code: string;
           deleted_at?: string | null;
-          deposit_minor?: number | null;
           description?: string | null;
           duration_minutes: number;
           id?: string;
@@ -1704,7 +1626,6 @@ export type Database = {
           created_at?: string;
           currency_code?: string;
           deleted_at?: string | null;
-          deposit_minor?: number | null;
           description?: string | null;
           duration_minutes?: number;
           id?: string;
@@ -1973,7 +1894,6 @@ export type Database = {
       };
     };
     Functions: {
-      abandon_payment: { Args: { p_payment_id: string; p_reason?: string }; Returns: undefined };
       accept_staff_invite: { Args: { p_token: string }; Returns: string };
       account_deletion_blocker: { Args: Record<PropertyKey, never>; Returns: string };
       admin_moderate_review: {
@@ -2002,18 +1922,6 @@ export type Database = {
         };
         Returns: undefined;
       };
-      apply_payment_event: {
-        Args: {
-          p_amount_minor: number;
-          p_currency: string;
-          p_event_id: string;
-          p_outcome: string;
-          p_payload?: Json;
-          p_provider: string;
-          p_reference: string;
-        };
-        Returns: string;
-      };
       book_appointment: {
         Args: {
           p_business_id: string;
@@ -2029,6 +1937,10 @@ export type Database = {
       };
       business_publish_readiness: { Args: { p_business_id: string }; Returns: string[] };
       cancel_my_appointment: { Args: { p_appointment_id: string; p_reason?: string }; Returns: undefined };
+      choose_payment_method: {
+        Args: { p_appointment_id: string; p_method: Database["public"]["Enums"]["payment_method"] };
+        Returns: undefined;
+      };
       claim_notifications: {
         Args: { p_limit?: number };
         Returns: {
@@ -2059,17 +1971,6 @@ export type Database = {
           isOneToOne: false;
           isSetofReturn: true;
         };
-      };
-      claim_refunds: {
-        Args: { p_limit?: number };
-        Returns: {
-          amount_minor: number;
-          currency_code: string;
-          idempotency_key: string;
-          payment_id: string;
-          provider: string;
-          provider_reference: string;
-        }[];
       };
       create_blocked_time: {
         Args: {
@@ -2109,7 +2010,6 @@ export type Database = {
         Returns: string;
       };
       delete_my_account: { Args: Record<PropertyKey, never>; Returns: undefined };
-      expire_payment_holds: { Args: Record<PropertyKey, never>; Returns: number };
       finish_notification: {
         Args: {
           p_error: string;
@@ -2121,9 +2021,16 @@ export type Database = {
         };
         Returns: undefined;
       };
-      finish_refund: {
-        Args: { p_error?: string; p_ok: boolean; p_payment_id: string; p_reference?: string };
-        Returns: undefined;
+      get_booking_payment_details: {
+        Args: { p_appointment_id: string };
+        Returns: {
+          bank_account_name: string;
+          bank_account_number: string;
+          bank_name: string;
+          momo_account_name: string;
+          momo_network: string;
+          momo_number_e164: string;
+        }[];
       };
       get_busy_intervals: {
         Args: { p_business_id: string; p_from: string; p_to: string };
@@ -2158,6 +2065,7 @@ export type Database = {
         Args: { p_phone_e164: string; p_role?: Database["public"]["Enums"]["member_role"]; p_staff_id: string };
         Returns: string;
       };
+      mark_payment_refunded: { Args: { p_note: string; p_payment_id: string }; Returns: undefined };
       match_search_terms: {
         Args: { p_country_code: string; p_what: string; p_where: string };
         Returns: {
@@ -2204,7 +2112,7 @@ export type Database = {
         }[];
       };
       publish_business: { Args: { p_business_id: string }; Returns: undefined };
-      record_manual_payment: {
+      record_payment: {
         Args: {
           p_amount_minor: number;
           p_appointment_id: string;
@@ -2220,7 +2128,6 @@ export type Database = {
         Args: { p_business_id: string };
         Returns: Database["public"]["Enums"]["business_verification"];
       };
-      request_refund: { Args: { p_payment_id: string; p_reason: string }; Returns: undefined };
       reschedule_my_appointment: {
         Args: { p_appointment_id: string; p_staff_ids: string[]; p_starts_at: string };
         Returns: string;
@@ -2279,14 +2186,13 @@ export type Database = {
       };
       set_business_hours: { Args: { p_business_id: string; p_hours: Json }; Returns: undefined };
       set_business_slug: { Args: { p_business_id: string; p_slug: string }; Returns: string };
-      set_payment_reference: { Args: { p_payment_id: string; p_reference: string }; Returns: undefined };
-      set_payout_account: {
+      set_payment_details: {
         Args: {
-          p_account_name: string;
+          p_bank_account_name?: string;
           p_bank_account_number?: string;
           p_bank_name?: string;
           p_business_id: string;
-          p_method: Database["public"]["Enums"]["payout_method"];
+          p_momo_account_name?: string;
           p_momo_network?: string;
           p_momo_number?: string;
         };
@@ -2299,30 +2205,6 @@ export type Database = {
         Returns: undefined;
       };
       set_staff_services: { Args: { p_service_ids: string[]; p_staff_id: string }; Returns: undefined };
-      stale_pending_payments: {
-        Args: { p_limit?: number; p_older_than_minutes?: number };
-        Returns: {
-          payment_id: string;
-          provider: string;
-          provider_reference: string;
-        }[];
-      };
-      start_payment: {
-        Args: {
-          p_appointment_id: string;
-          p_kind: Database["public"]["Enums"]["payment_kind"];
-          p_method: Database["public"]["Enums"]["payment_method"];
-          p_network?: string;
-          p_phone?: string;
-          p_provider: string;
-        };
-        Returns: {
-          amount_minor: number;
-          currency_code: string;
-          idempotency_key: string;
-          payment_id: string;
-        }[];
-      };
       submit_review: { Args: { p_appointment_id: string; p_body: string; p_rating: number }; Returns: string };
       timemultirange: { Args: Record<PropertyKey, never>; Returns: unknown };
       unpublish_business: { Args: { p_business_id: string }; Returns: undefined };
@@ -2338,11 +2220,8 @@ export type Database = {
       member_role: "owner" | "manager" | "staff";
       notification_channel: "sms" | "whatsapp" | "email" | "in_app";
       notification_status: "queued" | "sending" | "sent" | "failed" | "cancelled";
-      payment_attempt_status: "pending" | "paid" | "failed" | "expired" | "refund_pending" | "refunded";
-      payment_kind: "deposit" | "balance" | "full";
-      payment_method: "mobile_money" | "card" | "cash" | "bank_transfer";
+      payment_method: "cash" | "mobile_money" | "bank_transfer" | "card";
       payment_status: "pending" | "paid" | "partially_paid" | "failed" | "refunded";
-      payout_method: "mobile_money" | "bank";
       price_type: "fixed" | "from" | "on_request";
       review_status: "published" | "hidden" | "removed";
     };
@@ -2461,11 +2340,8 @@ export const Constants = {
       member_role: ["owner", "manager", "staff"],
       notification_channel: ["sms", "whatsapp", "email", "in_app"],
       notification_status: ["queued", "sending", "sent", "failed", "cancelled"],
-      payment_attempt_status: ["pending", "paid", "failed", "expired", "refund_pending", "refunded"],
-      payment_kind: ["deposit", "balance", "full"],
-      payment_method: ["mobile_money", "card", "cash", "bank_transfer"],
+      payment_method: ["cash", "mobile_money", "bank_transfer", "card"],
       payment_status: ["pending", "paid", "partially_paid", "failed", "refunded"],
-      payout_method: ["mobile_money", "bank"],
       price_type: ["fixed", "from", "on_request"],
       review_status: ["published", "hidden", "removed"],
     },

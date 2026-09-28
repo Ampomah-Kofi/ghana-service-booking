@@ -65,7 +65,6 @@ async function setUp(name: string, publish: boolean): Promise<string> {
       price: 2000,
       priceType: "fixed",
       durationMinutes: 10,
-      deposit: null,
       isActive: true,
       staffIds: [sid],
     },

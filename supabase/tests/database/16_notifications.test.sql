@@ -16,7 +16,6 @@ begin
   end if;
 end $$;
 
-delete from public.payment_events;
 delete from public.payments;
 delete from public.appointments;
 delete from public.notifications;

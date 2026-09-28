@@ -1,5 +1,4 @@
-// Local stand-in for pg_cron: every 30 s, sends due notifications and runs the payments job
-// (expired deposit holds, lost webhooks, queued refunds) through the mock providers.
+// Local stand-in for pg_cron: every 30 s, sends due notifications through the mock providers.
 // node scripts/dev/dispatch-loop.mjs   (reads CRON_SECRET from .env.local; app running on :3000)
 import { existsSync } from "node:fs";
 
@@ -20,7 +19,6 @@ async function run(job) {
   }
 }
 async function tick() {
-  await run("payments");
   await run("dispatch");
 }
 await tick();

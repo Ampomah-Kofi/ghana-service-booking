@@ -103,7 +103,7 @@ beforeAll(async () => {
   });
 
   [{ id: ownerStaffId }] = await listStaff(owner.db, business.id, { withInvites: false });
-  const service = { description: null, priceType: "fixed" as const, deposit: null, isActive: true };
+  const service = { description: null, priceType: "fixed" as const, isActive: true };
   fadeId = await createService(
     owner.db,
     { id: business.id, currencyCode: "GHS" },

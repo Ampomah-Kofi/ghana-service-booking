@@ -20,7 +20,6 @@ type Props = {
     price: string;
     priceType: "fixed" | "from" | "on_request";
     durationMinutes: number;
-    deposit: string;
     isActive: boolean;
     staffIds: string[];
   };
@@ -117,22 +116,6 @@ export function ServiceForm({ businessId, serviceId, returnTo, currencySymbol, s
         defaultValue={valueOf(state.values, "description", values.description)}
         hint="Optional. What's included, what to bring."
         error={e.description}
-      />
-
-      <Field
-        id="deposit"
-        name="deposit"
-        label={`Deposit (${currencySymbol})`}
-        inputMode="decimal"
-        defaultValue={valueOf(state.values, "deposit", values.deposit)}
-        placeholder="No deposit"
-        disabled={onRequest}
-        hint={
-          onRequest
-            ? "Not available when the price is on request."
-            : "Optional. Deposits start working when online payments launch."
-        }
-        error={e.deposit}
       />
 
       {staff ? (

@@ -16,7 +16,6 @@ export type ServiceView = {
   priceType: PriceType;
   currencyCode: string;
   durationMinutes: number;
-  depositMinor: number | null;
   isActive: boolean;
   sortOrder: number;
   staffIds: string[];
@@ -25,7 +24,7 @@ export type ServiceView = {
 export type ServiceInput = z.infer<ReturnType<typeof serviceSchema>>;
 
 const serviceSelect =
-  "id, name, description, price_minor, price_type, currency_code, duration_minutes, deposit_minor, is_active, sort_order, staff_services ( staff_id )";
+  "id, name, description, price_minor, price_type, currency_code, duration_minutes, is_active, sort_order, staff_services ( staff_id )";
 
 type ServiceRow = {
   id: string;
@@ -35,7 +34,6 @@ type ServiceRow = {
   price_type: PriceType;
   currency_code: string;
   duration_minutes: number;
-  deposit_minor: number | null;
   is_active: boolean;
   sort_order: number;
   staff_services: { staff_id: string }[];
@@ -50,7 +48,6 @@ function toView(row: ServiceRow): ServiceView {
     priceType: row.price_type,
     currencyCode: row.currency_code,
     durationMinutes: row.duration_minutes,
-    depositMinor: row.deposit_minor,
     isActive: row.is_active,
     sortOrder: row.sort_order,
     staffIds: row.staff_services.map((s) => s.staff_id),
@@ -104,7 +101,6 @@ export async function createService(
       price_type: input.priceType,
       currency_code: business.currencyCode,
       duration_minutes: input.durationMinutes,
-      deposit_minor: input.deposit,
       is_active: input.isActive,
       sort_order: count ?? 0,
     })
@@ -124,7 +120,6 @@ export async function updateService(db: Db, businessId: string, serviceId: strin
       price_minor: input.price,
       price_type: input.priceType,
       duration_minutes: input.durationMinutes,
-      deposit_minor: input.deposit,
       is_active: input.isActive,
     })
     .eq("business_id", businessId)

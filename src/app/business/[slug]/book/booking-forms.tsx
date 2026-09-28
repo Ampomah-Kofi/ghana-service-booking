@@ -1,5 +1,7 @@
 "use client";
 
+import { BRAND } from "@/lib/brand";
+import { PAYMENT_METHODS, type PaymentMethod } from "@/lib/payment-methods";
 import { useActionState } from "react";
 import { Field, FormMessage, TextAreaField } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
@@ -15,11 +17,16 @@ export function BookingDetailsForm({
   hidden,
   defaults,
   summary,
+  paymentMethods,
+  businessName,
 }: {
   slug: string;
   hidden: Hidden;
   defaults: { customerName: string; customerPhone: string };
   summary: BookingSummary;
+  /** Ways the business takes payment; the customer says which they'll use (ADR-0017). */
+  paymentMethods: PaymentMethod[];
+  businessName: string;
 }) {
   const [state, formAction] = useActionState<FormState, FormData>(bookAction.bind(null, slug), {});
   return (
@@ -61,6 +68,39 @@ export function BookingDetailsForm({
           defaultValue={valueOf(state.values, "note", "")}
           error={state.fieldErrors?.note}
         />
+        {paymentMethods.length > 1 ? (
+          <fieldset className="grid grid-cols-[minmax(0,1fr)] gap-2">
+            <legend className="mb-1.5 text-small font-medium">How will you pay?</legend>
+            {paymentMethods.map((m) => (
+              <label
+                key={m}
+                className="pressable flex min-h-12 cursor-pointer items-center gap-3 rounded-control border-2 border-border px-3 py-2 has-checked:border-primary has-checked:bg-primary-soft"
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value={m}
+                  defaultChecked={valueOf(state.values, "paymentMethod", paymentMethods[0]) === m}
+                  className="size-5 shrink-0 accent-primary"
+                />
+                <span className="min-w-0">
+                  <span className="block text-body font-medium">{PAYMENT_METHODS[m].label}</span>
+                  <span className="block text-small text-ink-muted">{PAYMENT_METHODS[m].hint}</span>
+                </span>
+              </label>
+            ))}
+            <p className="text-small text-ink-muted">
+              You pay {businessName} directly. {BRAND.name} never takes payment.
+            </p>
+          </fieldset>
+        ) : (
+          <>
+            <input type="hidden" name="paymentMethod" value={paymentMethods[0] ?? "cash"} />
+            <p className="text-small text-ink-muted">
+              Pay {businessName} directly: {PAYMENT_METHODS[paymentMethods[0] ?? "cash"].label.toLowerCase()}.
+            </p>
+          </>
+        )}
         {state.fieldErrors?.startsAt || state.fieldErrors?.idempotencyKey ? (
           <FormMessage tone="error" message="This booking link is incomplete. Please choose your time again." />
         ) : null}

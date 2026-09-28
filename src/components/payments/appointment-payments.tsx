@@ -5,6 +5,7 @@ import { Field, FormMessage } from "@/components/ui/field";
 import { Sheet } from "@/components/ui/sheet";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { valueOf } from "@/lib/form-values";
+import { PAYMENT_METHOD_KEYS, PAYMENT_METHODS, type PaymentMethod } from "@/lib/payment-methods";
 import type { FormState } from "@/server/actions";
 import { recordPaymentAction, refundPaymentAction } from "@/app/dashboard/[businessId]/payments/actions";
 
@@ -19,9 +20,10 @@ export type PaymentLine = {
 };
 
 /**
- * Money on one appointment, for the business (Phase 9): what's been paid, what's left, and
- * "Record payment" for cash or Mobile Money handed over at the visit. Owners and managers see
- * the list and can refund; staff only record.
+ * Money on one appointment, for the business (ADR-0017): how the customer said they'll pay, what's
+ * been marked paid, and "Mark paid" once the business has the money (cash, MoMo, bank or card at
+ * the shop). Nothing is charged through the app. Owners and managers see amounts and can record a
+ * refund; staff only mark paid.
  */
 export function AppointmentPayments({
   businessId,
@@ -32,6 +34,8 @@ export function AppointmentPayments({
   currencySymbol,
   canRecord,
   canSeeMoney,
+  defaultMethod,
+  choiceLabel,
 }: {
   businessId: string;
   appointmentId: string;
@@ -43,6 +47,10 @@ export function AppointmentPayments({
   currencySymbol: string;
   canRecord: boolean;
   canSeeMoney: boolean;
+  /** The customer's stated method, preselected in "Mark paid". */
+  defaultMethod: PaymentMethod;
+  /** "Customer will pay with Mobile Money", or null when they didn't say. */
+  choiceLabel: string | null;
 }) {
   const [recordState, recordAction] = useActionState<FormState, FormData>(recordPaymentAction, {});
   const [refundState, refundAction] = useActionState<FormState, FormData>(refundPaymentAction, {});
@@ -66,10 +74,11 @@ export function AppointmentPayments({
             popoverTarget={sheetId}
             className="pressable min-h-11 rounded-full bg-primary-soft px-4 text-small font-semibold text-primary"
           >
-            Record payment
+            Mark paid
           </button>
         ) : null}
       </div>
+      {choiceLabel ? <p className="px-5 pb-2 text-small text-ink-muted">{choiceLabel}</p> : null}
       <div className="px-5 empty:hidden">
         <FormMessage tone="notice" message={recordState.notice ?? refundState.notice} />
         <FormMessage
@@ -92,21 +101,22 @@ export function AppointmentPayments({
               {line.refundable ? (
                 <details className="mt-1">
                   <summary className="min-h-11 cursor-pointer list-none content-center text-small font-medium text-danger">
-                    Refund {line.amount}
+                    Mark {line.amount} refunded
                   </summary>
                   <form action={refundAction} noValidate className="grid gap-2 pt-1">
                     <input type="hidden" name="businessId" value={businessId} />
                     <input type="hidden" name="appointmentId" value={appointmentId} />
                     <input type="hidden" name="paymentId" value={line.id} />
                     <Field
-                      id={`reason-${line.id}`}
-                      name="reason"
+                      id={`refund-note-${line.id}`}
+                      name="note"
                       label="Why? (the customer sees this)"
-                      defaultValue={valueOf(refundState.values, "reason", "")}
-                      error={re.reason}
+                      hint="Only records it. Give the money back to the customer yourself."
+                      defaultValue={valueOf(refundState.values, "note", "")}
+                      error={re.note}
                     />
-                    <SubmitButton pendingLabel="Refunding…" variant="danger">
-                      Send refund
+                    <SubmitButton pendingLabel="Saving…" variant="danger">
+                      Mark refunded
                     </SubmitButton>
                   </form>
                 </details>
@@ -118,12 +128,12 @@ export function AppointmentPayments({
       <p className="border-t border-border px-5 py-3 text-small text-ink-muted">
         {summary ??
           (canSeeMoney
-            ? "Nothing paid yet. Record cash or Mobile Money when you get it."
-            : "Record cash or Mobile Money when you get it.")}
+            ? "Nothing marked paid yet. Tap Mark paid when you have the money."
+            : "Tap Mark paid when you have the money.")}
       </p>
 
       {canRecord ? (
-        <Sheet id={sheetId} title="Record payment">
+        <Sheet id={sheetId} title="Mark paid">
           <form action={recordAction} noValidate className="grid grid-cols-[minmax(0,1fr)] gap-1">
             <input type="hidden" name="businessId" value={businessId} />
             <input type="hidden" name="appointmentId" value={appointmentId} />
@@ -133,12 +143,7 @@ export function AppointmentPayments({
             />
             <fieldset className="mb-4 grid grid-cols-2 gap-2">
               <legend className="mb-1.5 text-small font-medium">Paid with</legend>
-              {(
-                [
-                  ["cash", "Cash"],
-                  ["mobile_money", "Mobile Money"],
-                ] as const
-              ).map(([value, label]) => (
+              {PAYMENT_METHOD_KEYS.map((value) => (
                 <label
                   key={value}
                   className="pressable flex min-h-12 cursor-pointer items-center gap-2 rounded-control border-2 border-border px-3 has-checked:border-primary has-checked:bg-primary-soft"
@@ -147,10 +152,10 @@ export function AppointmentPayments({
                     type="radio"
                     name="method"
                     value={value}
-                    defaultChecked={valueOf(recordState.values, "method", "cash") === value}
-                    className="size-5 accent-primary"
+                    defaultChecked={valueOf(recordState.values, "method", defaultMethod) === value}
+                    className="size-5 shrink-0 accent-primary"
                   />
-                  <span className="text-body font-medium">{label}</span>
+                  <span className="text-body font-medium">{PAYMENT_METHODS[value].short}</span>
                 </label>
               ))}
             </fieldset>
@@ -171,11 +176,11 @@ export function AppointmentPayments({
               id={`note-${appointmentId}`}
               name="note"
               label="Note (optional)"
-              placeholder="e.g. MoMo ref 12345"
+              placeholder="e.g. MoMo transaction ID"
               defaultValue={valueOf(recordState.values, "note", "")}
               error={e.note}
             />
-            <SubmitButton pendingLabel="Saving…">Save payment</SubmitButton>
+            <SubmitButton pendingLabel="Saving…">Mark paid</SubmitButton>
           </form>
         </Sheet>
       ) : null}

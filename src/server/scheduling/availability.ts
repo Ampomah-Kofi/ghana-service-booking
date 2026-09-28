@@ -1,4 +1,5 @@
 import "server-only";
+import type { PaymentMethod } from "@/lib/payment-methods";
 import type { Db } from "@/server/db/client";
 import { listServices, type ServiceView } from "@/server/businesses/catalog";
 import { getBookingRules, getBusinessHours } from "@/server/businesses/schedule";
@@ -25,7 +26,12 @@ export const DAYS_PER_PAGE = 14;
 export type BookingSetup = {
   businessId: string;
   timezone: string;
-  rules: BookingRules & { cancellationWindowHours: number; autoConfirm: boolean };
+  rules: BookingRules & {
+    cancellationWindowHours: number;
+    autoConfirm: boolean;
+    /** How customers can pay the business directly (ADR-0017). */
+    acceptedPaymentMethods: PaymentMethod[];
+  };
   hours: HoursRange[];
   /** Active services with at least one person who takes online bookings for them. */
   services: ServiceView[];
@@ -57,6 +63,7 @@ export async function getBookingSetup(db: Db, business: { id: string; timezone: 
       bufferAfterMinutes: rules.buffer_after_minutes,
       cancellationWindowHours: rules.cancellation_window_hours,
       autoConfirm: rules.auto_confirm,
+      acceptedPaymentMethods: rules.accepted_payment_methods,
     },
     hours,
     services: services.filter((s) => s.isActive && s.staffIds.some((id) => bookableIds.has(id))),

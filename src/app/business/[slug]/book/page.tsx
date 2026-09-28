@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { acceptedSummary } from "@/lib/payment-methods";
 import Link from "next/link";
 import { PriceTag } from "@/components/business/price-tag";
 import { notFound } from "next/navigation";
@@ -7,7 +8,7 @@ import { cache } from "react";
 import { BookingBar, StepIndicator, type BookingSummary } from "@/components/booking/booking-bar";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 import { formatDuration } from "@/lib/hours";
-import { formatMoney, formatPrice } from "@/lib/money";
+import { formatPrice } from "@/lib/money";
 import { dayPill, formatDateShort, formatLocalDate, formatLocalDateShort, formatTime } from "@/lib/datetime";
 import { CenterSelected } from "@/components/booking/center-selected";
 import { DateJump } from "@/components/booking/date-jump";
@@ -87,8 +88,6 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
 
   const setup = await getBookingSetup(db, business);
   const service = setup.services.find((s) => s.id === query.service);
-  const money = (amountMinor: number) =>
-    formatMoney({ amountMinor, currency: business.currency.code }, business.currency);
 
   // ── Step 1: service ─────────────────────────────────────────────────────────
   if (!service) {
@@ -116,9 +115,6 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
                   <span className="min-w-0 flex-1">
                     <span className="block text-body font-medium">{s.name}</span>
                     <span className="block text-small text-ink-muted">{formatDuration(s.durationMinutes)}</span>
-                    {s.depositMinor ? (
-                      <span className="block text-small text-warning">{money(s.depositMinor)} deposit to book</span>
-                    ) : null}
                   </span>
                   <PriceTag price={formatPrice(s.priceMinor, s.priceType, business.currency)} />
                   <ChevronRightIcon className="shrink-0 text-ink-muted" />
@@ -235,12 +231,11 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
             <span className="block text-small text-ink-muted">You agree the price with {business.name}</span>
           ) : null}
         </Row>
-        {service.depositMinor ? (
-          <Row label="Deposit">
-            <span className="tabular-nums">{money(service.depositMinor)}</span>
-            <span className="block text-small text-ink-muted">The business will tell you how to pay it</span>
-          </Row>
-        ) : null}
+        <Row label="Payment">
+          <span className="text-small">
+            Paid to {business.name} directly: {acceptedSummary(setup.rules.acceptedPaymentMethods)}
+          </span>
+        </Row>
         <Row label="Policy">
           <span className="text-small">{policy}</span>
         </Row>
@@ -299,6 +294,8 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
           }}
           defaults={{ customerName: profile?.fullName ?? "", customerPhone: profile?.phoneE164 ?? user.phone ?? "" }}
           summary={summary(when)}
+          paymentMethods={setup.rules.acceptedPaymentMethods}
+          businessName={business.name}
         />
         <p className="mt-3 text-center text-small text-ink-muted">
           {setup.rules.autoConfirm

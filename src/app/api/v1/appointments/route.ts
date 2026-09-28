@@ -37,6 +37,7 @@ export async function POST(request: Request) {
       customerPhone: phone,
       note: input.note || null,
       idempotencyKey: key.data,
+      paymentMethod: input.payment_method ?? null,
     });
     const created = await getAppointment(db, id);
     if (!created) throw new AppError("INTERNAL", "Booked, but the booking could not be loaded.");

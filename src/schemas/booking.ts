@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { CountryCode } from "libphonenumber-js/max";
+import { PAYMENT_METHOD_KEYS } from "@/lib/payment-methods";
 import { phoneInputSchema } from "./auth";
 
 /** Shared by the booking form (Server Action) and POST /api/v1/appointments. */
@@ -38,6 +39,8 @@ export function bookingSchema(defaultCountry: CountryCode) {
       .optional()
       .transform((value) => (value ? value : null)),
     idempotencyKey: idempotencyKeySchema,
+    // How the customer will pay the business directly (information only; ADR-0017).
+    paymentMethod: z.enum(PAYMENT_METHOD_KEYS, { message: "Choose how you'll pay." }).optional(),
   });
 }
 

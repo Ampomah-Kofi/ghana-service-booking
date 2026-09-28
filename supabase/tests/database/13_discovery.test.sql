@@ -16,7 +16,6 @@ begin
 end $$;
 
 -- Deterministic on any local database (demo data, E2E leftovers); rolled back at the end.
-delete from public.payment_events;
 delete from public.payments;
 delete from public.appointments;
 

@@ -60,13 +60,12 @@ describe("notification templates", () => {
     expect(toGsm7("Café")).toBe("Cafe");
   });
 
-  it("says how much was paid or refunded, in the booking's currency", () => {
+  it("says how much the business marked received, in the booking's currency", () => {
     expect(formatPaymentAmount(2000, "GHS")).toBe("GH₵ 20");
     expect(formatPaymentAmount(2050, "GHS")).toBe("GH₵ 20.50");
     expect(formatPaymentAmount(undefined, "GHS")).toBe("your payment");
     const received = renderNotification("payment.received", base, SITE);
-    expect(received.body).toContain("GH₵ 20.50 received");
-    expect(received.text.startsWith(`${BRAND.name}: GHS 20.50 received.`)).toBe(true);
-    expect(renderNotification("payment.refunded", base, SITE).title).toBe("Refund sent");
+    expect(received.body).toBe("Kwame Cuts marked GH₵ 20.50 as received for Skin fade, Wed, 14 Oct, 9:30 am.");
+    expect(received.title).toBe("Payment received");
   });
 });

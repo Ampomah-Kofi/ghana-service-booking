@@ -20,7 +20,6 @@ end $$;
 -- People (seed): Kwame owns Kwame Cuts (b1); Ama owns Ama Braids (b2), Efua is staff there;
 -- Akosua manages Osu Glow Spa (b3, a draft); Yaw is a customer; 09 is a super admin.
 -- Deterministic on any local database; rolled back at the end.
-delete from public.payment_events;
 delete from public.payments;
 delete from public.appointments;
 

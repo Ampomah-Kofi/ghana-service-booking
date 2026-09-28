@@ -4,7 +4,7 @@ import { ChevronRightIcon, InfoIcon } from "@/components/ui/icons";
 import { PriceTag } from "./price-tag";
 
 /**
- * A service in a price list. The row books; when there's more to say (description, deposit),
+ * A service in a price list. The row books; when there's more to say (description, photos),
  * an ⓘ button opens a bottom sheet with the details and a Book button (ADR-0012).
  */
 export function ServiceRow({
@@ -14,7 +14,6 @@ export function ServiceRow({
   meta,
   description,
   price,
-  deposit,
   photos = [],
 }: {
   id: string;
@@ -23,11 +22,10 @@ export function ServiceRow({
   meta: string;
   description?: string | null;
   price: string;
-  deposit?: string | null;
   /** Portfolio photos tagged with this service (Phase 7). */
   photos?: { small: string; large: string }[];
 }) {
-  const hasDetails = Boolean(description || deposit || photos.length > 0);
+  const hasDetails = Boolean(description || photos.length > 0);
   const sheetId = `service-${id}`;
   const body = (
     <>
@@ -35,7 +33,6 @@ export function ServiceRow({
         <span className="block text-body font-medium break-words">{name}</span>
         <span className="block text-small text-ink-muted">{meta}</span>
         {description ? <span className="mt-0.5 line-clamp-1 text-small text-ink-muted">{description}</span> : null}
-        {deposit ? <span className="mt-0.5 block text-small text-warning">{deposit}</span> : null}
         {photos.length > 0 ? (
           <span className="mt-2 flex gap-1.5" aria-hidden="true">
             {photos.slice(0, 3).map((p) => (
@@ -89,7 +86,6 @@ export function ServiceRow({
           <Sheet id={sheetId} title={name}>
             <p className="text-body text-ink-muted">{meta}</p>
             <p className="mt-3 text-display font-bold tabular-nums">{price}</p>
-            {deposit ? <p className="mt-1 text-small font-medium text-warning">{deposit}</p> : null}
             {description ? <p className="mt-4 whitespace-pre-line text-body">{description}</p> : null}
             {photos.length > 0 ? (
               <ul className="rail -mx-5 mt-4 flex gap-2 overflow-x-auto px-5" aria-label={`Photos of ${name}`}>

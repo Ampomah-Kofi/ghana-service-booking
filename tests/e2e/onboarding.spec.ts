@@ -61,12 +61,10 @@ test("solo provider onboards and publishes a shareable page", async ({ page, req
   await expect(page.getByRole("link", { name: "Continue" })).toHaveAttribute("aria-disabled", "true");
   await page.getByRole("link", { name: "Add your first service" }).click();
   await page.getByLabel("Service name").fill("Gel manicure");
-  await page.getByLabel("Price", { exact: true }).fill("80.5");
   await page.getByLabel("How long it takes").selectOption({ label: "45 min" });
-  await page.getByLabel("Deposit (GH₵)").fill("100");
   await page.getByRole("button", { name: "Add service" }).click();
-  await expect(page.getByText("The deposit can't be more than the price.")).toBeVisible();
-  await page.getByLabel("Deposit (GH₵)").fill("");
+  await expect(page.getByText("Enter a price, or choose “On request”.")).toBeVisible();
+  await page.getByLabel("Price", { exact: true }).fill("80.5");
   await page.getByRole("button", { name: "Add service" }).click();
   await expect(page.getByText("Step 4 of 6")).toBeVisible();
   await expect(page.getByText("GH₵ 80.50 · 45 min")).toBeVisible();

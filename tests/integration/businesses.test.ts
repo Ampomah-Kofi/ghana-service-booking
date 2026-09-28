@@ -100,7 +100,6 @@ describe("business onboarding services (local Supabase, RLS on)", () => {
         price: 8000,
         priceType: "fixed",
         durationMinutes: 45,
-        deposit: null,
         isActive: true,
         staffIds,
       },

@@ -28,7 +28,6 @@ export async function saveServiceAction(_prev: FormState, formData: FormData): P
       price: formData.get("price") ?? "",
       priceType: formData.get("priceType"),
       durationMinutes: formData.get("durationMinutes"),
-      deposit: formData.get("deposit") ?? "",
       isActive: formData.get("isActive"),
       staffIds,
     });

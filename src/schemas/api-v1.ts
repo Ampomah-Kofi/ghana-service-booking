@@ -168,13 +168,15 @@ export const appointment = z.object({
   service: z.object({ id: z.uuid(), name: z.string() }),
   staff: z.object({ id: z.uuid(), display_name: z.string().nullable() }),
   price: money.extend({ type: z.enum(["fixed", "from", "on_request"]) }),
-  deposit: money.nullable(),
   final_price: money.nullable().describe("What was actually charged, recorded when completing"),
-  payment_status: z.enum(["pending", "paid", "partially_paid", "failed", "refunded"]).nullable(),
-  hold_expires_at: z.iso
-    .datetime({ offset: true })
+  payment_status: z
+    .enum(["pending", "paid", "partially_paid", "failed", "refunded"])
     .nullable()
-    .describe("Set while a deposit is due: pay before this or the booking is released"),
+    .describe("What the business has marked paid (null = nothing yet)"),
+  payment_method_choice: z
+    .enum(["cash", "mobile_money", "bank_transfer", "card"])
+    .nullable()
+    .describe("How the customer said they'll pay the business (information only)"),
   customer: z.object({ name: z.string(), phone: z.string().nullable() }),
   note: z.string().nullable(),
   cancellation_reason: z.string().nullable(),
@@ -194,6 +196,10 @@ export const createAppointmentBody = z.object({
   customer_name: z.string().trim().min(1).max(120),
   customer_phone: z.string().trim().max(32).optional().describe("Defaults to the phone number on the account"),
   note: z.string().trim().max(500).optional(),
+  payment_method: z
+    .enum(["cash", "mobile_money", "bank_transfer", "card"])
+    .optional()
+    .describe("How you'll pay the business directly; one of its accepted methods"),
 });
 
 export const cancelAppointmentBody = z.object({ reason: z.string().trim().max(200).optional() });
@@ -312,41 +318,27 @@ export const notificationPreferences = z.object({
 });
 export const notificationPreferencesResponse = z.object({ data: notificationPreferences });
 
-// Phase 9: payments. The customer pays a deposit (or the full price) for their own booking.
+// Payments (ADR-0017): customers pay the business directly; the app only records how and what.
+const paymentMethodEnum = z.enum(["cash", "mobile_money", "bank_transfer", "card"]);
+
 export const payment = z.object({
   id: z.uuid(),
   appointment_id: z.uuid(),
-  kind: z.enum(["deposit", "balance", "full"]),
-  method: z.enum(["mobile_money", "card", "cash", "bank_transfer"]),
-  network: z.enum(["mtn", "telecel", "airteltigo"]).nullable(),
-  status: z.enum(["pending", "paid", "failed", "expired", "refund_pending", "refunded"]),
+  method: paymentMethodEnum,
   amount: money,
-  reference: z.string().nullable().describe("Our reference for the attempt; quote it to support"),
-  failure_reason: z.string().nullable(),
-  paid_at: z.iso.datetime({ offset: true }).nullable(),
+  paid_at: z.iso.datetime({ offset: true }),
   refunded_at: z.iso.datetime({ offset: true }).nullable(),
-  created_at: z.iso.datetime({ offset: true }),
 });
 export const paymentsResponse = z.object({ data: z.array(payment) });
 
-export const startPaymentBody = z.object({
-  kind: z.enum(["deposit", "full"]).default("deposit"),
-  method: z.enum(["mobile_money", "card", "bank_transfer"]),
-  network: z.enum(["mtn", "telecel", "airteltigo"]).optional().describe("Required for mobile_money"),
-  phone: z.string().trim().max(32).optional().describe("Mobile Money number; required for mobile_money"),
-});
-
-export const startPaymentResponse = z.object({
+export const paymentDetailsResponse = z.object({
   data: z.object({
-    payment_id: z.uuid(),
-    amount: money,
-    next: z.discriminatedUnion("type", [
-      z.object({ type: z.literal("redirect"), url: z.url().describe("Open in a browser to finish paying") }),
-      z.object({
-        type: z.literal("await_customer_approval"),
-        message: z.string().describe("e.g. approve the prompt on your phone; poll GET …/payments"),
-      }),
-      z.object({ type: z.literal("none") }),
-    ]),
+    reference: z.string().describe("Put this on the transfer so the business can match it, e.g. BK-3C9AC9"),
+    mobile_money: z
+      .object({ network: z.string().nullable(), number: z.string(), name: z.string().nullable() })
+      .nullable(),
+    bank: z
+      .object({ bank_name: z.string().nullable(), account_name: z.string().nullable(), account_number: z.string() })
+      .nullable(),
   }),
 });

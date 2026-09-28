@@ -118,7 +118,7 @@ export default async function MorePage({ params }: PageProps<"/dashboard/[busine
           {
             href: `/dashboard/${business.id}/payments`,
             label: "Payments",
-            detail: "Money in, online payments, payouts",
+            detail: "Ways to pay, your MoMo and bank details",
           },
           { href: `/dashboard/${business.id}/services`, label: "Services", detail: "Prices, durations, who does what" },
           ...(business.kind === "team"

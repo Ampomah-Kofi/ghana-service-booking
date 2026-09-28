@@ -49,7 +49,7 @@ export function AppointmentListRow({
           </span>
           <span className="mt-1 flex flex-wrap gap-1">
             <StatusBadge status={a.status} />
-            <PaymentBadge status={a.paymentStatus} paying={a.holdExpiresAt !== null} />
+            <PaymentBadge status={a.paymentStatus} />
           </span>
         </span>
         <ChevronRightIcon className="shrink-0 self-center text-ink-muted" />

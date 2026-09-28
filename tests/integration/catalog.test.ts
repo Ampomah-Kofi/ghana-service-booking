@@ -34,7 +34,6 @@ const service = (overrides: Partial<Parameters<typeof createService>[2]> = {}) =
   price: 35000,
   priceType: "from" as const,
   durationMinutes: 240,
-  deposit: null,
   isActive: true,
   staffIds: [] as string[],
   ...overrides,
@@ -92,14 +91,6 @@ describe("services", () => {
     );
     await archiveService(owner.db, businessId, twists.id);
     expect((await listServices(owner.db, businessId)).map((s) => s.name)).toEqual(["Knotless braids"]);
-  });
-
-  it("rejects a deposit above the price at the database too", async () => {
-    await expect(
-      createService(owner.db, { id: businessId, currencyCode: "GHS" }, service({ price: 1000, deposit: 5000 })),
-    ).rejects.toMatchObject({
-      code: "INTERNAL",
-    });
   });
 
   it("does not let another owner touch the services", async () => {

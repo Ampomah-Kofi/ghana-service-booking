@@ -28,18 +28,14 @@ export function SourceBadge({ source }: { source: "online" | "manual" | "walk_in
   );
 }
 
-/** Money at a glance on appointment rows (Phase 9). Nothing when nothing's been paid or asked for. */
+/** Money at a glance on appointment rows: what the business has marked paid (ADR-0017). */
 export function PaymentBadge({
   status,
-  paying,
 }: {
   status: "pending" | "paid" | "partially_paid" | "failed" | "refunded" | null;
-  /** A deposit hold is open: the customer is paying right now. */
-  paying: boolean;
 }) {
-  const badge = paying
-    ? { label: "Paying deposit", tone: "bg-warning/12 text-warning" }
-    : status === "paid"
+  const badge =
+    status === "paid"
       ? { label: "Paid", tone: "bg-success/10 text-success" }
       : status === "partially_paid"
         ? { label: "Part paid", tone: "bg-success/10 text-success" }
