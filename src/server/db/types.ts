@@ -660,6 +660,7 @@ export type Database = {
           id: string;
           path_large: string;
           path_small: string;
+          service_id: string | null;
           sort_order: number;
           width: number | null;
         };
@@ -671,6 +672,7 @@ export type Database = {
           id?: string;
           path_large: string;
           path_small: string;
+          service_id?: string | null;
           sort_order?: number;
           width?: number | null;
         };
@@ -682,6 +684,7 @@ export type Database = {
           id?: string;
           path_large?: string;
           path_small?: string;
+          service_id?: string | null;
           sort_order?: number;
           width?: number | null;
         };
@@ -692,6 +695,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "businesses";
             referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "business_photos_service_fk";
+            columns: ["business_id", "service_id"];
+            isOneToOne: false;
+            referencedRelation: "services";
+            referencedColumns: ["business_id", "id"];
           },
         ];
       };
@@ -971,6 +981,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      favorites: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          user_id: string;
+        };
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          user_id: string;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "favorites_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "favorites_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       platform_admins: {
         Row: {
           created_at: string;
@@ -1089,6 +1132,160 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "countries";
             referencedColumns: ["code"];
+          },
+        ];
+      };
+      review_reports: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          details: string | null;
+          id: string;
+          reason: string;
+          reporter_id: string | null;
+          resolved_at: string | null;
+          resolved_by: string | null;
+          review_id: string;
+        };
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          reason: string;
+          reporter_id?: string | null;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          review_id: string;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          reason?: string;
+          reporter_id?: string | null;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          review_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "review_reports_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "review_reports_reporter_id_fkey";
+            columns: ["reporter_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "review_reports_resolved_by_fkey";
+            columns: ["resolved_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "review_reports_review_id_fkey";
+            columns: ["review_id"];
+            isOneToOne: false;
+            referencedRelation: "reviews";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      reviews: {
+        Row: {
+          appointment_id: string;
+          author_name: string;
+          body: string | null;
+          business_id: string;
+          created_at: string;
+          id: string;
+          moderation_note: string | null;
+          rating: number;
+          replied_at: string | null;
+          reply_body: string | null;
+          reply_by: string | null;
+          service_name: string;
+          staff_name: string | null;
+          status: Database["public"]["Enums"]["review_status"];
+          updated_at: string;
+          user_id: string | null;
+          visited_on: string;
+        };
+        Insert: {
+          appointment_id: string;
+          author_name: string;
+          body?: string | null;
+          business_id: string;
+          created_at?: string;
+          id?: string;
+          moderation_note?: string | null;
+          rating: number;
+          replied_at?: string | null;
+          reply_body?: string | null;
+          reply_by?: string | null;
+          service_name: string;
+          staff_name?: string | null;
+          status?: Database["public"]["Enums"]["review_status"];
+          updated_at?: string;
+          user_id?: string | null;
+          visited_on: string;
+        };
+        Update: {
+          appointment_id?: string;
+          author_name?: string;
+          body?: string | null;
+          business_id?: string;
+          created_at?: string;
+          id?: string;
+          moderation_note?: string | null;
+          rating?: number;
+          replied_at?: string | null;
+          reply_body?: string | null;
+          reply_by?: string | null;
+          service_name?: string;
+          staff_name?: string | null;
+          status?: Database["public"]["Enums"]["review_status"];
+          updated_at?: string;
+          user_id?: string | null;
+          visited_on?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reviews_appointment_id_fkey";
+            columns: ["appointment_id"];
+            isOneToOne: true;
+            referencedRelation: "appointments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reviews_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reviews_reply_by_fkey";
+            columns: ["reply_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reviews_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
           },
         ];
       };
@@ -1403,6 +1600,11 @@ export type Database = {
     };
     Functions: {
       accept_staff_invite: { Args: { p_token: string }; Returns: string };
+      account_deletion_blocker: { Args: Record<PropertyKey, never>; Returns: string };
+      admin_moderate_review: {
+        Args: { p_reason: string; p_review_id: string; p_status: Database["public"]["Enums"]["review_status"] };
+        Returns: undefined;
+      };
       admin_save_category: {
         Args: {
           p_description: string;
@@ -1521,6 +1723,8 @@ export type Database = {
       };
       publish_business: { Args: { p_business_id: string }; Returns: undefined };
       remove_staff_member: { Args: { p_staff_id: string }; Returns: undefined };
+      reply_to_review: { Args: { p_body: string; p_review_id: string }; Returns: undefined };
+      report_review: { Args: { p_details: string; p_reason: string; p_review_id: string }; Returns: undefined };
       reschedule_my_appointment: {
         Args: { p_appointment_id: string; p_staff_ids: string[]; p_starts_at: string };
         Returns: string;
@@ -1585,8 +1789,10 @@ export type Database = {
         Returns: undefined;
       };
       set_staff_services: { Args: { p_service_ids: string[]; p_staff_id: string }; Returns: undefined };
+      submit_review: { Args: { p_appointment_id: string; p_body: string; p_rating: number }; Returns: string };
       timemultirange: { Args: Record<PropertyKey, never>; Returns: unknown };
       unpublish_business: { Args: { p_business_id: string }; Returns: undefined };
+      update_review: { Args: { p_body: string; p_rating: number; p_review_id: string }; Returns: undefined };
     };
     Enums: {
       admin_role: "super_admin" | "moderator" | "support";
@@ -1597,6 +1803,7 @@ export type Database = {
       member_role: "owner" | "manager" | "staff";
       payment_status: "pending" | "paid" | "partially_paid" | "failed" | "refunded";
       price_type: "fixed" | "from";
+      review_status: "published" | "hidden" | "removed";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -1712,6 +1919,7 @@ export const Constants = {
       member_role: ["owner", "manager", "staff"],
       payment_status: ["pending", "paid", "partially_paid", "failed", "refunded"],
       price_type: ["fixed", "from"],
+      review_status: ["published", "hidden", "removed"],
     },
   },
 } as const;
