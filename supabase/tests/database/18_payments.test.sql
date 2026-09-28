@@ -31,6 +31,14 @@ end $$;
 -- People (seed): Kwame owns Kwame Cuts (b1, and is its only staff member); Ama owns Ama Braids (b2);
 -- Yaw (…006) and Kojo-the-customer (…007 has no business at b1) book as customers.
 create temp table ids (k text primary key, id uuid);
+-- Seed ids are generated, so look Kwame's service and staff row up by name.
+create function pg_temp.low_cut() returns uuid language sql stable as $$
+  select id from public.services where business_id = 'b0000000-0000-4000-8000-000000000001' and name = 'Low cut';
+$$;
+create function pg_temp.kwame_staff() returns uuid language sql stable as $$
+  select id from public.staff where business_id = 'b0000000-0000-4000-8000-000000000001'
+     and user_id = 'a0000000-0000-4000-8000-000000000001';
+$$;
 grant all on ids to anon, authenticated, service_role;
 delete from public.reviews;
 delete from public.notifications;
@@ -49,8 +57,8 @@ create function pg_temp.book(p_key text, p_user uuid, p_n int, p_hour int) retur
 declare v uuid;
 begin
   perform pg_temp.act_as(p_user);
-  v := public.book_appointment('b0000000-0000-4000-8000-000000000001', '520564cd-3082-4b79-a213-ffb210ee6a81',
-         array['ae3b35ef-8fe9-4e08-98c7-7c2ce1cc5c11']::uuid[], pg_temp.slot(p_n, p_hour), 'Yaw Adjei', '+233200000006');
+  v := public.book_appointment('b0000000-0000-4000-8000-000000000001', pg_temp.low_cut(),
+         array[pg_temp.kwame_staff()], pg_temp.slot(p_n, p_hour), 'Yaw Adjei', '+233200000006');
   perform pg_temp.as_system();
   insert into ids values (p_key, v);
 end $$;
@@ -78,7 +86,7 @@ select is((select count(*)::int from public.business_payout_accounts), 0, 'custo
 select pg_temp.as_system();
 
 -- Low cut: GH₵ 50, deposit GH₵ 20 collected online; auto-confirm on.
-update public.services set deposit_minor = 2000 where id = '520564cd-3082-4b79-a213-ffb210ee6a81';
+update public.services set deposit_minor = 2000 where id = pg_temp.low_cut();
 update public.booking_rules set collect_deposits_online = true, allow_full_payment_online = true
  where business_id = 'b0000000-0000-4000-8000-000000000001';
 
@@ -91,8 +99,8 @@ select is((pg_temp.a('dep')).payment_status::text, 'pending', 'payment is due');
 select is((select count(*)::int from public.notifications where appointment_id = (select id from ids where k = 'dep')), 0,
           'nobody is told until the deposit is paid');
 select pg_temp.act_as('a0000000-0000-4000-8000-000000000007');
-select throws_ok($$ select public.book_appointment('b0000000-0000-4000-8000-000000000001', '520564cd-3082-4b79-a213-ffb210ee6a81',
-                      array['ae3b35ef-8fe9-4e08-98c7-7c2ce1cc5c11']::uuid[], pg_temp.slot(1, 10), 'Other', '+233200000007') $$,
+select throws_ok($$ select public.book_appointment('b0000000-0000-4000-8000-000000000001', pg_temp.low_cut(),
+                      array[pg_temp.kwame_staff()], pg_temp.slot(1, 10), 'Other', '+233200000007') $$,
                  'BZ409', null, 'someone else can''t take a held slot');
 
 -- ── Starting a payment ─────────────────────────────────────────────────────
@@ -200,7 +208,7 @@ update public.payments p set provider_reference = 'ref-move' where p.appointment
 select public.apply_payment_event('mock', 'evt-move', 'ref-move', 'paid', 2000, 'GHS');
 select pg_temp.act_as('a0000000-0000-4000-8000-000000000006');
 insert into ids select 'moved', public.reschedule_my_appointment((select id from ids where k = 'move'),
-                                                                  array['ae3b35ef-8fe9-4e08-98c7-7c2ce1cc5c11']::uuid[], pg_temp.slot(3, 14));
+                                                                  array[pg_temp.kwame_staff()], pg_temp.slot(3, 14));
 select pg_temp.as_system();
 select is((select appointment_id from public.payments where provider_reference = 'ref-move'), (select id from ids where k = 'moved'),
           'the paid deposit moves to the new time');

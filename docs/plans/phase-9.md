@@ -1,10 +1,11 @@
 # Phase 9 plan: payments, deposits, Mobile Money
 
-Draft for approval (product owner said "approved and proceed", 28 Sep). Builds on ADR-0005. Nothing below is built until this plan is approved.
+Approved 28 Sep ("approve"). Builds on ADR-0005; decisions recorded in ADR-0017. Additions from the product owner during the phase: pay in the app **and** face to face; checkout choices Mobile Money, card, bank transfer or just book (Apple Pay only if the provider supports it); owners enter their payout details so the money goes to them.
 
 **Goal:** a customer can pay a deposit (or the full price) with Mobile Money or a card when a business asks for it, the slot is held while they pay, the booking confirms itself when the money arrives, and the business can record cash, all fully testable with a mock before any real provider is connected.
 
 ## Scope
+
 1. **Payments ledger** (`payments`, `payment_events`), per ADR-0005:
    - `payments`: one row per attempt. Kind `deposit | balance | full`; method `mobile_money | card | cash`; `status pending | paid | failed | refunded`; amount in pesewas + currency; a unique `idempotency_key`; the provider's reference.
    - `payment_events`: webhook inbox, unique on `(provider, provider_event_id)`, so a duplicate delivery changes nothing.
@@ -39,6 +40,7 @@ Draft for approval (product owner said "approved and proceed", 28 Sep). Builds o
 11. **Notifications (Phase 8 templates):** payment received (customer), deposit paid (business), refund issued, and "hold about to expire" (in-app).
 
 ## Key decisions (ADR-0017 to write)
+
 - **Money goes straight to the business, never through Hyia** (ADR-0005). With an aggregator this means each business connects its own merchant account or subaccount; until then, online payment stays off for real businesses and only the mock works in dev.
 - **Holds use the existing double-booking constraint**: a `pending` appointment already blocks the slot, and the hold only adds an expiry. No new locking.
 - **Deposits are optional and per service** (already modelled); full online payment is a per-business switch.
@@ -46,6 +48,7 @@ Draft for approval (product owner said "approved and proceed", 28 Sep). Builds o
 - **Amounts are integer pesewas + ISO currency**; a payment's currency must equal the booking's.
 
 ## Files (planned)
+
 - `supabase/migrations/2026100809*_payments.sql`: tables, RLS, functions `start_payment`, `apply_payment_event`, `record_manual_payment`, `refund_payment`, `expire_holds`, `payment_status` derivation.
 - `supabase/tests/database/18_payments.test.sql`: tenant isolation, state machine, idempotent webhooks, holds expire and free the slot, refunds follow policy, concurrency on the same payment.
 - `src/server/payments/`: `provider.ts` (interface), `mock/`, `cash.ts`, `service.ts`, `webhooks.ts`, `reconcile.ts`.
@@ -59,8 +62,10 @@ Draft for approval (product owner said "approved and proceed", 28 Sep). Builds o
 - Docs: ADR-0017, `architecture.md` §8, `data-model.md`, `api/v1.md`, `testing.md`.
 
 ## Open questions (don't block starting)
+
 1. **Which aggregator for Mobile Money and cards in Ghana?** Candidates to evaluate from their official docs: Paystack, Hubtel, Flutterwave, ExpressPay. I'd suggest Paystack first (GHS, MTN MoMo / Telecel Cash / AirtelTigo Money, cards, test mode, per-business subaccounts). Nothing is integrated until you choose and share sandbox keys.
 2. **Should Hyia ever take a commission?** Not in this phase (money never passes through the platform); it changes licensing, so it would be its own decision.
 
 ## Out of scope
+
 Payouts and escrow, commissions, invoices and receipts as PDFs, disputes/chargebacks (Phase 10 admin), subscriptions.

@@ -4,6 +4,7 @@ Ghana-first, multi-tenant appointment marketplace (working name TBD in Phase 0).
 Full product spec: @docs/SPEC.md — it is authoritative. Read it before planning any phase.
 
 ## Stack
+
 - Next.js 16: read @AGENTS.md. APIs differ from older versions (e.g. `middleware` is now `src/proxy.ts`); check `node_modules/next/dist/docs/` before writing Next code.
 - Next.js (App Router) + React + TypeScript (`strict: true`, no `any`, no `@ts-ignore` without a comment explaining why)
 - Tailwind CSS
@@ -11,6 +12,7 @@ Full product spec: @docs/SPEC.md — it is authoritative. Read it before plannin
 - Package manager: pnpm (change only via an ADR)
 
 ## How we work
+
 - One phase at a time (see Roadmap in SPEC.md). Never start the next phase without my explicit approval.
 - Start every phase in plan mode. Before writing code, present: goal, scope, key decisions, files to create/modify. Wait for approval.
 - Work in small, reviewable steps. Commit after each logical unit on a branch named `phase-N-<slug>`. Conventional commit messages.
@@ -19,9 +21,11 @@ Full product spec: @docs/SPEC.md — it is authoritative. Read it before plannin
 - End every phase with: what was built, commands run and results, a manual test checklist, known gaps, and doc updates. Then stop.
 
 ## Architecture changes
+
 Never silently change an architectural decision recorded in `docs/decisions/`. To propose one, write a new ADR draft covering: current approach, problem, proposed change, benefits, risks, migration impact — then wait for approval.
 
 ## Non-negotiable rules
+
 - **Tenant isolation**: every tenant-owned table has `business_id` and RLS enabled with explicit policies. Authorization is enforced server-side and in the database, never only in the UI. Every new table ships with RLS policies and tests proving Business A cannot read/write Business B's rows.
 - **Double booking**: prevented at the database level (constraint or locking), not by application checks alone. Concurrency tests required.
 - **Secrets**: the Supabase `service_role` key and any provider secrets are server-only. Never import them into client components or `NEXT_PUBLIC_*` vars.
@@ -30,6 +34,7 @@ Never silently change an architectural decision recorded in `docs/decisions/`. T
 - Never bypass auth or disable RLS to make something work.
 
 ## Conventions
+
 - Money: integer minor units (pesewas) + ISO 4217 `currency` column. Never floats.
 - Time: store `timestamptz` in UTC; each business has an IANA `timezone` (default `Africa/Accra`). Availability is computed in the business's timezone.
 - Phones: E.164 (`+233…`), validated with a library, not regex alone.
@@ -41,4 +46,5 @@ Never silently change an architectural decision recorded in `docs/decisions/`. T
 - UI: mobile-first, low-bandwidth friendly (optimized images, minimal JS), with loading, empty, error, and validation states, and accessible markup.
 
 ## Docs to keep current
+
 `docs/architecture.md`, `docs/decisions/` (ADRs), `docs/api/`, `docs/env.md`, `docs/testing.md`, `supabase/migrations/`.

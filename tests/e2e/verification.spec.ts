@@ -74,6 +74,8 @@ test("renaming the business removes the check", async ({ page }) => {
   await signInWithEmail(page, owner, `/dashboard/${business.id}/setup/about`);
   await page.getByLabel("Business name").fill(`${business.name} Studio`);
   await page.getByRole("button", { name: "Save and continue" }).click();
+  // Wait for the save to finish (it moves on to the next step) before leaving the page.
+  await expect(page).not.toHaveURL(/\/setup\/about/);
   await page.goto(`/dashboard/${business.id}/more`);
   await expect(page.getByRole("button", { name: "Apply for the check mark" })).toBeVisible();
 });
