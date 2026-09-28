@@ -41,8 +41,7 @@ for (const width of [360, 390]) {
       };
       // 1) In-flow text overlapping other in-flow text.
       const leaves = [...document.querySelectorAll("main *")].filter(
-        (el) =>
-          visible(el) && !isFixed(el) && [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()),
+        (el) => visible(el) && !isFixed(el) && [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()),
       );
       const boxes = leaves.map((el) => {
         const rs = [...el.getClientRects()];
