@@ -111,15 +111,16 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
             <div>
               <p className="text-caption font-semibold tracking-wide text-ink-muted uppercase">Time</p>
               <p className={`text-heading font-bold tabular-nums ${a.status === "cancelled" ? "line-through" : ""}`}>
-                {formatTime(a.startsAt, tz)} – {formatTime(a.endsAt, tz)}
+                {formatTime(a.startsAt, tz)}
               </p>
+              <p className="text-small text-ink-muted tabular-nums">until {formatTime(a.endsAt, tz)}</p>
             </div>
           </div>
           {where ? (
             <div className="mt-3">
               <p className="text-caption font-semibold tracking-wide text-ink-muted uppercase">Where</p>
               <p className="text-body">{where}</p>
-              {landmark ? <p className="text-small text-ink-muted">Near {landmark}</p> : null}
+              {landmark ? <p className="text-small text-ink-muted">{landmark}</p> : null}
             </div>
           ) : null}
         </div>
