@@ -1,4 +1,8 @@
 import type { Metadata } from "next";
+import { Sheet } from "@/components/ui/sheet";
+import { ReviewForm } from "@/components/reviews/review-form";
+import { ReviewCard } from "@/components/reviews/review-card";
+import { myReviewFor } from "@/server/reviews/reviews";
 import { Toast } from "@/components/ui/toast";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -45,6 +49,7 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
       ? mapsUrl(loc.lat, loc.lng)
       : mapsSearchUrl([a.business.name, where].filter(Boolean).join(", "))
     : null;
+  const myReview = a.status === "completed" ? await myReviewFor(db, user.id, a.id) : null;
   const shareUrl = a.business.slug ? businessPageUrl(publicEnv().NEXT_PUBLIC_SITE_URL, a.business.slug) : null;
 
   return (
@@ -197,6 +202,59 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
           ) : null}
         </nav>
       </article>
+
+      {a.status === "completed" ? (
+        <section
+          id="rate"
+          aria-labelledby="rate-heading"
+          className="mb-6 scroll-mt-4 overflow-hidden rounded-card bg-card lift"
+        >
+          {myReview ? (
+            <>
+              <h2 id="rate-heading" className="px-4 pt-4 text-heading font-semibold">
+                Your review
+              </h2>
+              <ReviewCard
+                review={myReview}
+                businessName={a.business.name ?? "the business"}
+                canReport={false}
+                footer={
+                  myReview.editableUntil ? (
+                    <button
+                      type="button"
+                      popoverTarget="edit-review"
+                      className="inline-flex min-h-9 items-center text-small font-semibold text-primary"
+                    >
+                      Edit review
+                    </button>
+                  ) : myReview.status !== "published" ? (
+                    <span className="text-caption text-ink-muted">Hidden after a report</span>
+                  ) : undefined
+                }
+              />
+              {myReview.editableUntil ? (
+                <Sheet id="edit-review" title="Edit your review">
+                  <ReviewForm
+                    appointmentId={a.id}
+                    review={{ id: myReview.id, rating: myReview.rating, body: myReview.body }}
+                    businessName={a.business.name ?? "the business"}
+                  />
+                </Sheet>
+              ) : null}
+            </>
+          ) : (
+            <div className="p-4">
+              <h2 id="rate-heading" className="text-title font-bold">
+                How was {a.serviceName}?
+              </h2>
+              <p className="mb-3 text-small text-ink-muted">
+                Your review helps others choose, and helps {a.business.name} improve.
+              </p>
+              <ReviewForm appointmentId={a.id} businessName={a.business.name ?? "the business"} />
+            </div>
+          )}
+        </section>
+      ) : null}
 
       {canChange && a.business.slug ? (
         <section className="grid gap-2" aria-label="Change this booking">

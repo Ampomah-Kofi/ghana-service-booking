@@ -102,6 +102,11 @@ export default async function MorePage({ params }: PageProps<"/dashboard/[busine
 
       <GroupedSection title="Manage">
         {[
+          {
+            href: `/dashboard/${business.id}/reviews`,
+            label: "Reviews",
+            detail: "Read and reply to what customers say",
+          },
           { href: `/dashboard/${business.id}/services`, label: "Services", detail: "Prices, durations, who does what" },
           ...(business.kind === "team"
             ? [{ href: `/dashboard/${business.id}/team`, label: "Team", detail: "People, invites, their hours" }]
@@ -110,11 +115,7 @@ export default async function MorePage({ params }: PageProps<"/dashboard/[busine
           { href: `/dashboard/${business.id}/time-off`, label: "Time off", detail: "Holidays, days off, breaks" },
           { href: `/dashboard/${business.id}/settings`, label: "Booking rules", detail: "Notice, gaps, cancellations" },
         ].map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="flex min-h-14 items-center gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-fill"
-          >
+          <Link key={item.href} href={item.href} className="flex min-h-14 items-center gap-3 px-4 py-3 hover:bg-fill">
             <span className="min-w-0 flex-1">
               <span className="block text-body">{item.label}</span>
               <span className="block truncate text-small text-ink-muted">{item.detail}</span>
@@ -126,11 +127,7 @@ export default async function MorePage({ params }: PageProps<"/dashboard/[busine
 
       <GroupedSection title="Your page">
         {checklist.map((item) => (
-          <Link
-            key={item.label}
-            href={item.href}
-            className="flex min-h-11 items-center gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-fill"
-          >
+          <Link key={item.label} href={item.href} className="flex min-h-11 items-center gap-3 px-4 py-3 hover:bg-fill">
             <span
               aria-hidden="true"
               className={`flex size-6 shrink-0 items-center justify-center rounded-full text-small font-bold ${

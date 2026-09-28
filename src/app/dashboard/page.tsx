@@ -21,7 +21,7 @@ export default async function DashboardIndexPage() {
           <Link
             key={m.businessId}
             href={`/dashboard/${m.businessId}`}
-            className="flex min-h-11 items-center justify-between gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-fill"
+            className="flex min-h-11 items-center justify-between gap-3 px-4 py-3 hover:bg-fill"
           >
             <span className="text-body">{m.business.name}</span>
             <span className="text-small text-ink-muted">{m.business.status}</span>

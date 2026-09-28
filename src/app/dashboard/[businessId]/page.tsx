@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { listReviewsForBusiness } from "@/server/reviews/reviews";
 import { Countdown } from "./countdown";
 import { countdownLabel } from "@/lib/countdown";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -9,7 +10,7 @@ import type { ReactNode } from "react";
 import { SourceBadge, STATUS, StatusBadge } from "@/components/bookings/status-badge";
 import { AppointmentListRow } from "@/components/calendar/appointment-list-row";
 import { Fab } from "@/components/ui/fab";
-import { ChatIcon, ChevronRightIcon, PhoneIcon } from "@/components/ui/icons";
+import { ChatIcon, ChevronRightIcon, PhoneIcon, StarIcon } from "@/components/ui/icons";
 import { formatLocalDateShort, formatTime } from "@/lib/datetime";
 import { formatMoney } from "@/lib/money";
 import { telUrl, whatsappChatUrl } from "@/lib/share";
@@ -25,7 +26,10 @@ export default async function TodayPage({ params }: PageProps<"/dashboard/[busin
   const { businessId } = await params;
   const member = await memberBusinessOr404(businessId);
   const { business, canManage } = member;
-  const summary = await getTodaySummary(member);
+  const [summary, unanswered] = await Promise.all([
+    getTodaySummary(member),
+    member.canManage ? listReviewsForBusiness(member.db, member.business.id, { filter: "unanswered", limit: 20 }) : [],
+  ]);
   const tz = business.timezone;
   const base = `/dashboard/${business.id}`;
   const money = (minor: number) =>
@@ -37,6 +41,24 @@ export default async function TodayPage({ params }: PageProps<"/dashboard/[busin
   return (
     <>
       <LargeTitle title="Today" eyebrow={formatLocalDateShort(summary.date)} />
+
+      {unanswered.length > 0 ? (
+        <Link
+          href={`${base}/reviews?show=unanswered`}
+          className="pressable mb-5 flex items-center gap-3 rounded-card bg-card p-4 lift"
+        >
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-star/15 text-star">
+            <StarIcon className="size-5" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-body font-semibold">
+              {unanswered.length === 1 ? "1 new review" : `${unanswered.length} new reviews`}
+            </span>
+            <span className="block truncate text-small text-ink-muted">A quick reply shows customers you care.</span>
+          </span>
+          <ChevronRightIcon className="shrink-0 text-ink-muted" />
+        </Link>
+      ) : null}
 
       {canManage && business.status === "draft" ? (
         <Link

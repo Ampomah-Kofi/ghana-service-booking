@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { reviewedAppointmentIds } from "@/server/reviews/reviews";
 import { EmptyState } from "@/components/ui/empty-state";
 import { TicketIcon } from "@/components/ui/icons";
 import { LargeTitle } from "@/components/ui/large-title";
@@ -14,7 +15,13 @@ export const metadata: Metadata = { title: "Your bookings" };
 
 export default async function BookingsPage() {
   const user = await requireUserOrRedirect("/bookings");
-  const { upcoming, past } = await listMyAppointments(await createUserClient(), user.id);
+  const db = await createUserClient();
+  const { upcoming, past } = await listMyAppointments(db, user.id);
+  const reviewed = await reviewedAppointmentIds(
+    db,
+    user.id,
+    past.filter((a) => a.status === "completed").map((a) => a.id),
+  );
 
   return (
     <>
@@ -59,9 +66,11 @@ export default async function BookingsPage() {
                 href={`/bookings/${a.id}`}
                 who={a.business.name ?? "Business"}
                 action={
-                  a.business.slug
-                    ? { href: rebookHref(a.business.slug, a.serviceId, a.staffId), label: "Book again" }
-                    : undefined
+                  a.status === "completed" && !reviewed.has(a.id)
+                    ? { href: `/bookings/${a.id}#rate`, label: "Rate" }
+                    : a.business.slug
+                      ? { href: rebookHref(a.business.slug, a.serviceId, a.staffId), label: "Book again" }
+                      : undefined
                 }
               />
             ))}
