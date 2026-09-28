@@ -1,7 +1,7 @@
 "use client";
 
 import { valueOf, checkedOf, listOf } from "@/lib/form-values";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Field, FormMessage, SelectField, TextAreaField } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { DURATION_OPTIONS, formatDuration } from "@/lib/hours";
@@ -29,6 +29,8 @@ type Props = {
 export function ServiceForm({ businessId, serviceId, returnTo, currencySymbol, staff, values }: Props) {
   const [state, formAction] = useActionState<FormState, FormData>(saveServiceAction, {});
   const e = state.fieldErrors ?? {};
+  const [priceType, setPriceType] = useState(valueOf(state.values, "priceType", values.priceType));
+  const onRequest = priceType === "on_request";
 
   return (
     <form action={formAction} noValidate className="rounded-card bg-card p-5 lift">
@@ -52,14 +54,17 @@ export function ServiceForm({ businessId, serviceId, returnTo, currencySymbol, s
           <label htmlFor="price" className="mb-1.5 block text-small font-medium">
             Price
           </label>
-          <div className="flex min-h-11 items-center rounded-control border border-border bg-card focus-within:border-primary">
+          <div
+            className={`flex min-h-11 items-center rounded-control border border-border bg-card focus-within:border-primary transition-opacity ${onRequest ? "opacity-45" : ""}`}
+          >
             <span className="pl-3 text-body text-ink-muted">{currencySymbol}</span>
             <input
               id="price"
               name="price"
               inputMode="decimal"
               defaultValue={valueOf(state.values, "price", values.price)}
-              placeholder="50"
+              placeholder={onRequest ? "–" : "50"}
+              disabled={onRequest}
               aria-invalid={e.price ? true : undefined}
               aria-describedby={e.price ? "price-error" : undefined}
               className="min-h-11 w-full min-w-0 bg-transparent px-2 text-body tabular-nums outline-none"
@@ -75,16 +80,18 @@ export function ServiceForm({ businessId, serviceId, returnTo, currencySymbol, s
           id="priceType"
           name="priceType"
           label="Price is"
-          defaultValue={valueOf(state.values, "priceType", values.priceType)}
+          value={priceType}
+          onChange={(ev) => setPriceType(ev.target.value)}
         >
           <option value="fixed">Exact</option>
           <option value="from">From (starting at)</option>
           <option value="on_request">On request</option>
         </SelectField>
       </div>
-      <p className="-mt-2 mb-4 text-small text-ink-muted">
-        No fixed price (a campaign, a wiring job, a DJ set)? Choose “On request” and leave the price empty. Customers
-        can still book, and you agree the price with them.
+      <p className="-mt-2 mb-4 text-small text-ink-muted" aria-live="polite">
+        {onRequest
+          ? "Customers see “Price on request”. They can still book, and you agree the price with them."
+          : "No fixed price (a campaign, a wiring job, a DJ set)? Choose “On request”. Customers can still book, and you agree the price with them."}
       </p>
 
       <SelectField
@@ -119,7 +126,12 @@ export function ServiceForm({ businessId, serviceId, returnTo, currencySymbol, s
         inputMode="decimal"
         defaultValue={valueOf(state.values, "deposit", values.deposit)}
         placeholder="No deposit"
-        hint="Optional. Deposits start working when online payments launch."
+        disabled={onRequest}
+        hint={
+          onRequest
+            ? "Not available when the price is on request."
+            : "Optional. Deposits start working when online payments launch."
+        }
         error={e.deposit}
       />
 

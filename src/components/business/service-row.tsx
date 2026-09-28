@@ -28,10 +28,12 @@ export function ServiceRow({
 }) {
   const hasDetails = Boolean(description || deposit || photos.length > 0);
   const sheetId = `service-${id}`;
+  // "Price on request" is words, not a figure: smaller and allowed to wrap, so it never squeezes the name.
+  const worded = !/\d/.test(price);
   const body = (
     <>
       <span className="min-w-0 flex-1">
-        <span className="block text-body font-medium">{name}</span>
+        <span className="block text-body font-medium break-words">{name}</span>
         <span className="block text-small text-ink-muted">{meta}</span>
         {description ? (
           <span className="mt-0.5 line-clamp-1 block text-small text-ink-muted">{description}</span>
@@ -59,7 +61,15 @@ export function ServiceRow({
           </span>
         ) : null}
       </span>
-      <span className="shrink-0 text-heading font-semibold tabular-nums">{price}</span>
+      <span
+        className={
+          worded
+            ? "max-w-[7.5rem] shrink-0 text-right text-small leading-tight font-medium text-ink-muted"
+            : "shrink-0 text-heading font-semibold tabular-nums"
+        }
+      >
+        {price}
+      </span>
       {href && !hasDetails ? <ChevronRightIcon className="shrink-0 text-ink-muted" /> : null}
     </>
   );

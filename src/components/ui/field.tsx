@@ -19,7 +19,7 @@ export function Field({ id, label, error, hint, className = "", ...input }: Fiel
         id={id}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
-        className={`block min-h-12 w-full rounded-control border bg-card px-3 text-body outline-none transition-colors placeholder:text-ink-muted focus:border-primary ${
+        className={`block min-h-12 w-full rounded-control border bg-card px-3 text-body outline-none transition-colors placeholder:text-ink-muted focus:border-primary disabled:bg-fill disabled:opacity-60 ${
           error ? "border-danger" : "border-border"
         } ${className}`}
         {...input}
@@ -50,7 +50,7 @@ export function FormMessage({ message, tone }: { message?: string; tone: "error"
 }
 
 const controlClass = (error?: string) =>
-  `block min-h-12 w-full rounded-control border bg-card px-3 text-body outline-none transition-colors placeholder:text-ink-muted focus:border-primary ${
+  `block min-h-12 w-full rounded-control border bg-card px-3 text-body outline-none transition-colors placeholder:text-ink-muted focus:border-primary disabled:bg-fill disabled:opacity-60 ${
     error ? "border-danger" : "border-border"
   }`;
 

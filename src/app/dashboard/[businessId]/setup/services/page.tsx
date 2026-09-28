@@ -22,7 +22,7 @@ export default async function ServicesStepPage({ params }: PageProps<"/dashboard
         businessId={business.id}
         step="services"
         title="What do you offer?"
-        subtitle="Add at least one service with its price and how long it takes."
+        subtitle="Add at least one thing you do, how long it takes, and its price (or “on request”)."
       />
       <ServiceList
         businessId={business.id}
