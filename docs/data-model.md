@@ -14,7 +14,8 @@
 | 6 | `appointments.final_price_minor`; `business_client_summaries` view (security_invoker); staff can read their own appointments' history |
 | 7 | **favorites** (PK user+business; private to the user), **reviews** (one per completed appointment; snapshots author "Kofi A.", service, staff, visit date; `status` published/hidden/removed; one business reply; `businesses.rating_avg/count` kept by trigger over published reviews), **review_reports** (one per person per review), `business_photos.service_id` (composite FK keeps it in-business). Functions: `submit_review`, `update_review` (14 days), `reply_to_review` (owners/managers), `report_review`, `admin_moderate_review` (audited), `account_deletion_blocker`, `delete_my_account`, `my_favorite_businesses` |
 | 7+ | `businesses` social links (`instagram_handle`, `tiktok_handle`, `x_handle`, `facebook_url`, `youtube_url`, `website_url`; format checks, owner/manager column grants); `price_type` gains **`on_request`** (amount 0, no deposit, ignored as a starting price; the final price is entered at completion). More seed categories: trades (electricians, plumbers, AC/phone repair, mechanics, tailors, carpentry, laundry, driving lessons), events (DJs & MCs, catering, musicians & bands) and creators (influencers & creators, videography, graphic design, copywriting) |
-| later | payments, notifications and the rest, still in the draft |
+| 8 | **notifications** (outbox + in-app inbox; `claimed_at` for stuck-send recovery; RLS: own due in-app messages, admins read all; only `read_at` updatable), `businesses.notify_new_booking_sms`. Trigger `appointments_notify` writes events and reminders; `claim_notifications` / `finish_notification` for the dispatcher (service role only) |
+| later | payments and the rest, still in the draft |
 
 ## 1. ER diagram
 

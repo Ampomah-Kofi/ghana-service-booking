@@ -18,6 +18,15 @@ describe("parseServerEnv", () => {
   it("refuses mock providers in production", () => {
     expect(() => parseServerEnv({ ...valid, APP_ENV: "production" })).toThrow(/Mock providers are not allowed/);
   });
+  it("defaults WhatsApp and email to mocks locally, and names each mock in production", () => {
+    expect(parseServerEnv(valid)).toMatchObject({ WHATSAPP_PROVIDER: "mock", EMAIL_PROVIDER: "mock" });
+    expect(() => parseServerEnv({ ...valid, APP_ENV: "production" })).toThrow(/WHATSAPP_PROVIDER/);
+    expect(() => parseServerEnv({ ...valid, APP_ENV: "production" })).toThrow(/EMAIL_PROVIDER/);
+  });
+  it("wants a long dispatcher secret when one is set", () => {
+    expect(() => parseServerEnv({ ...valid, CRON_SECRET: "short" })).toThrow(/CRON_SECRET/);
+    expect(parseServerEnv({ ...valid, CRON_SECRET: "x".repeat(40) }).CRON_SECRET).toHaveLength(40);
+  });
   it("reports missing variables by name", () => {
     expect(() => parseServerEnv({ ...valid, SUPABASE_SECRET_KEY: undefined })).toThrow(/SUPABASE_SECRET_KEY/);
   });

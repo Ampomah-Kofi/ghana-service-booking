@@ -139,6 +139,11 @@ Always a text label, never colour alone.
 **"Up next" (provider Today)**
 - A Live Activity-style card: deep brand green in both themes with a light glow and rim; "UP NEXT" (a pulsing dot and "NOW" once started) and a frosted countdown pill ("in 25 min", "20 min left", "Running over"); a large start time with the end time beside it; the client's initial, name, service and person; a white progress bar while it's happening; one white capsule action (Confirm / Mark arrived / Complete, whichever is possible now, otherwise Details) beside frosted Call and WhatsApp buttons. Live values tick every 20 s.
 
+**Notifications (Phase 8)**
+- A round bell beside the account circle on Explore and in the provider header; a red count (9+ max) pops in when there's something new.
+- `/notifications`: a large title with "3 new", an inset list with a tinted round icon (green booking, red cancellation, gold rating), bold title while unread plus a green dot, two lines of text and "25 min ago". Dots clear 1.5 s after you've seen them.
+- Account → Messages: SMS / WhatsApp / Don't text me (with a one-line hint each) and an email switch. Provider Settings → Alerts: "Text me about new bookings" switch.
+
 **Glass (ADR-0010)**
 - `.glass` / `.glass-strong` (see `globals.css`) are only for the navigation and control layer: the floating capsule tab bars, the desktop header, round buttons and chips over covers, the booking summary bar and the "+" menu. The selected tab is a brighter `glass-lens`.
 - Content (cards, lists, forms) stays solid.

@@ -14,6 +14,9 @@ Rule: **`NEXT_PUBLIC_*` is shipped to every browser. Never put a secret there.**
 | `SUPABASE_SECRET_KEY` | **server** | yes | Secret ("service_role") key. **Bypasses RLS.** Only `src/server/privileged/*` may read it (lint-enforced) | from `pnpm exec supabase status` |
 | `SEND_SMS_HOOK_SECRET` | **server** | yes | Verifies Supabase Auth → `/api/internal/auth/send-sms` calls (Standard Webhooks, `v1,whsec_<base64>`). Must equal the value in `supabase/.env` | `echo "v1,whsec_$(openssl rand -base64 32)"` |
 | `SMS_PROVIDER` | server | yes | SMS channel provider. Only `mock` exists until Phase 8. **`mock` is refused when `APP_ENV=production`** | `mock` |
+| `WHATSAPP_PROVIDER` | server | no (default `mock`) | WhatsApp channel provider (Phase 8). **`mock` refused in production** | `mock` |
+| `EMAIL_PROVIDER` | server | no (default `mock`) | Email channel provider (Phase 8). **`mock` refused in production** | `mock` |
+| `CRON_SECRET` | **server** | for sending | Bearer secret for `/api/internal/jobs/dispatch` (≥ 32 chars). Unset = the dispatcher answers 503 | `openssl rand -hex 32` |
 | `DEFAULT_COUNTRY_CODE` | server | yes | Default region for parsing phones typed without `+`. Country data itself lives in the DB | `GH` |
 
 ## Supabase CLI (`supabase/.env`, local only)
@@ -30,6 +33,22 @@ Configured per project (staging, production) in the Supabase dashboard. Record c
 - **Auth → SMS OTP expiry:** 300 seconds, OTP length 6.
 - **Auth → Rate limits:** SMS sent per hour, reviewed against SMS spend.
 - **Auth → URL configuration:** Site URL = `NEXT_PUBLIC_SITE_URL`, redirect allow-list includes `<site>/auth/callback`.
+
+## Sending notifications (Phase 8)
+- **Local:** `node scripts/dev/dispatch-loop.mjs` (sends due messages every 30 s through the mock providers; they print to the app log).
+- **Hosted Supabase**, once per environment (SQL editor), with the site URL and the same `CRON_SECRET` as Vercel:
+  ```sql
+  create extension if not exists pg_cron;
+  create extension if not exists pg_net;
+  select vault.create_secret('<CRON_SECRET>', 'cron_secret');
+  select cron.schedule('dispatch-notifications', '* * * * *', $$
+    select net.http_post(
+      url := 'https://<site>/api/internal/jobs/dispatch',
+      headers := jsonb_build_object('Authorization', 'Bearer ' ||
+        (select decrypted_secret from vault.decrypted_secrets where name = 'cron_secret')))
+  $$);
+  ```
+  Rotating: update the Vault secret and the Vercel variable together (the route compares in constant time).
 
 ## Rotation
 1. `SEND_SMS_HOOK_SECRET`: Supabase hooks accept several space-separated secrets. Add the new one in Supabase and deploy the app with the new value, then remove the old one.
