@@ -1,7 +1,7 @@
 import type { z } from "zod";
-import { publicMediaUrl } from "@/lib/images";
 import { publicEnv } from "@/lib/public-env";
 import { searchQuery, type searchResponse } from "@/schemas/api-v1";
+import { toApiCard } from "@/server/api/reviews";
 import { apiClient, apiError, isPersonalised, json, validationError } from "@/server/api/http";
 import { serverEnv } from "@/server/env";
 import { searchMarketplace } from "@/server/search/marketplace";
@@ -20,27 +20,7 @@ export async function GET(request: Request) {
     );
     const supabaseUrl = publicEnv().NEXT_PUBLIC_SUPABASE_URL;
     const body: z.infer<typeof searchResponse> = {
-      data: result.results.map((c) => {
-        const image = c.imagePath ?? c.logoPath;
-        return {
-          id: c.id,
-          slug: c.slug,
-          name: c.name,
-          image_url: image ? publicMediaUrl(supabaseUrl, image) : null,
-          category: c.categoryName && c.categorySlug ? { name: c.categoryName, slug: c.categorySlug } : null,
-          place: c.place,
-          starting_price: c.startingPrice
-            ? {
-                amount_minor: c.startingPrice.amountMinor,
-                currency: c.startingPrice.currency,
-                is_from: c.startingPrice.isFrom,
-              }
-            : null,
-          rating: c.rating,
-          next_available_at: c.nextAvailableAt,
-          distance_km: c.distanceKm,
-        };
-      }),
+      data: result.results.map((c) => toApiCard(c, supabaseUrl)),
       meta: {
         total: result.total,
         page: result.page,

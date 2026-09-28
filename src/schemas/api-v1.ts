@@ -83,7 +83,14 @@ export const businessProfile = z.object({
       .nullable(),
     contact: z.object({ phone: z.string().nullable(), whatsapp: z.string().nullable() }),
     logo_url: z.url().nullable(),
-    photos: z.array(z.object({ small_url: z.url(), large_url: z.url() })),
+    photos: z.array(
+      z.object({
+        small_url: z.url(),
+        large_url: z.url(),
+        service_id: z.uuid().nullable().describe("Service shown, if tagged"),
+      }),
+    ),
+    rating: z.object({ average: z.number(), count: z.number().int() }).nullable(),
     services: z.array(
       z.object({
         id: z.uuid(),
@@ -210,4 +217,55 @@ export const statusChangeBody = z.object({
   status: z.enum(["confirmed", "arrived", "completed", "cancelled", "no_show"]),
   reason: z.string().trim().max(200).optional(),
   final_price_minor: z.number().int().min(0).optional(),
+});
+
+// ── Phase 7: favourites and reviews ─────────────────────────────────────────
+
+export const favoritesResponse = z.object({ data: z.array(businessCard) });
+export const favoriteState = z.object({ data: z.object({ business_id: z.uuid(), saved: z.boolean() }) });
+
+export const review = z.object({
+  id: z.uuid(),
+  business_id: z.uuid(),
+  appointment_id: z.uuid(),
+  author_name: z.string(),
+  mine: z.boolean(),
+  service_name: z.string(),
+  staff_name: z.string().nullable(),
+  visited_on: z.iso.date(),
+  rating: z.number().int().min(1).max(5),
+  body: z.string().nullable(),
+  status: z.enum(["published", "hidden", "removed"]),
+  reply: z.object({ body: z.string(), at: z.iso.datetime({ offset: true }) }).nullable(),
+  created_at: z.iso.datetime({ offset: true }),
+  editable_until: z.iso.datetime({ offset: true }).nullable(),
+});
+export const reviewResponse = z.object({ data: review });
+
+export const reviewsQuery = z.object({
+  page: z.coerce.number().int().min(1).max(50).optional().default(1),
+  page_size: z.coerce.number().int().min(1).max(50).optional().default(20),
+});
+export const businessReviewsResponse = z.object({
+  data: z.array(review),
+  meta: z.object({
+    average: z.number().nullable(),
+    count: z.number().int(),
+    distribution: z.array(z.number().int()).length(5).describe("Published reviews per star, index 0 = 1 star"),
+    page: z.number().int(),
+    page_size: z.number().int(),
+  }),
+});
+export const myReviewsResponse = z.object({
+  data: z.array(review.extend({ business: z.object({ name: z.string(), slug: z.string() }) })),
+});
+
+export const reviewBody = z.object({
+  rating: z.number().int().min(1).max(5),
+  body: z.string().trim().max(1000).nullable().optional(),
+});
+export const replyBody = z.object({ body: z.string().trim().min(1).max(1000) });
+export const reportBody = z.object({
+  reason: z.enum(["spam", "offensive", "not_genuine", "private_info", "other"]),
+  details: z.string().trim().max(500).nullable().optional(),
 });

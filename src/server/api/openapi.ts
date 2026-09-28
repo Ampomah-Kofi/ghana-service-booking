@@ -17,6 +17,15 @@ import {
   searchQuery,
   searchResponse,
   statusChangeBody,
+  businessReviewsResponse,
+  favoriteState,
+  favoritesResponse,
+  myReviewsResponse,
+  replyBody,
+  reportBody,
+  reviewBody,
+  reviewResponse,
+  reviewsQuery,
 } from "@/schemas/api-v1";
 
 const schema = (s: z.ZodType) => z.toJSONSchema(s, { target: "openapi-3.0", io: "output", unrepresentable: "any" });
@@ -61,6 +70,11 @@ export function buildOpenApiDocument(serverUrl: string) {
         Appointment: schema(appointmentResponse),
         MyAppointments: schema(myAppointmentsResponse),
         BusinessAppointments: schema(businessAppointmentsResponse),
+        Favorites: schema(favoritesResponse),
+        FavoriteState: schema(favoriteState),
+        Review: schema(reviewResponse),
+        BusinessReviews: schema(businessReviewsResponse),
+        MyReviews: schema(myReviewsResponse),
       },
     },
     paths: {
@@ -213,6 +227,119 @@ export function buildOpenApiDocument(serverUrl: string) {
             "403": errorResponse("Not allowed for this team member"),
             "409": errorResponse("Overlaps another booking, or outside hours without the override"),
             "422": errorResponse("Invalid input"),
+          },
+        },
+      },
+      "/me/favorites": {
+        get: {
+          summary: "Your saved businesses",
+          description: "Private to you; businesses can't see who saved them. Unpublished businesses drop out.",
+          security: [{ bearer: [] }],
+          responses: {
+            "200": { description: "Result cards, newest saved first", content: json("Favorites") },
+            "401": errorResponse("Not signed in"),
+          },
+        },
+      },
+      "/me/favorites/{businessId}": {
+        put: {
+          summary: "Save a business (idempotent)",
+          security: [{ bearer: [] }],
+          parameters: [{ name: "businessId", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+          responses: {
+            "200": { description: "Saved", content: json("FavoriteState") },
+            "401": errorResponse("Not signed in"),
+            "404": errorResponse("Unknown or unpublished business"),
+          },
+        },
+        delete: {
+          summary: "Unsave a business (idempotent)",
+          security: [{ bearer: [] }],
+          parameters: [{ name: "businessId", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+          responses: {
+            "200": { description: "Removed", content: json("FavoriteState") },
+            "401": errorResponse("Not signed in"),
+          },
+        },
+      },
+      "/businesses/{slug}/reviews": {
+        get: {
+          summary: "Published reviews of a business",
+          description: "Only from customers with a completed booking. `meta` has the rating summary.",
+          parameters: [
+            { name: "slug", in: "path", required: true, schema: { type: "string" } },
+            ...queryParameters(reviewsQuery),
+          ],
+          responses: {
+            "200": { description: "Reviews, newest first", content: json("BusinessReviews") },
+            "404": errorResponse("Not found or not published"),
+          },
+        },
+      },
+      "/me/reviews": {
+        get: {
+          summary: "Your reviews (any status)",
+          security: [{ bearer: [] }],
+          responses: {
+            "200": { description: "Reviews", content: json("MyReviews") },
+            "401": errorResponse("Not signed in"),
+          },
+        },
+      },
+      "/appointments/{id}/review": {
+        post: {
+          summary: "Review your completed visit",
+          description: "One review per appointment, only by its customer, only once it is `completed`.",
+          security: [{ bearer: [] }],
+          parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+          requestBody: { required: true, content: { "application/json": { schema: body(reviewBody) } } },
+          responses: {
+            "201": { description: "Posted", content: json("Review") },
+            "401": errorResponse("Not signed in"),
+            "404": errorResponse("Not your booking"),
+            "409": errorResponse("Already reviewed"),
+            "422": errorResponse("Not completed yet, or invalid input"),
+          },
+        },
+      },
+      "/reviews/{id}": {
+        patch: {
+          summary: "Edit your review",
+          description: "Allowed for 14 days after posting, while it is published (see `editable_until`).",
+          security: [{ bearer: [] }],
+          parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+          requestBody: { required: true, content: { "application/json": { schema: body(reviewBody) } } },
+          responses: {
+            "200": { description: "Updated", content: json("Review") },
+            "404": errorResponse("Not your review"),
+            "422": errorResponse("Edit window over, hidden, or invalid input"),
+          },
+        },
+      },
+      "/reviews/{id}/reply": {
+        put: {
+          summary: "Post or replace the business's reply (owners and managers)",
+          security: [{ bearer: [] }],
+          parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+          requestBody: { required: true, content: { "application/json": { schema: body(replyBody) } } },
+          responses: {
+            "200": { description: "Replied", content: json("Review") },
+            "403": errorResponse("Staff can't reply for the business"),
+            "404": errorResponse("Not a review of your business"),
+          },
+        },
+      },
+      "/reviews/{id}/report": {
+        post: {
+          summary: "Report a review to moderators",
+          security: [{ bearer: [] }],
+          parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+          requestBody: { required: true, content: { "application/json": { schema: body(reportBody) } } },
+          responses: {
+            "202": { description: "Reported" },
+            "404": errorResponse("Review not found"),
+            "409": errorResponse("Already reported by you"),
+            "422": errorResponse("Your own review, or invalid input"),
           },
         },
       },

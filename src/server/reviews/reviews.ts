@@ -240,3 +240,10 @@ export async function moderateReview(db: Db, reviewId: string, status: ReviewSta
   });
   if (error) throw toAppError(error);
 }
+
+/** One review the caller can see (RLS), or null. */
+export async function getReview(db: Db, reviewId: string, viewerId: string | null): Promise<ReviewView | null> {
+  const { data, error } = await db.from("reviews").select(select).eq("id", reviewId).maybeSingle();
+  if (error) throw toAppError(error);
+  return data ? toView(data, viewerId) : null;
+}

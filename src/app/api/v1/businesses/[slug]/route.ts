@@ -8,6 +8,7 @@ import { listServices } from "@/server/businesses/catalog";
 import { getBusinessBySlug } from "@/server/businesses/queries";
 import { getBusinessHours } from "@/server/businesses/schedule";
 import { listStaff } from "@/server/businesses/team";
+import { ratingSummary } from "@/server/reviews/reviews";
 
 /**
  * GET /api/v1/businesses/{slug}: public profile with services, team and hours.
@@ -19,10 +20,11 @@ export async function GET(request: Request, { params }: RouteContext<"/api/v1/bu
     const db = apiClient(request);
     const business = await getBusinessBySlug(db, slug);
     if (!business) throw new AppError("NOT_FOUND", "Business not found.");
-    const [services, staff, hours] = await Promise.all([
+    const [services, staff, hours, rating] = await Promise.all([
       listServices(db, business.id),
       listStaff(db, business.id, { withInvites: false }),
       getBusinessHours(db, business.id),
+      ratingSummary(db, business.id),
     ]);
     const media = (path: string) => publicMediaUrl(publicEnv().NEXT_PUBLIC_SUPABASE_URL, path);
     const loc = business.location;
@@ -50,7 +52,12 @@ export async function GET(request: Request, { params }: RouteContext<"/api/v1/bu
           : null,
         contact: { phone: business.phone, whatsapp: business.whatsapp },
         logo_url: business.logoPath ? media(business.logoPath) : null,
-        photos: business.photos.map((p) => ({ small_url: media(p.pathSmall), large_url: media(p.pathLarge) })),
+        photos: business.photos.map((p) => ({
+          small_url: media(p.pathSmall),
+          large_url: media(p.pathLarge),
+          service_id: p.serviceId,
+        })),
+        rating: rating.count > 0 && rating.average !== null ? { average: rating.average, count: rating.count } : null,
         services: services
           .filter((s) => s.isActive)
           .map((s) => ({

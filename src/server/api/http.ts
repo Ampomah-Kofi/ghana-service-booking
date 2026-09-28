@@ -69,3 +69,10 @@ export function validationError(error: ZodError): Response {
 export function isPersonalised(request: Request): boolean {
   return request.headers.has("authorization");
 }
+
+/** Path ids are UUIDs; anything else is simply "not found" (never a database error). */
+export function uuidParam(value: string, what = "Not found."): string {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value))
+    throw new AppError("NOT_FOUND", what);
+  return value;
+}
