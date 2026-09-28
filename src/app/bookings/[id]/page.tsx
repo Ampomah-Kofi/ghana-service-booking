@@ -34,12 +34,31 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
   return (
     <>
       {justBooked ? (
-        <FormMessage
-          tone="notice"
-          message={
-            a.status === "confirmed" ? "You're booked! See you then." : "Request sent. The business will confirm it."
-          }
-        />
+        <section
+          className="sheet-up mb-6 rounded-card bg-primary px-5 py-7 text-center text-on-primary"
+          aria-live="polite"
+        >
+          <svg viewBox="0 0 64 64" className="pop mx-auto mb-3 size-16" aria-hidden="true">
+            <circle cx="32" cy="32" r="30" fill="currentColor" opacity="0.18" />
+            <path
+              className="draw"
+              d="m20 33 8 8 16-18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <h2 className="text-display font-bold tracking-tight">
+            {a.status === "confirmed" ? "You're booked!" : "Request sent"}
+          </h2>
+          <p className="mt-1 text-body opacity-90">
+            {a.status === "confirmed"
+              ? `${formatDateShort(a.startsAt, tz)} at ${formatTime(a.startsAt, tz)}. See you then.`
+              : "The business will confirm it soon."}
+          </p>
+        </section>
       ) : sp.rescheduled === "1" ? (
         <FormMessage tone="notice" message="Your booking has been moved." />
       ) : sp.cancelled === "1" ? (

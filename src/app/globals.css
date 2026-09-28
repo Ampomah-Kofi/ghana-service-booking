@@ -163,3 +163,105 @@ input[type="checkbox"][role="switch"]:disabled {
 .hatch {
   background-image: repeating-linear-gradient(135deg, var(--hatch) 0 6px, transparent 6px 12px);
 }
+
+/* Tap feedback like a native app: cards and buttons dip slightly when pressed. */
+.pressable {
+  transition: transform 120ms ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+.pressable:active {
+  transform: scale(0.98);
+}
+
+/* Screens slide in gently on navigation (src/app/template.tsx). */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.page-in {
+  animation: page-in 220ms ease-out both;
+}
+
+/* Sheets and success states */
+@keyframes sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.sheet-up {
+  animation: sheet-up 260ms cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.pop {
+  animation: pop 420ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.draw {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: draw 420ms 260ms ease-out forwards;
+}
+
+/* Horizontal rows: hide the scrollbar, snap cards. */
+.rail {
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1rem;
+}
+.rail::-webkit-scrollbar {
+  display: none;
+}
+.rail > * {
+  scroll-snap-align: start;
+}
+
+/* Full-bleed hero under the status bar on phones (main has a safe-area top padding). */
+@utility bleed-top {
+  margin-top: calc(-1 * max(1rem, env(safe-area-inset-top)));
+}
+@utility pt-safe {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+@utility pt-safe-sm {
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility pb-safe-sm {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+/* Above the provider bottom tab bar (3.5rem + safe area). */
+@utility above-tabs {
+  bottom: calc(4rem + env(safe-area-inset-bottom));
+}
+@utility above-tabs-fab {
+  bottom: calc(5rem + env(safe-area-inset-bottom));
+}

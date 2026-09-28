@@ -7,7 +7,7 @@ import { PlusIcon } from "./icons";
  */
 export function Fab({ items }: { items: { href: string; label: string; hint?: string }[] }) {
   return (
-    <details className="group fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30 md:bottom-8">
+    <details className="group fixed right-4 above-tabs-fab z-30 md:bottom-8">
       <summary
         aria-label="Add"
         className="flex size-14 cursor-pointer list-none items-center justify-center rounded-full bg-primary text-on-primary shadow-pop transition-transform hover:bg-primary-hover group-open:rotate-45 [&::-webkit-details-marker]:hidden"

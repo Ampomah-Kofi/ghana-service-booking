@@ -38,3 +38,8 @@ export function mapsUrl(lat: number, lng: number): string {
 export function businessPageUrl(siteUrl: string, slug: string): string {
   return `${siteUrl.replace(/\/$/, "")}/business/${slug}`;
 }
+
+/** Directions when a business has no pin: a maps search for its name and address. */
+export function mapsSearchUrl(query: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}

@@ -386,7 +386,7 @@ export default async function BookPage({ params, searchParams }: PageProps<"/bus
       </nav>
 
       {selected ? (
-        <section aria-labelledby="times-heading">
+        <section aria-labelledby="times-heading" className="sheet-up">
           <h2 id="times-heading" className="mb-3 text-title font-semibold">
             {formatLocalDate(selected.date)}
           </h2>

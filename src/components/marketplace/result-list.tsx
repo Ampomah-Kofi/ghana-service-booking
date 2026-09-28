@@ -12,10 +12,10 @@ export function ResultList({
   currencies: Map<string, CurrencyView>;
 }) {
   return (
-    <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2">
-      {cards.map((card) => (
+    <ul className="grid grid-cols-[minmax(0,1fr)] gap-x-4 gap-y-6 sm:grid-cols-2">
+      {cards.map((card, i) => (
         <li key={card.id} className="min-w-0">
-          <BusinessCard card={card} supabaseUrl={supabaseUrl} currencies={currencies} />
+          <BusinessCard card={card} supabaseUrl={supabaseUrl} currencies={currencies} eager={i < 2} />
         </li>
       ))}
     </ul>

@@ -157,3 +157,33 @@ describe("form refill helpers", () => {
     expect(listOf({ staffIds: ["a", "c"] }, "staffIds", [])).toEqual(["a", "c"]);
   });
 });
+
+describe("openStatus", () => {
+  const week = [
+    { weekday: 1, opens: "09:00", closes: "13:00" },
+    { weekday: 1, opens: "14:00", closes: "20:00" },
+    { weekday: 3, opens: "10:00", closes: "18:00" },
+  ];
+  const at = (iso: string) => new Date(iso);
+  it("says open with the closing time, across a lunch break", async () => {
+    const { openStatus } = await import("@/lib/hours");
+    expect(openStatus(week, "Africa/Accra", at("2027-03-01T10:00:00Z"))).toEqual({
+      open: true,
+      label: "Open · closes 1:00 pm",
+    });
+    expect(openStatus(week, "Africa/Accra", at("2027-03-01T13:30:00Z"))).toEqual({
+      open: false,
+      label: "Closed · opens 2:00 pm",
+    });
+  });
+  it("finds the next opening day and respects the timezone", async () => {
+    const { openStatus } = await import("@/lib/hours");
+    expect(openStatus(week, "Africa/Accra", at("2027-03-01T21:00:00Z"))?.label).toBe("Closed · opens Wed 10:00 am");
+    expect(openStatus(week, "Africa/Accra", at("2027-03-02T21:00:00Z"))?.label).toBe(
+      "Closed · opens tomorrow 10:00 am",
+    );
+    // 08:30 UTC is 09:30 in Lagos (UTC+1): open.
+    expect(openStatus(week, "Africa/Lagos", at("2027-03-01T08:30:00Z"))?.open).toBe(true);
+    expect(openStatus([], "Africa/Accra")).toBeNull();
+  });
+});

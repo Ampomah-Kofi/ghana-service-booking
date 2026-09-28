@@ -6,15 +6,24 @@ import { SharePanel } from "@/components/business/share-panel";
 import { publicMediaUrl } from "@/lib/images";
 import { formatPhoneInternational } from "@/lib/phone";
 import { publicEnv } from "@/lib/public-env";
-import { buildShareLinks, businessPageUrl, mapsUrl, shareMessage, telUrl, whatsappChatUrl } from "@/lib/share";
+import {
+  buildShareLinks,
+  businessPageUrl,
+  mapsSearchUrl,
+  mapsUrl,
+  shareMessage,
+  telUrl,
+  whatsappChatUrl,
+} from "@/lib/share";
 import { formatPlace, getBusinessBySlug } from "@/server/businesses/queries";
 import { listServices } from "@/server/businesses/catalog";
 import { getBusinessHours } from "@/server/businesses/schedule";
 import { listStaff } from "@/server/businesses/team";
-import { describeWeek, formatDuration } from "@/lib/hours";
+import { describeWeek, formatDuration, openStatus } from "@/lib/hours";
 import { formatMoney, formatPrice } from "@/lib/money";
 import { ServiceRow } from "@/components/business/service-row";
-import { ChatIcon, PhoneIcon } from "@/components/ui/icons";
+import { Cover } from "@/components/marketplace/cover";
+import { ChatIcon, ChevronLeftIcon, NavigationIcon, PhoneIcon, ShareIcon } from "@/components/ui/icons";
 import { createUserClient } from "@/server/db/supabase-server";
 
 // RLS decides visibility: everyone sees published pages; the business's team also sees drafts (preview).
@@ -74,69 +83,123 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
   const cover = business.photos[0];
   const loc = business.location;
 
+  const status = openStatus(hours, business.timezone);
+  const directions =
+    loc?.lat != null && loc.lng != null
+      ? mapsUrl(loc.lat, loc.lng)
+      : mapsSearchUrl([business.name, loc?.addressLine, place].filter(Boolean).join(", "));
+  const actions = [
+    business.phone ? { href: telUrl(business.phone), label: "Call", icon: <PhoneIcon />, external: false } : null,
+    business.whatsapp
+      ? {
+          href: whatsappChatUrl(business.whatsapp),
+          label: "WhatsApp",
+          icon: <ChatIcon className="text-whatsapp" />,
+          external: true,
+        }
+      : null,
+    loc ? { href: directions, label: "Directions", icon: <NavigationIcon />, external: true } : null,
+    business.status === "published" ? { href: "#share", label: "Share", icon: <ShareIcon />, external: false } : null,
+  ].filter((a) => a !== null);
+
   return (
-    <article className="-mt-2">
+    <article>
+      <header className="mb-5">
+        <div className="bleed-top relative -mx-4 aspect-4/3 overflow-hidden bg-fill sm:mx-0 sm:rounded-card md:mt-0 md:aspect-video">
+          <Cover
+            imageUrl={cover ? media(cover.pathLarge) : null}
+            categorySlug={business.category?.slug ?? null}
+            seed={business.id}
+            eager
+            iconScale={1.15}
+          />
+          <div className="absolute inset-x-0 top-0 flex justify-between p-3 pt-safe-sm">
+            <Link
+              href="/"
+              aria-label="Back to explore"
+              className="pressable flex size-10 items-center justify-center rounded-full bg-card/95 text-ink shadow-pop"
+            >
+              <ChevronLeftIcon />
+            </Link>
+            {business.status === "published" ? (
+              <a
+                href="#share"
+                aria-label="Share"
+                className="pressable flex size-10 items-center justify-center rounded-full bg-card/95 text-ink shadow-pop"
+              >
+                <ShareIcon />
+              </a>
+            ) : null}
+          </div>
+          {business.photos.length > 1 ? (
+            <a
+              href="#work-heading"
+              className="absolute right-3 bottom-9 rounded-full bg-ink/70 px-3 py-1 text-caption font-semibold text-surface"
+            >
+              {business.photos.length} photos
+            </a>
+          ) : null}
+        </div>
+        <div className="relative -mx-4 -mt-6 rounded-t-card bg-surface px-4 pt-5 sm:mx-0 sm:mt-0 sm:px-0">
+          <div className="flex items-start gap-3">
+            {business.logoPath ? (
+              // eslint-disable-next-line @next/next/no-img-element -- pre-sized 400px logo
+              <img
+                src={media(business.logoPath)}
+                alt=""
+                width={56}
+                height={56}
+                className="size-14 shrink-0 rounded-full border border-border object-cover"
+              />
+            ) : null}
+            <div className="min-w-0">
+              <h1 className="text-display font-bold tracking-tight">{business.name}</h1>
+              <p className="text-body text-ink-muted">{[business.category?.name, place].filter(Boolean).join(" · ")}</p>
+            </div>
+          </div>
+          <div className="mt-2.5 flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-primary-soft px-2.5 py-1 text-caption font-semibold text-primary">
+              New
+            </span>
+            {status ? (
+              <span className="inline-flex items-center gap-1.5 text-small">
+                <span
+                  aria-hidden="true"
+                  className={`size-2 rounded-full ${status.open ? "bg-success" : "bg-ink-muted"}`}
+                />
+                <span className={status.open ? "font-medium text-success" : "text-ink-muted"}>{status.label}</span>
+              </span>
+            ) : null}
+          </div>
+        </div>
+      </header>
+
       {business.status !== "published" ? (
         <p role="status" className="mb-4 rounded-control bg-fill px-3 py-2 text-small">
           <strong>Preview.</strong> Only your team can see this page.{" "}
-          <Link href={`/dashboard/${business.id}`} className="font-medium text-primary">
+          <Link href={`/dashboard/${business.id}/more`} className="font-medium text-primary">
             Publish it from your dashboard
           </Link>
         </p>
       ) : null}
 
-      <header className="mb-6">
-        {cover ? (
-          // eslint-disable-next-line @next/next/no-img-element -- pre-sized 1200px rendition from upload
-          <img
-            src={media(cover.pathLarge)}
-            alt=""
-            width={cover.width ?? 1200}
-            height={cover.height ?? 800}
-            fetchPriority="high"
-            className="-mx-4 mb-4 aspect-[4/3] w-[calc(100%+2rem)] max-w-none object-cover sm:mx-0 sm:w-full sm:rounded-card"
-          />
-        ) : null}
-        <div className="flex items-center gap-4">
-          {business.logoPath ? (
-            // eslint-disable-next-line @next/next/no-img-element -- pre-sized 400px logo
-            <img
-              src={media(business.logoPath)}
-              alt=""
-              width={64}
-              height={64}
-              className="size-16 shrink-0 rounded-full object-cover border border-border"
-            />
-          ) : null}
-          <div className="min-w-0">
-            <h1 className="text-display font-bold tracking-tight">{business.name}</h1>
-            <p className="text-small text-ink-muted">{[business.category?.name, place].filter(Boolean).join(" · ")}</p>
-          </div>
-        </div>
-      </header>
-
-      <section className="mb-6 grid grid-cols-2 gap-2" aria-label="Contact">
-        {business.phone ? (
-          <a
-            href={telUrl(business.phone)}
-            className="flex min-h-12 items-center justify-center gap-2 rounded-control border border-border bg-card px-3 text-body font-semibold text-ink"
-          >
-            <PhoneIcon />
-            Call
-          </a>
-        ) : null}
-        {business.whatsapp ? (
-          <a
-            href={whatsappChatUrl(business.whatsapp)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex min-h-12 items-center justify-center gap-2 rounded-control border border-border bg-card px-3 text-body font-semibold text-whatsapp"
-          >
-            <ChatIcon />
-            WhatsApp
-          </a>
-        ) : null}
-      </section>
+      {actions.length > 0 ? (
+        <nav aria-label="Contact" className="mb-7 grid grid-cols-4 gap-2">
+          {actions.map((a) => (
+            <a
+              key={a.label}
+              href={a.href}
+              {...(a.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              className="pressable flex flex-col items-center gap-1.5 text-caption font-medium"
+            >
+              <span className="flex size-12 items-center justify-center rounded-full border border-border bg-card">
+                {a.icon}
+              </span>
+              {a.label}
+            </a>
+          ))}
+        </nav>
+      ) : null}
 
       <section className="mb-6" aria-labelledby="services-heading">
         <h2 id="services-heading" className="mb-2 text-title font-semibold">
@@ -284,7 +347,7 @@ export default async function BusinessPage({ params }: PageProps<"/business/[slu
       ) : null}
 
       {business.status === "published" ? (
-        <section className="mb-6" aria-labelledby="share-heading">
+        <section id="share" className="mb-6 scroll-mt-4" aria-labelledby="share-heading">
           <h2 id="share-heading" className="mb-2 text-title font-semibold">
             Share
           </h2>

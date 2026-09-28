@@ -8,7 +8,7 @@ export type BookingSummary = { title: string; detail: string };
  */
 export function BookingBar({ summary, children }: { summary: BookingSummary; children?: ReactNode }) {
   return (
-    <div className="sticky bottom-0 z-10 -mx-4 mt-6 border-t border-border bg-card px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 shadow-sheet">
+    <div className="sticky bottom-0 z-10 -mx-4 mt-6 border-t border-border bg-card px-4 pb-safe-sm pt-3 shadow-sheet">
       <div className="flex items-center gap-3">
         <div className="min-w-0 flex-1">
           <p className="truncate text-body font-semibold">{summary.title}</p>

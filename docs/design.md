@@ -98,6 +98,14 @@ Always a text label, never colour alone.
 - The floating "+" is a `<details>` menu (works without JavaScript), sitting above the bottom bar.
 - The appointment page is a card with a status-tone top bar, one primary action, secondary actions, destructive cancel behind a summary, and a history timeline.
 
+**App feel (after Phase 6)**
+- **Installable** (`src/app/manifest.ts`): standalone display, brand splash colours, app icon (`scripts/dev/app-icon.svg` → `node scripts/dev/render-icons.mjs`). No service worker yet (offline is a later decision).
+- **Shell:** on phones there's no website header. Customers get a bottom tab bar (Explore · Bookings · Account; Favourites joins in Phase 7), providers their own. Tabs hide on focused screens (business page, booking flow, onboarding). The header returns from `md`.
+- **Photo first:** every business has a cover. It's their photo when uploaded, otherwise an illustrated SVG cover per category (`src/components/marketplace/cover.tsx`: zero image bytes; unknown categories get a stable palette and a sparkle).
+- **Explore:** greeting, search pill, example chips, category picture tiles, then swipeable rows ("New on …", one row per category with providers), towns, and a card for professionals.
+- **Business page:** full-bleed cover with round Back and Share, an info sheet overlapping it (name, category · area, "New", "Open · closes 8:00 pm"), a round action row (Call · WhatsApp · Directions · Share), and a sticky Book bar.
+- **Motion:** screens ease in (`src/app/template.tsx`), pressable cards and buttons dip on tap, times slide up, and booking success has a drawn tick. All of it is off with reduced motion.
+
 **States copy**
 - Empty: one sentence plus one action ("No appointments today. Add a walk-in").
 - Error: plain cause plus "Try again".

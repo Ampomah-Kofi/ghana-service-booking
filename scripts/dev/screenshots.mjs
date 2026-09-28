@@ -21,6 +21,8 @@ for (const v of variants) {
   const page = await context.newPage();
   for (const path of paths) {
     await page.goto(base + path, { waitUntil: "load" });
+    // Streamed pages: wait until the network settles (bounded; dense pages may never idle).
+    await page.waitForLoadState("networkidle", { timeout: 8000 }).catch(() => {});
     const file = `${outDir}/${path.replace(/[^a-z0-9]+/gi, "_").replace(/^_|_$/g, "") || "home"}-${v.name}.png`;
     await page.screenshot({ path: file, fullPage: true });
     console.log(file);

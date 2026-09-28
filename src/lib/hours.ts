@@ -73,3 +73,45 @@ export function formatDuration(minutes: number): string {
   if (h === 0) return `${m} min`;
   return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
 }
+
+/**
+ * "Open · closes 8:00 pm" / "Closed · opens Tue 9:00 am" in the business's timezone.
+ * `open` drives the green/grey dot; the label is always there too (never colour alone).
+ */
+export function openStatus(
+  hours: HoursRange[],
+  timezone: string,
+  now = new Date(),
+): { open: boolean; label: string } | null {
+  if (hours.length === 0) return null;
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: timezone,
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    })
+      .formatToParts(now)
+      .map((p) => [p.type, p.value]),
+  );
+  const today = WEEKDAYS.findIndex((d) => d.short === parts.weekday) + 1;
+  const minute = Number(parts.hour) * 60 + Number(parts.minute);
+  const ranges = (day: number) =>
+    hours.filter((h) => h.weekday === day).sort((a, b) => minutesOf(a.opens) - minutesOf(b.opens));
+
+  const current = ranges(today).find((r) => minutesOf(r.opens) <= minute && minute < minutesOf(r.closes));
+  if (current) return { open: true, label: `Open · closes ${formatClock(current.closes)}` };
+
+  const laterToday = ranges(today).find((r) => minutesOf(r.opens) > minute);
+  if (laterToday) return { open: false, label: `Closed · opens ${formatClock(laterToday.opens)}` };
+  for (let i = 1; i <= 7; i++) {
+    const day = ((today - 1 + i) % 7) + 1;
+    const first = ranges(day)[0];
+    if (first) {
+      const when = i === 1 ? "tomorrow" : WEEKDAYS[day - 1].short;
+      return { open: false, label: `Closed · opens ${when} ${formatClock(first.opens)}` };
+    }
+  }
+  return null;
+}

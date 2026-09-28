@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { NavigationIcon } from "@/components/ui/icons";
 
 /**
  * Asks for the phone's location only when tapped (never on page load), then
@@ -33,9 +34,10 @@ export function NearMeButton({ query }: { query: string }) {
         type="button"
         onClick={locate}
         disabled={status === "locating"}
-        className="min-h-11 text-small font-medium text-primary disabled:opacity-60"
+        className="pressable inline-flex min-h-10 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 text-small font-medium text-primary disabled:opacity-60"
       >
-        {status === "locating" ? "Finding you…" : "⌖ Near me"}
+        <NavigationIcon className="size-4" />
+        {status === "locating" ? "Finding you…" : "Near me"}
       </button>
       {status === "denied" ? (
         <span role="status" className="text-small text-ink-muted">

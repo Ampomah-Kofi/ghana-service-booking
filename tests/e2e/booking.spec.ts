@@ -58,7 +58,7 @@ test("customer books any available professional, then cancels", async ({ page })
   await page.getByRole("button", { name: "Confirm booking" }).click();
 
   await expect(page).toHaveURL(/\/bookings\/[0-9a-f-]{36}\?booked=1/);
-  await expect(page.getByText("You're booked! See you then.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "You're booked!" })).toBeVisible();
   await expect(page.getByRole("heading", { level: 1, name: "Twists" })).toBeVisible();
   await expect(page.getByText(chosenTime).first()).toBeVisible();
 
