@@ -245,3 +245,13 @@ export function BellIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function WalletIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H17v3" />
+      <path d="M4 7.5V17a2 2 0 0 0 2 2h13a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H6.5A2.5 2.5 0 0 1 4 7.5z" />
+      <path d="M16 13.5h.01" />
+    </svg>
+  );
+}

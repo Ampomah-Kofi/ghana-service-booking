@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/ui/empty-state";
-import { BellIcon, CalendarIcon, ChevronRightIcon, StarIcon, StoreIcon, XIcon } from "@/components/ui/icons";
+import { BellIcon, CalendarIcon, ChevronRightIcon, StarIcon, StoreIcon, WalletIcon, XIcon } from "@/components/ui/icons";
 import { LargeTitle } from "@/components/ui/large-title";
 import { requireUserOrRedirect } from "@/server/auth/session";
 import { createUserClient } from "@/server/db/supabase-server";
@@ -13,6 +13,7 @@ export const metadata: Metadata = { title: "Notifications" };
 function iconFor(item: InboxItem) {
   if (item.template.includes("cancelled")) return XIcon;
   if (item.template === "review.request") return StarIcon;
+  if (item.template.startsWith("payment.")) return WalletIcon;
   if (item.audience === "business") return StoreIcon;
   return CalendarIcon;
 }

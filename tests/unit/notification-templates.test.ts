@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { renderNotification, TEMPLATE_KEYS, toGsm7 } from "@/lib/notification-templates";
+import { formatPaymentAmount, renderNotification, TEMPLATE_KEYS, toGsm7 } from "@/lib/notification-templates";
 import { BRAND } from "@/lib/brand";
 
 const GSM7 = /^[@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !"#¤%&'()*+,\-./0-9:;<=>?¡A-ZÄÖÑÜ§¿a-zäöñüà]*$/;
@@ -16,6 +16,8 @@ const base = {
   starts_at: "2026-10-14T09:30:00Z",
   ends_at: "2026-10-14T10:15:00Z",
   customer_name: "Yaw Adjei",
+  amount_minor: 2050,
+  currency: "GHS",
 };
 
 describe("notification templates", () => {
@@ -56,5 +58,15 @@ describe("notification templates", () => {
   it("makes text GSM-7 safe", () => {
     expect(toGsm7("GH₵ 80 – Ama’s “best”…")).toBe(`GHS 80 - Ama's "best"...`);
     expect(toGsm7("Café")).toBe("Cafe");
+  });
+
+  it("says how much was paid or refunded, in the booking's currency", () => {
+    expect(formatPaymentAmount(2000, "GHS")).toBe("GH₵ 20");
+    expect(formatPaymentAmount(2050, "GHS")).toBe("GH₵ 20.50");
+    expect(formatPaymentAmount(undefined, "GHS")).toBe("your payment");
+    const received = renderNotification("payment.received", base, SITE);
+    expect(received.body).toContain("GH₵ 20.50 received");
+    expect(received.text.startsWith(`${BRAND.name}: GHS 20.50 received.`)).toBe(true);
+    expect(renderNotification("payment.refunded", base, SITE).title).toBe("Refund sent");
   });
 });

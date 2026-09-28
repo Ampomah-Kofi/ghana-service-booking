@@ -7,6 +7,7 @@
  */
 import { BRAND } from "./brand";
 import { formatDateShort, formatTime } from "./datetime";
+import { formatMoney } from "./money";
 
 export type NotificationPayload = {
   appointment_id?: string;
@@ -20,6 +21,9 @@ export type NotificationPayload = {
   starts_at?: string;
   ends_at?: string;
   customer_name?: string;
+  /** Payment messages: the amount in minor units and its ISO 4217 code. */
+  amount_minor?: number;
+  currency?: string;
 };
 
 export type Rendered = {
@@ -48,6 +52,8 @@ export const TEMPLATE_KEYS = [
   "provider.cancelled_by_customer",
   "provider.moved_by_customer",
   "provider.upcoming",
+  "payment.received",
+  "payment.refunded",
 ] as const;
 export type TemplateKey = (typeof TEMPLATE_KEYS)[number];
 
@@ -69,6 +75,19 @@ export function toGsm7(input: string): string {
   return [...replaced].filter((ch) => GSM7.test(ch)).join("");
 }
 
+/** "GH₵ 20" from minor units + ISO code; the symbol and decimals come from Intl, not a hard-coded table. */
+export function formatPaymentAmount(amountMinor: number | undefined, currency: string | undefined): string {
+  if (amountMinor === undefined || !currency) return "your payment";
+  try {
+    const f = new Intl.NumberFormat("en-GH", { style: "currency", currency, currencyDisplay: "narrowSymbol" });
+    const symbol = f.formatToParts(0).find((part) => part.type === "currency")?.value;
+    const minorUnit = f.resolvedOptions().maximumFractionDigits ?? 2;
+    return formatMoney({ amountMinor, currency }, { code: currency, minorUnit, symbol });
+  } catch {
+    return `${currency} ${amountMinor}`;
+  }
+}
+
 /** Shorten the middle piece so the whole SMS fits 160 characters. */
 function fit(prefix: string, variable: string, suffix: string, max = 160): string {
   const room = max - prefix.length - suffix.length;
@@ -88,6 +107,7 @@ export function renderNotification(key: string, p: NotificationPayload, siteUrl:
   const site = siteUrl.replace(/\/$/, "");
   const link = `${site}${customerHref}`;
   const sign = `${BRAND.name}: `;
+  const amount = formatPaymentAmount(p.amount_minor, p.currency);
 
   const customer = (
     title: string,
@@ -197,6 +217,20 @@ export function renderNotification(key: string, p: NotificationPayload, siteUrl:
         time,
         `: ${service}, ${p.customer_name ?? "your client"}.`,
       ]);
+    case "payment.received":
+      return customer(
+        "Payment received",
+        `${amount} received for ${service} at ${biz}, ${when}. You're booked.`,
+        [`${amount} received. `, `${service} at ${biz}`, `, ${when}. Details: ${link}`],
+        "Payment received",
+      );
+    case "payment.refunded":
+      return customer(
+        "Refund sent",
+        `${amount} for ${service} at ${biz} is on its way back to you. It can take a few days to arrive.`,
+        [`Refund of ${amount} sent for `, `${service} at ${biz}`, `. It can take a few days to arrive.`],
+        "Refund sent",
+      );
     default:
       return {
         title: BRAND.name,
