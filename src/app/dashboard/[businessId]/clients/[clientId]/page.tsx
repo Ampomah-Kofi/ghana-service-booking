@@ -85,6 +85,7 @@ export default async function ClientPage({ params }: PageProps<"/dashboard/[busi
                 timezone={business.timezone}
                 showStaff={business.kind === "team"}
                 dateLabel={formatDateShort(a.startsAt, business.timezone)}
+                hideCustomer
               />
             ))}
           </ul>

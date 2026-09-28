@@ -53,7 +53,7 @@ export function TimeOffForm({
           onChange={(ev) => setAllDay(ev.target.checked)}
         />
       </label>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-x-3 min-[380px]:grid-cols-2">
         <Field
           id="startDate"
           name="startDate"

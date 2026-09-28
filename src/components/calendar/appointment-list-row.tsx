@@ -11,6 +11,7 @@ export function AppointmentListRow({
   timezone,
   showStaff,
   dateLabel,
+  hideCustomer = false,
 }: {
   appointment: AppointmentView;
   href: string;
@@ -18,6 +19,8 @@ export function AppointmentListRow({
   showStaff: boolean;
   /** Shown above the time in lists that span several days. */
   dateLabel?: string;
+  /** On a client's own page: lead with the service instead of repeating their name. */
+  hideCustomer?: boolean;
 }) {
   const cancelled = a.status === "cancelled";
   return (
@@ -33,12 +36,16 @@ export function AppointmentListRow({
         <span aria-hidden="true" className={`w-1 shrink-0 rounded-full ${STATUS[a.status].bar}`} />
         <span className="min-w-0 flex-1">
           <span className={`block truncate text-body font-medium ${cancelled ? "text-ink-muted" : ""}`}>
-            {a.customerName}
+            {hideCustomer ? a.serviceName : a.customerName}
           </span>
           <span className="block truncate text-small text-ink-muted">
-            {a.serviceName}
-            {showStaff && a.staffName ? ` · ${a.staffName}` : ""}
-            {a.source === "walk_in" ? " · Walk-in" : a.source === "manual" ? " · By phone" : ""}
+            {[
+              hideCustomer ? null : a.serviceName,
+              showStaff && a.staffName ? (hideCustomer ? `with ${a.staffName}` : a.staffName) : null,
+              a.source === "walk_in" ? "Walk-in" : a.source === "manual" ? "By phone" : hideCustomer ? "Online" : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
           </span>
           <span className="mt-1 flex">
             <StatusBadge status={a.status} />

@@ -12,7 +12,7 @@ import { statusAction } from "../actions";
 type Status = "pending" | "confirmed" | "arrived" | "completed" | "cancelled" | "no_show";
 
 const ACTION: Partial<Record<Status, { label: string; pending: string; hint: string }>> = {
-  confirmed: { label: "Confirm booking", pending: "Confirming…", hint: "Let the customer know it's on" },
+  confirmed: { label: "Confirm booking", pending: "Confirming…", hint: "We'll message the customer that it's on" },
   arrived: { label: "Mark arrived", pending: "Saving…", hint: "The customer is here" },
   completed: { label: "Complete", pending: "Saving…", hint: "Done and paid" },
   no_show: { label: "Mark no-show", pending: "Saving…", hint: "They didn't come" },
@@ -88,7 +88,9 @@ export function AppointmentActions({
             <form action={formAction}>
               <input type="hidden" name="appointmentId" value={appointmentId} />
               <input type="hidden" name="status" value="cancelled" />
-              <p className="mb-4 text-body text-ink-muted">The time becomes free for others to book.</p>
+              <p className="mb-4 text-body text-ink-muted">
+                The time becomes free for others to book. We&apos;ll message the customer (walk-ins excepted).
+              </p>
               <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
               <Field
                 id="reason"

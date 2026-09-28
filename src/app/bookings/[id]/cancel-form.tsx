@@ -27,7 +27,9 @@ export function CancelBookingForm({ appointmentId, summary }: { appointmentId: s
       </button>
       <Sheet id={sheetId} title="Cancel this booking?">
         <form action={formAction}>
-          <p className="mb-4 text-body text-ink-muted">{summary}</p>
+          <p className="mb-4 text-body text-ink-muted">
+            {summary} We&apos;ll let the business know, and your reminders stop.
+          </p>
           <input type="hidden" name="appointmentId" value={appointmentId} />
           <FormMessage tone="error" message={state.fieldErrors ? undefined : state.message} />
           <Field

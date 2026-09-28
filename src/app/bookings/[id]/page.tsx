@@ -75,7 +75,7 @@ export default async function BookingPage({ params, searchParams }: PageProps<"/
           <p className="mt-1 text-body opacity-90">
             {a.status === "confirmed"
               ? `${formatDateShort(a.startsAt, tz)} at ${formatTime(a.startsAt, tz)}. See you then.`
-              : "The business will confirm it soon."}
+              : "The business will confirm it soon. We'll let you know."}
           </p>
         </section>
       ) : sp.rescheduled === "1" ? (

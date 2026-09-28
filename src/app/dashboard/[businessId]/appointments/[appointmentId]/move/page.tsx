@@ -49,8 +49,9 @@ export default async function MoveAppointmentPage({
         defaults={{ staffId: a.staffId, date: localDateOf(new Date(a.startsAt), tz), time }}
       />
       <p className="mt-3 text-small text-ink-muted">
-        Moving doesn&apos;t notify the customer yet (messages arrive in a later update). Let them know by phone or
-        WhatsApp.
+        {a.source === "walk_in"
+          ? "Walk-ins aren't sent messages. Tell them in person."
+          : "We'll send the customer the new time (by SMS or WhatsApp, as they chose, and in the app if they have an account). Their reminders move with it."}
       </p>
     </div>
   );
