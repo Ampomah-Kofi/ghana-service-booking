@@ -23,6 +23,18 @@ describe("parseServerEnv", () => {
     expect(() => parseServerEnv({ ...valid, APP_ENV: "production" })).toThrow(/WHATSAPP_PROVIDER/);
     expect(() => parseServerEnv({ ...valid, APP_ENV: "production" })).toThrow(/EMAIL_PROVIDER/);
   });
+  it("lets production switch WhatsApp and email off, but never SMS (phone sign-in needs it)", () => {
+    const prod = { ...valid, APP_ENV: "production", WHATSAPP_PROVIDER: "none", EMAIL_PROVIDER: "none" };
+    let message = "";
+    try {
+      parseServerEnv(prod);
+    } catch (e) {
+      message = e instanceof Error ? e.message : String(e);
+    }
+    expect(message).toMatch(/SMS_PROVIDER/);
+    expect(message).not.toMatch(/WHATSAPP_PROVIDER|EMAIL_PROVIDER/);
+    expect(parseServerEnv({ ...valid, WHATSAPP_PROVIDER: "none" }).WHATSAPP_PROVIDER).toBe("none");
+  });
   it("wants a long dispatcher secret when one is set", () => {
     expect(() => parseServerEnv({ ...valid, CRON_SECRET: "short" })).toThrow(/CRON_SECRET/);
     expect(parseServerEnv({ ...valid, CRON_SECRET: "x".repeat(40) }).CRON_SECRET).toHaveLength(40);

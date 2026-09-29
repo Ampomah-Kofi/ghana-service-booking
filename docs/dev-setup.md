@@ -15,7 +15,7 @@
 ├── supabase/
 │   ├── config.toml                # local stack config (auth.sms.test_otp, hooks, storage buckets)
 │   ├── migrations/                # <timestamp>_<name>.sql — the only way the schema changes
-│   ├── seed.sql                   # reference data + demo businesses (local/staging only)
+│   ├── seed.sql                   # demo users and businesses (local/staging only)
 │   └── tests/                     # pgTAP: rls/, booking/, constraints/
 ├── src/
 │   ├── app/
@@ -87,7 +87,8 @@ pnpm dev                                    # http://localhost:3000 · Studio ht
 - **App icon:** edit `scripts/dev/app-icon.svg`, then `node scripts/dev/render-icons.mjs` (uses the local Chromium) to regenerate `public/icons/*`.
 - **Design screenshots:** `node scripts/dev/screenshots.mjs <outDir> <paths…>` (360 light/dark and 1024). For signed-in pages, first `node scripts/dev/login-state.mjs 0200000002 state.json`, then pass `SCREENSHOT_STORAGE=state.json`.
 - **Demo appointments:** `pnpm db:demo` (after `pnpm db:reset`) adds a week of bookings for `kwame-cuts` and `ama-braids`, relative to today, so Today and the calendar have something to show. It's separate from `seed.sql` so tests stay deterministic.
-- **Seed data:** GHS; Ghana and its 16 regions; Accra, Tema, Kumasi, Takoradi, Cape Coast, Tamale plus 39 neighbourhoods; the 17 SPEC categories; demo tenants `kwame-cuts` (solo, published), `ama-braids` (team, published), `osu-glow-spa` (team, draft) with owner/manager/staff/customer/admin users (see the header of `supabase/seed.sql`). Staging uses the same seed; production gets reference data only.
+- **Reference data** (every environment, migration `20261011090100_reference_data.sql`): GHS; Ghana and its 16 regions; 16 cities and towns plus 39 neighbourhoods; 33 categories.
+- **Seed data** (local/staging only): demo tenants `kwame-cuts` (solo, published), `ama-braids` (team, published), `osu-glow-spa` (team, draft) with owner/manager/staff/customer/admin users (see the header of `supabase/seed.sql`). Staging uses the same seed; production gets the reference data migration only.
 - `supabase/drafts/0000_initial_schema.draft.sql` is the Phase 0 design for tables not migrated yet. It is never applied.
 
 ## 4. Environments & deployment

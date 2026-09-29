@@ -26,5 +26,14 @@ for (const file of files(root)) {
     }
   }
 }
-if (leaks > 0) process.exit(1);
-console.log(`check-client-bundle: no secrets found in ${root}`);
+// Weight guard (Phase 11): validation runs on the server; Zod in the browser adds ~90 KB gzip to a page.
+// Client components import plain data from src/lib instead of src/schemas.
+let heavy = 0;
+for (const file of files(root)) {
+  if (file.endsWith(".js") && readFileSync(file, "utf8").includes("$ZodAsyncError")) {
+    console.error(`HEAVY: ${file} bundles Zod for the browser (import plain data from src/lib instead)`);
+    heavy++;
+  }
+}
+if (leaks > 0 || heavy > 0) process.exit(1);
+console.log(`check-client-bundle: no secrets and no Zod in ${root}`);

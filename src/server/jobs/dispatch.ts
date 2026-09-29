@@ -34,20 +34,23 @@ export async function dispatchDueNotifications(limit = 50): Promise<DispatchResu
           ? { ok: true, provider: getSmsProvider().id, id: res.providerMessageId }
           : { ok: false, provider: getSmsProvider().id, error: res.error, retryable: res.retryable };
       } else if (n.channel === "whatsapp") {
-        const res = await getWhatsAppProvider().send({ to, body: r.text, purpose: n.template_key });
+        // WhatsApp switched off: the same short text goes by SMS, so the person still hears.
+        const provider = getWhatsAppProvider() ?? getSmsProvider();
+        const res = await provider.send({ to, body: r.text, purpose: n.template_key });
         outcome = res.ok
-          ? { ok: true, provider: getWhatsAppProvider().id, id: res.providerMessageId }
-          : { ok: false, provider: getWhatsAppProvider().id, error: res.error, retryable: res.retryable };
+          ? { ok: true, provider: provider.id, id: res.providerMessageId }
+          : { ok: false, provider: provider.id, error: res.error, retryable: res.retryable };
       } else if (n.channel === "email") {
-        const res = await getEmailProvider().send({
-          to,
-          subject: r.email.subject,
-          text: r.email.text,
-          purpose: n.template_key,
-        });
-        outcome = res.ok
-          ? { ok: true, provider: getEmailProvider().id, id: res.providerMessageId }
-          : { ok: false, provider: getEmailProvider().id, error: res.error, retryable: res.retryable };
+        const email = getEmailProvider();
+        if (!email) {
+          // Email switched off: nothing to send (the in-app inbox has the message).
+          outcome = { ok: false, provider: "none", error: "email is switched off", retryable: false };
+        } else {
+          const res = await email.send({ to, subject: r.email.subject, text: r.email.text, purpose: n.template_key });
+          outcome = res.ok
+            ? { ok: true, provider: email.id, id: res.providerMessageId }
+            : { ok: false, provider: email.id, error: res.error, retryable: res.retryable };
+        }
       } else {
         outcome = { ok: false, provider: "none", error: `channel ${n.channel} is not dispatched`, retryable: false };
       }

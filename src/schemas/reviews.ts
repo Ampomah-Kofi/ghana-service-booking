@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { REPORT_REASONS, type ReportReason } from "@/lib/review-reasons";
 
 /** Shared by Server Actions, forms and /api/v1 (docs/api/v1.md). */
 export const reviewInputSchema = z.object({
@@ -20,14 +21,7 @@ export const replyInputSchema = z.object({
   body: z.string().trim().min(1, "Write a reply.").max(1000, "Keep your reply under 1000 characters."),
 });
 
-export const REPORT_REASONS = {
-  spam: "Spam or advertising",
-  offensive: "Rude or offensive",
-  not_genuine: "Not a real visit",
-  private_info: "Shares private information",
-  other: "Something else",
-} as const;
-export type ReportReason = keyof typeof REPORT_REASONS;
+export { REPORT_REASONS, type ReportReason };
 
 export const reportInputSchema = z.object({
   reason: z.enum(Object.keys(REPORT_REASONS) as [ReportReason, ...ReportReason[]], { message: "Choose a reason." }),

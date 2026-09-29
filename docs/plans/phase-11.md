@@ -5,6 +5,7 @@ Started 28 Sep ("approved"; the product owner asked not to wait for plan approva
 **Goal:** the app is safe, fast and accessible enough to put in front of real people in Ghana. Anything it needs for deployment is written down step by step, and whatever still blocks launch is named plainly.
 
 ## Scope
+
 1. **Security review** (SPEC §21), written up in `docs/security.md`.
    - **HTTP headers** on every response:
      - Content-Security-Policy;
@@ -34,6 +35,7 @@ Started 28 Sep ("approved"; the product owner asked not to wait for plan approva
    - `docs/production-checklist.md`: what's ready, and what blocks launch.
 
 ## Key decisions
+
 - **CSP without nonces.** A nonce-based policy would force every page to render dynamically. The app never injects HTML (React escapes everything; there is no `dangerouslySetInnerHTML`), so `script-src 'self' 'unsafe-inline'` is acceptable. Every other directive is locked down: `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, and images, API calls and uploads allowed only from the app and Supabase. This can be revisited with SRI hashes later (Next's experimental option).
 - **No new infrastructure.** Rate limits live in the database, the same way the booking guard does. Monitoring uses the health endpoint and Vercel/Supabase dashboards.
 - **Real vendors stay out.** The known launch blocker is SMS: phone sign-in needs a real SMS provider, and mocks are refused in production. That provider is chosen by the product owner and integrated from its official docs (CLAUDE.md).

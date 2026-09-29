@@ -6,7 +6,7 @@ import { FormMessage } from "@/components/ui/field";
 import { FlagIcon } from "@/components/ui/icons";
 import { Sheet } from "@/components/ui/sheet";
 import { SubmitButton } from "@/components/ui/submit-button";
-import { REPORT_REASONS } from "@/schemas/reviews";
+import { REPORT_REASONS } from "@/lib/review-reasons";
 import type { FormState } from "@/server/actions";
 
 /** "Report" link under a review; opens a sheet with reasons. */

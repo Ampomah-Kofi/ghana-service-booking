@@ -131,16 +131,23 @@ export function Timeline({
                 />
               ))}
               {c.addHref
-                ? halfHours.map((m) => (
-                    <Link
-                      prefetch={false}
-                      key={`add-${m}`}
-                      href={c.addHref!(hhmm(m))}
-                      aria-label={`Add an appointment at ${clockLabel(m)}, ${c.title}`}
-                      className="absolute inset-x-0 hover:bg-primary-soft/60 focus-visible:bg-primary-soft"
-                      style={{ top: (m - window.from) * PX_PER_MINUTE, height: 30 * PX_PER_MINUTE }}
-                    />
-                  ))
+                ? halfHours
+                    // No "add" target under an appointment or time off: it would be a sliver too small to tap.
+                    .filter((m) => {
+                      const top = (m - window.from) * PX_PER_MINUTE;
+                      const bottom = top + 30 * PX_PER_MINUTE;
+                      return ![...items, ...blocks].some((x) => x.top < bottom && x.top + x.height > top);
+                    })
+                    .map((m) => (
+                      <Link
+                        prefetch={false}
+                        key={`add-${m}`}
+                        href={c.addHref!(hhmm(m))}
+                        aria-label={`Add an appointment at ${clockLabel(m)}, ${c.title}`}
+                        className="absolute inset-x-0 hover:bg-primary-soft/60 focus-visible:bg-primary-soft"
+                        style={{ top: (m - window.from) * PX_PER_MINUTE, height: 30 * PX_PER_MINUTE }}
+                      />
+                    ))
                 : null}
               {blocks.map((b) => (
                 <div

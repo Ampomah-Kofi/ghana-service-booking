@@ -8,6 +8,9 @@ import { z } from "zod";
  * Public (NEXT_PUBLIC_*) values live in src/lib/public-env.ts.
  */
 const providerName = z.enum(["mock"]); // real providers are added by ADR when integrated (Phase 8/9)
+// WhatsApp and email can be switched off ("none"): WhatsApp messages then go by SMS, emails are skipped
+// (the in-app inbox always has them). SMS can't be off: phone sign-in needs it.
+const optionalChannel = z.enum(["mock", "none"]);
 
 export const serverEnvSchema = z
   .object({
@@ -20,8 +23,8 @@ export const serverEnvSchema = z
       .regex(/^v1,whsec_[A-Za-z0-9+/=]+$/, "expected Standard Webhooks format v1,whsec_<base64>"),
     SMS_PROVIDER: providerName,
     // Phase 8 channels. Optional locally (default mock); production must name a real provider.
-    WHATSAPP_PROVIDER: providerName.default("mock"),
-    EMAIL_PROVIDER: providerName.default("mock"),
+    WHATSAPP_PROVIDER: optionalChannel.default("mock"),
+    EMAIL_PROVIDER: optionalChannel.default("mock"),
     // Bearer secret for /api/internal/jobs/dispatch (pg_cron → pg_net). Unset = the dispatcher refuses.
     CRON_SECRET: z.string().min(32, "use at least 32 random characters").optional(),
     DEFAULT_COUNTRY_CODE: z.custom<CountryCode>(

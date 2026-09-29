@@ -22,6 +22,14 @@ begin
   perform set_config('request.jwt.claims', '', true);
 end $$;
 
+-- 10:00 Accra time on the next day Kwame is open (Mon–Sat), at least two days ahead, so the booking
+-- would be valid on any day this test runs: only the suspension can refuse it.
+create function pg_temp.open_slot() returns timestamptz language sql as $$
+  select (d::date + time '10:00') at time zone 'Africa/Accra'
+    from generate_series(current_date + 2, current_date + 9, interval '1 day') d
+   where extract(isodow from d) between 1 and 6 order by d limit 1;
+$$;
+
 -- Seed: Kwame (…001) owns b1; Ama (…002) owns b2 where Efua (…003) is staff; Kojo (…004) owns b3
 -- where Akosua (…005) is manager; Yaw (…006) is a customer; …009 is super_admin. For this test,
 -- Demo Owner (…007) is also a moderator and Akosua is support (rolled back at the end).
@@ -100,7 +108,7 @@ select throws_ok(
   $$ select public.book_appointment('b0000000-0000-4000-8000-000000000001',
        (select id from public.services where business_id = 'b0000000-0000-4000-8000-000000000001' and name = 'Low cut'),
        array[(select id from public.staff where business_id = 'b0000000-0000-4000-8000-000000000001' limit 1)],
-       date_trunc('day', now()) + interval '5 days 10 hours', 'Yaw Adjei', '+233200000006') $$,
+       pg_temp.open_slot(), 'Yaw Adjei', '+233200000006') $$,
   'BZ423', null, 'a suspended customer cannot book');
 select throws_ok($$ select public.create_business('Yaw Barbers', 'solo', (select id from public.categories where slug = 'barbers'), 'GH') $$,
                  'BZ423', null, 'nor open a business');
