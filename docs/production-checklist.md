@@ -4,11 +4,12 @@ Status on 29 Sep 2026, end of Phase 11. ✅ done and tested · ⏳ needs the pro
 
 ## Blocks launch
 
-- ⏳ **Accounts:** Vercel, two Supabase projects (staging, production), domain (`docs/deployment.md` steps 0–2). Add the Arkesel variables in Vercel then.
+- ⏳ **Production accounts:** staging is live (below). Before real customers: Vercel Pro (Hobby is non-commercial only), Supabase Pro (backups, no pausing), a domain, then repeat `docs/deployment.md` steps 1–3 for a production project.
 - ⏳ **Privacy notice and terms** (Act 843), reviewed by a lawyer, linked from sign-in and the footer.
 
 ## Ready
 
+- ✅ Staging live (29 Sep 2026): https://ghana-service-booking.vercel.app on Vercel Hobby + Supabase Free (`booker-staging`, eu-west-1). All 32 migrations applied, health check ok, SMS sign-in via Arkesel works, notification dispatcher (pg_cron every minute) returns 200.
 - ✅ SMS (Arkesel): integrated from the official v2 spec, unit-tested, and a real SMS delivered from Sender ID `BookerGH` (29 Sep 2026).
 - ✅ Tenant isolation: RLS on every table, isolation tested per table (pgTAP 00–20).
 - ✅ Double booking impossible: exclusion constraint and concurrency tests.

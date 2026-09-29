@@ -54,6 +54,8 @@ Create two projects in the Supabase dashboard: `booker-staging` and `booker-prod
    | `DEFAULT_COUNTRY_CODE`                                             | `GH`                                                                             |
    | vendor keys                                                        | WhatsApp or email vendor keys, added with that vendor's adapter                  |
 
+   Lessons from the first staging deploy: add the three `NEXT_PUBLIC_*` variables as **Config** (Vercel refuses them as Secret), everything else as **Secret**; `NEXT_PUBLIC_*` values are built into the pages, so **redeploy** after changing them; and double-check `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` starts with `sb_publishable_` (never paste an access token `sbp_…` or the secret key there). `/api/health` answering `database: unreachable` usually means one of the three is wrong.
+
 3. **Domains:** add `<domain>` and `www.<domain>`, and point DNS as Vercel shows. HTTPS is automatic.
 4. Deploy. Every pull request gets a preview deployment. Point previews at **staging** Supabase, never production.
 
