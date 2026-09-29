@@ -147,7 +147,17 @@ export function BusinessCard({
               eager={eager}
               className="transition-transform duration-300 group-hover:scale-102"
             />
-            {card.rating ? null : (
+            {card.rating ? (
+              // On the photo, so the name below gets the full width instead of being cut off.
+              <span className="glass absolute bottom-2 left-2 rounded-full px-2 py-0.5 text-caption font-semibold text-ink tabular-nums">
+                <span className="text-star" aria-hidden="true">
+                  ★
+                </span>{" "}
+                {card.rating.average.toFixed(1)}{" "}
+                <span className="font-normal text-ink-muted">({card.rating.count})</span>
+                <span className="sr-only"> reviews</span>
+              </span>
+            ) : (
               <span className="absolute top-2.5 left-2.5 rounded-full bg-accent px-2.5 py-1 text-caption font-semibold text-on-accent shadow-pop">
                 New
               </span>
@@ -155,13 +165,10 @@ export function BusinessCard({
           </div>
         </MorphCover>
         <div className="px-0.5 pt-2.5">
-          <div className="flex items-baseline justify-between gap-2">
-            <h3 className="flex min-w-0 items-center gap-1 text-heading font-semibold">
-              <span className="truncate">{card.name}</span>
-              {card.verified ? <VerifiedBadge /> : null}
-            </h3>
-            {rating}
-          </div>
+          <h3 className="flex min-w-0 items-center gap-1 text-heading font-semibold">
+            <span className="truncate">{card.name}</span>
+            {card.verified ? <VerifiedBadge /> : null}
+          </h3>
           {meta ? <p className="truncate text-small text-ink-muted">{meta}</p> : null}
           {priceLine}
         </div>
