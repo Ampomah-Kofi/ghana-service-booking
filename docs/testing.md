@@ -122,3 +122,7 @@ Two accepted findings, both `target-size`:
 ## Release checks
 
 See `docs/production-checklist.md` (release checklist) and `docs/security.md` ("How to re-check"). The full accessibility and overlap sweep (`scripts/dev/a11y-check.mjs`, `scripts/dev/overlap-check.mjs`) was last run over every main screen on 29 Sep 2026 (Phase 11): no findings.
+
+## Live vendor check (opt-in, never in CI)
+
+`pnpm test:live` sends one message through Arkesel (`tests/live/arkesel.live.test.ts`). It is skipped unless `ARKESEL_API_KEY`, `ARKESEL_SENDER_ID` and `ARKESEL_TEST_TO` (your own number) are set. It runs in Arkesel's sandbox (logged, not delivered or billed) unless `ARKESEL_LIVE=1`, and prints how long Arkesel took to answer. The adapter itself is unit-tested against the documented replies (`tests/unit/arkesel-sms-provider.test.ts`).

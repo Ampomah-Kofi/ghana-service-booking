@@ -6,7 +6,7 @@ Nothing here adds infrastructure beyond what the app already uses (CLAUDE.md: MV
 
 ## 0. Before the first deploy (you)
 
-1. **SMS vendor for phone sign-in.** Choose one (e.g. Hubtel, Arkesel, mNotify) and share its API docs and sandbox keys. I then write its `SmsProvider` from the official docs (never guessed) and add it to `SMS_PROVIDER`. **Production cannot start without this**: mocks are refused when `APP_ENV=production`.
+1. **SMS: Arkesel** (integrated from Arkesel's official API v2 spec). In Arkesel: create a dedicated API key with an SMS limit (SMS API keys → Manage Multiple API Keys), and get your Sender ID approved (`BookerGH`). Try it first with `ARKESEL_SANDBOX=true`, then `false` for real delivery. Mocks are refused when `APP_ENV=production`.
 2. WhatsApp and email are optional at launch: set `WHATSAPP_PROVIDER=none` and `EMAIL_PROVIDER=none` (WhatsApp messages then go by SMS; the in-app inbox always has everything).
 3. A domain (e.g. `bookergh.com`) you can edit DNS for.
 4. Privacy notice and terms (Act 843), reviewed by a lawyer.
@@ -45,11 +45,14 @@ Create two projects in the Supabase dashboard: `booker-staging` and `booker-prod
    | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | from Supabase → Project Settings → API                                           |
    | `SUPABASE_SECRET_KEY`                                              | secret key from the same page (**server only; never a `NEXT_PUBLIC_` variable**) |
    | `SEND_SMS_HOOK_SECRET`                                             | the Send SMS hook secret (step 1.5)                                              |
-   | `SMS_PROVIDER`                                                     | the real vendor's id once integrated                                             |
+   | `SMS_PROVIDER`                                                     | `arkesel`                                                                        |
+   | `ARKESEL_API_KEY`                                                  | the dedicated Arkesel key (**server only**)                                      |
+   | `ARKESEL_SENDER_ID`                                                | `BookerGH` (as approved)                                                         |
+   | `ARKESEL_SANDBOX`                                                  | `false` (staging may use `true`)                                                 |
    | `WHATSAPP_PROVIDER`, `EMAIL_PROVIDER`                              | `none` until vendors are chosen                                                  |
    | `CRON_SECRET`                                                      | `openssl rand -hex 32`, the same value as the Vault secret used by pg_cron       |
    | `DEFAULT_COUNTRY_CODE`                                             | `GH`                                                                             |
-   | vendor keys                                                        | e.g. `SMS_<VENDOR>_API_KEY`, added with the vendor adapter                       |
+   | vendor keys                                                        | WhatsApp or email vendor keys, added with that vendor's adapter                  |
 
 3. **Domains:** add `<domain>` and `www.<domain>`, and point DNS as Vercel shows. HTTPS is automatic.
 4. Deploy. Every pull request gets a preview deployment. Point previews at **staging** Supabase, never production.

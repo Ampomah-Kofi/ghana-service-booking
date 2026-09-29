@@ -19,6 +19,7 @@
     "check:secrets": "node scripts/check-client-bundle.mjs",
     "test:e2e": "playwright test",
     "test:integration": "vitest run --config vitest.integration.config.mts",
+    "test:live": "vitest run --config vitest.live.config.mts",
     "db:demo": "docker exec -i supabase_db_ghana-service-booking psql -U postgres -d postgres -v ON_ERROR_STOP=1 -q < supabase/demo/appointments.sql && docker exec -i supabase_db_ghana-service-booking psql -U postgres -d postgres -v ON_ERROR_STOP=1 -q < supabase/demo/reviews.sql && docker exec -i supabase_db_ghana-service-booking psql -U postgres -d postgres -v ON_ERROR_STOP=1 -q < supabase/demo/verification.sql"
   },
   "dependencies": {

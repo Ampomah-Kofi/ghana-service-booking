@@ -35,6 +35,24 @@ describe("parseServerEnv", () => {
     expect(message).not.toMatch(/WHATSAPP_PROVIDER|EMAIL_PROVIDER/);
     expect(parseServerEnv({ ...valid, WHATSAPP_PROVIDER: "none" }).WHATSAPP_PROVIDER).toBe("none");
   });
+  it("needs the Arkesel key and Sender ID when SMS goes through Arkesel", () => {
+    expect(() => parseServerEnv({ ...valid, SMS_PROVIDER: "arkesel" })).toThrow(/ARKESEL_API_KEY/);
+    const env = parseServerEnv({
+      ...valid,
+      SMS_PROVIDER: "arkesel",
+      ARKESEL_API_KEY: "k".repeat(24),
+      ARKESEL_SENDER_ID: "BookerGH",
+    });
+    expect(env).toMatchObject({ SMS_PROVIDER: "arkesel", ARKESEL_SENDER_ID: "BookerGH", ARKESEL_SANDBOX: false });
+    expect(() =>
+      parseServerEnv({
+        ...valid,
+        SMS_PROVIDER: "arkesel",
+        ARKESEL_API_KEY: "k".repeat(24),
+        ARKESEL_SENDER_ID: "BookerGhanaApp",
+      }),
+    ).toThrow(/11/);
+  });
   it("wants a long dispatcher secret when one is set", () => {
     expect(() => parseServerEnv({ ...valid, CRON_SECRET: "short" })).toThrow(/CRON_SECRET/);
     expect(parseServerEnv({ ...valid, CRON_SECRET: "x".repeat(40) }).CRON_SECRET).toHaveLength(40);

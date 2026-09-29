@@ -4,7 +4,7 @@ Status on 29 Sep 2026, end of Phase 11. ✅ done and tested · ⏳ needs the pro
 
 ## Blocks launch
 
-- ⏳ **SMS vendor chosen and integrated.** Phone sign-in needs it; mocks are refused in production. Share the vendor's docs and sandbox keys.
+- ⏳ **SMS (Arkesel).** Integrated from the official v2 spec and unit-tested; Sender ID `BookerGH` approved. Remaining: one live send with the real key (`pnpm test:live`, see `docs/testing.md`), then set the Arkesel variables in Vercel.
 - ⏳ **Accounts:** Vercel, two Supabase projects (staging, production), domain (`docs/deployment.md` steps 0–2).
 - ⏳ **Privacy notice and terms** (Act 843), reviewed by a lawyer, linked from sign-in and the footer.
 

@@ -4,9 +4,13 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const root = ".next/static";
-const needles = ["sb_secret_", "whsec_", process.env.SUPABASE_SECRET_KEY, process.env.SEND_SMS_HOOK_SECRET].filter(
-  (v) => typeof v === "string" && v.length >= 8,
-);
+const needles = [
+  "sb_secret_",
+  "whsec_",
+  process.env.SUPABASE_SECRET_KEY,
+  process.env.SEND_SMS_HOOK_SECRET,
+  process.env.ARKESEL_API_KEY,
+].filter((v) => typeof v === "string" && v.length >= 8);
 
 function* files(dir) {
   for (const name of readdirSync(dir)) {

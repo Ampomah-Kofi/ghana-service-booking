@@ -7,7 +7,6 @@ import { z } from "zod";
  * readable message instead of undefined behaviour deep inside a request.
  * Public (NEXT_PUBLIC_*) values live in src/lib/public-env.ts.
  */
-const providerName = z.enum(["mock"]); // real providers are added by ADR when integrated (Phase 8/9)
 // WhatsApp and email can be switched off ("none"): WhatsApp messages then go by SMS, emails are skipped
 // (the in-app inbox always has them). SMS can't be off: phone sign-in needs it.
 const optionalChannel = z.enum(["mock", "none"]);
@@ -21,7 +20,15 @@ export const serverEnvSchema = z
     SEND_SMS_HOOK_SECRET: z
       .string()
       .regex(/^v1,whsec_[A-Za-z0-9+/=]+$/, "expected Standard Webhooks format v1,whsec_<base64>"),
-    SMS_PROVIDER: providerName,
+    // SMS: "arkesel" (Ghana, docs/deployment.md) or the local mock.
+    SMS_PROVIDER: z.enum(["mock", "arkesel"]),
+    ARKESEL_API_KEY: z.string().min(8).optional(),
+    ARKESEL_SENDER_ID: z.string().min(1).max(11, "Arkesel Sender IDs are at most 11 characters").optional(),
+    // "true" = Arkesel sandbox: messages are accepted and logged in Arkesel's history, not delivered or billed.
+    ARKESEL_SANDBOX: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((v) => v === "true"),
     // Phase 8 channels. Optional locally (default mock); production must name a real provider.
     WHATSAPP_PROVIDER: optionalChannel.default("mock"),
     EMAIL_PROVIDER: optionalChannel.default("mock"),
@@ -33,6 +40,11 @@ export const serverEnvSchema = z
     ),
   })
   .superRefine((env, ctx) => {
+    if (env.SMS_PROVIDER === "arkesel") {
+      for (const key of ["ARKESEL_API_KEY", "ARKESEL_SENDER_ID"] as const) {
+        if (!env[key]) ctx.addIssue({ code: "custom", path: [key], message: "required when SMS_PROVIDER=arkesel" });
+      }
+    }
     if (env.APP_ENV === "production") {
       for (const key of ["SMS_PROVIDER", "WHATSAPP_PROVIDER", "EMAIL_PROVIDER"] as const) {
         if (env[key] === "mock") {

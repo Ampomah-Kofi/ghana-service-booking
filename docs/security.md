@@ -41,7 +41,7 @@ Reviewed 28 Sep 2026 against SPEC §21 and CLAUDE.md. Each control names where i
 
 ## Open items (need the product owner)
 
-- **SMS vendor.** Phone OTP in production needs a real SMS provider (mocks are refused when `APP_ENV=production`). Choose one (e.g. Hubtel, Arkesel, mNotify) and share its docs and sandbox credentials.
+- **SMS (Arkesel).** Integrated; the key goes in the `api-key` header (never a URL) and is covered by `pnpm check:secrets`. Use a dedicated key with an SMS limit, and reset any key that has appeared in a chat or screenshot.
 - **Legal pages.** Privacy notice and terms (Act 843), written or reviewed by a lawyer. Consents are already recorded by version.
 - **Hosted Supabase settings.** Leaked-password protection, SMS OTP expiry, and per-hour SMS cap: see `docs/deployment.md`.
 
