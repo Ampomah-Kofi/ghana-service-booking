@@ -4,12 +4,12 @@ Status on 29 Sep 2026, end of Phase 11. ✅ done and tested · ⏳ needs the pro
 
 ## Blocks launch
 
-- ⏳ **SMS (Arkesel).** Integrated from the official v2 spec and unit-tested; Sender ID `BookerGH` approved. Remaining: one live send with the real key (`pnpm test:live`, see `docs/testing.md`), then set the Arkesel variables in Vercel.
-- ⏳ **Accounts:** Vercel, two Supabase projects (staging, production), domain (`docs/deployment.md` steps 0–2).
+- ⏳ **Accounts:** Vercel, two Supabase projects (staging, production), domain (`docs/deployment.md` steps 0–2). Add the Arkesel variables in Vercel then.
 - ⏳ **Privacy notice and terms** (Act 843), reviewed by a lawyer, linked from sign-in and the footer.
 
 ## Ready
 
+- ✅ SMS (Arkesel): integrated from the official v2 spec, unit-tested, and a real SMS delivered from Sender ID `BookerGH` (29 Sep 2026).
 - ✅ Tenant isolation: RLS on every table, isolation tested per table (pgTAP 00–20).
 - ✅ Double booking impossible: exclusion constraint and concurrency tests.
 - ✅ Security review (`docs/security.md`): headers, least-privilege grants, definer functions, rate limits, secret scanning, no known vulnerable dependencies.

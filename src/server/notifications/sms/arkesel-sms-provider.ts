@@ -11,7 +11,7 @@ import type { SmsMessage, SmsProvider, SmsSendResult } from "./provider";
  *   `message`; optional `sandbox: true` = accepted and shown in the SMS history, not delivered or billed.
  * - 200: `{ status: "success", data: [{ recipient, id }, …, { "invalid numbers": [...] }] }`.
  * - Errors: `{ status: "error", message }` with 402 (insufficient balance or invalid coverage),
- *   403 (inactive gateway), 422 (validation), 500 (request failed).
+ *   403 (inactive gateway), 422 (validation), 500 (request failed). A wrong or reset key answers 401.
  */
 export const ARKESEL_SEND_URL = "https://sms.arkesel.com/api/v2/sms/send";
 
@@ -66,7 +66,7 @@ export class ArkeselSmsProvider implements SmsProvider {
     const body = (await res.json().catch(() => null)) as ArkeselBody | null;
     if (!res.ok || body?.status !== "success") {
       const reason = body?.message ? `${res.status} ${body.message}` : `HTTP ${res.status}`;
-      // 402 balance/coverage, 403 inactive gateway, 422 bad request: retrying won't help until someone fixes it.
+      // 401 invalid key, 402 balance/coverage, 403 inactive gateway, 422 bad request: retrying won't help until someone fixes it.
       // 5xx and 429: temporary, retry with back-off.
       return { ok: false, retryable: res.status >= 500 || res.status === 429, error: `arkesel: ${reason}` };
     }
