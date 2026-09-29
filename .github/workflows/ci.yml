@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      APP_ENV: test
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      SMS_PROVIDER: mock
+      DEFAULT_COUNTRY_CODE: GH
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Format
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Start local Supabase
+        run: |
+          # Throwaway hook secret for this CI run only.
+          secret="v1,whsec_$(openssl rand -base64 32)"
+          echo "SEND_SMS_HOOK_SECRET=$secret" > supabase/.env
+          echo "SEND_SMS_HOOK_SECRET=$secret" >> "$GITHUB_ENV"
+          pnpm exec supabase start -x studio,edge-runtime,logflare,vector,imgproxy,mailpit
+          pnpm exec supabase status -o json > /tmp/sb.json
+          echo "NEXT_PUBLIC_SUPABASE_URL=$(jq -r .API_URL /tmp/sb.json)" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(jq -r .PUBLISHABLE_KEY /tmp/sb.json)" >> "$GITHUB_ENV"
+          echo "SUPABASE_SECRET_KEY=$(jq -r .SECRET_KEY /tmp/sb.json)" >> "$GITHUB_ENV"
+
+      - name: Database tests (pgTAP, incl. RLS isolation)
+        run: pnpm test:db
+
+      - name: Integration tests (services against local Supabase)
+        run: pnpm test:integration
+
+      - name: Generated DB types are up to date
+        run: |
+          pnpm gen:types
+          git diff --exit-code src/server/db/types.ts || (echo "::error::Run 'pnpm gen:types' and commit the result" && exit 1)
+
+      - name: Build
+        run: pnpm build
+
+      - name: No secrets in client bundle
+        run: pnpm check:secrets
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: End-to-end tests (Playwright, mobile viewport)
+        run: pnpm test:e2e
+
+      - name: Upload Playwright traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: test-results/
+          retention-days: 7
