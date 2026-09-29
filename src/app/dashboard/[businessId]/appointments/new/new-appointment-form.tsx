@@ -227,7 +227,8 @@ export function NewAppointmentForm({
         </>
       )}
 
-      <div className="sticky above-tabs -mx-5 border-t border-border bg-surface px-5 py-3 md:static md:mx-0 md:border-0 md:bg-transparent md:p-0">
+      {/* The surface continues down behind the tab bar so the form doesn't show through the gap. */}
+      <div className="sticky above-tabs -mx-5 border-t border-border bg-surface px-5 py-3 after:absolute after:inset-x-0 after:top-full after:h-24 after:bg-surface md:static md:mx-0 md:border-0 md:bg-transparent md:p-0 md:after:hidden">
         <SubmitButton pendingLabel={walkIn ? "Starting…" : "Adding…"} disabled={services.length === 0}>
           {walkIn ? "Start walk-in" : "Add appointment"}
         </SubmitButton>

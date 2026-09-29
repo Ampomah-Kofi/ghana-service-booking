@@ -16,7 +16,7 @@ export function Segmented({
           key={item.href}
           href={item.href}
           aria-current={item.active ? "page" : undefined}
-          className={`relative isolate flex min-h-9 min-w-0 flex-1 basis-16 items-center justify-center rounded-inner px-3 text-small font-medium transition-colors ${
+          className={`relative isolate flex min-h-9 min-w-16 flex-1 basis-auto items-center whitespace-nowrap justify-center rounded-inner px-3 text-small font-medium transition-colors ${
             item.active ? "text-ink" : "text-ink-muted hover:text-ink"
           }`}
         >
