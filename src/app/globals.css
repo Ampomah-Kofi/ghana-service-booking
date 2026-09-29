@@ -1,0 +1,737 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens: docs/design.md (ADR-0008). Apple-inspired principles, our own identity.
+ * System font stack = zero font download (low bandwidth) and native feel on iOS and Android.
+ */
+:root {
+  /* Palette from the product owner's DESIGN.md; principles from docs/design.md (ADR-0009). */
+  --surface: #f3f1ec;
+  --card: #ffffff;
+  --ink: #14201b;
+  --ink-muted: #5b6660;
+  --border: #e4e0d8;
+  --fill: rgb(20 32 27 / 0.06);
+  --primary: #0a7350;
+  --primary-hover: #085f42;
+  --primary-soft: #ddf3e9;
+  /* Warm gold accent (ADR-0016): a background behind dark text (9:1), never text on light. */
+  --accent: #f4b400;
+  --on-accent: #14201b;
+  --accent-soft: #fdf1cc;
+  --accent-ink: #8a5a00;
+  --on-primary: #ffffff;
+  --danger: #b42318;
+  --on-danger: #ffffff;
+  --warning: #b54708;
+  --info: #1d4ed8;
+  --success: #1f7a3a;
+  --star: #e0a526;
+  --whatsapp: #1a6c3d;
+  --focus-ring: rgb(15 107 79 / 0.45);
+  --hatch: rgb(20 32 27 / 0.07);
+  /* "Up next" live card: the same deep brand green in light and dark (white text on it). */
+  --live-a: #16825f;
+  --live-b: #06291f;
+  --live-ink: #0b4a37;
+}
+
+/* Warm dark mode: same roles, tuned for contrast (AA on --card). */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #0b0d0b;
+    --card: #1b1f1c;
+    --ink: #eef0ec;
+    --ink-muted: #a6aea8;
+    --border: #2e3430;
+    --fill: rgb(238 240 236 / 0.08);
+    --primary: #4cc596;
+    --primary-hover: #3db386;
+    --primary-soft: rgb(76 197 150 / 0.16);
+    --on-primary: #04150e;
+    --accent: #f5c542;
+    --on-accent: #1a1400;
+    --accent-soft: rgb(245 197 66 / 0.16);
+    --accent-ink: #f5c542;
+    --danger: #ff8a7e;
+    --on-danger: #2a0805;
+    --warning: #f5a54a;
+    --info: #8ab4ff;
+    --success: #5fd38b;
+    --star: #e0a526;
+    --whatsapp: #4cc07a;
+    --focus-ring: rgb(76 197 150 / 0.5);
+    --hatch: rgb(238 240 236 / 0.07);
+  }
+}
+
+@theme inline {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-border: var(--border);
+  --color-fill: var(--fill);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-danger: var(--danger);
+  --color-on-danger: var(--on-danger);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-success: var(--success);
+  --color-star: var(--star);
+  --color-live-ink: var(--live-ink);
+  --color-whatsapp: var(--whatsapp);
+
+  /* Type scale (px), phone first (ADR-0014): display 28 · title 20 · heading 17 · body 16 · small 14 · caption 12.
+     Display and title grow a step on wider screens (below). */
+  --text-display: 1.75rem;
+  --text-display--line-height: 2.125rem;
+  --text-display--letter-spacing: -0.022em;
+  --text-title: 1.25rem;
+  --text-title--line-height: 1.625rem;
+  --text-title--letter-spacing: -0.018em;
+  --text-heading: 1.0625rem;
+  --text-heading--line-height: 1.375rem;
+  --text-heading--letter-spacing: -0.01em;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5rem;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.25rem;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1rem;
+
+  --radius-chip: 6px;
+  --radius-inner: 8px;
+  --radius-control: 10px;
+  --radius-card: 20px;
+
+  /* Mostly flat: cards use borders; shadows only for sheets, sticky bars and the floating button. */
+  --shadow-sheet: 0 -4px 16px rgb(20 32 27 / 0.08);
+  --shadow-pop: 0 4px 12px rgb(20 32 27 / 0.1);
+}
+
+h1,
+h2,
+h3 {
+  hyphens: auto;
+}
+
+/* Fieldsets default to min-width: min-content, which lets long content push a form wider than the phone. */
+fieldset {
+  min-inline-size: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  color-scheme: light dark;
+}
+
+body {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: 1.5;
+  /* A word that can't fit its line (large text settings, long names) breaks instead of pushing
+     the page sideways. Normal-size text never hits this. */
+  overflow-wrap: anywhere;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* iOS-style switch for every <input type="checkbox" role="switch"> (docs/design.md). */
+input[type="checkbox"][role="switch"] {
+  flex-shrink: 0;
+  appearance: none;
+  position: relative;
+  flex-shrink: 0;
+  width: 51px;
+  height: 31px;
+  border-radius: 999px;
+  background: var(--fill);
+  box-shadow: inset 0 0 0 1px var(--border);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+input[type="checkbox"][role="switch"]::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.2);
+  transition: transform 0.2s ease;
+}
+input[type="checkbox"][role="switch"]:checked {
+  background: var(--primary);
+  box-shadow: none;
+}
+input[type="checkbox"][role="switch"]:checked::after {
+  transform: translateX(20px);
+}
+input[type="checkbox"][role="switch"]:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Blocked time in the calendar (docs/design.md §3a). */
+.hatch {
+  background-image: repeating-linear-gradient(135deg, var(--hatch) 0 6px, transparent 6px 12px);
+}
+
+/* Tap feedback like a native app: cards and buttons dip slightly when pressed. */
+.pressable {
+  transition: transform 120ms ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+.pressable:active {
+  transform: scale(0.98);
+}
+
+/* Screens slide in gently on navigation (src/app/template.tsx). */
+/* Opacity only: a transform (even a finished one, kept by the fill mode) makes the page a containing
+   block, and every position: fixed element inside it (provider tab bar, + button) would scroll away. */
+@keyframes page-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.page-in {
+  animation: page-in 200ms ease-out backwards;
+}
+
+/* Sheets and success states */
+@keyframes sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.sheet-up {
+  animation: sheet-up 260ms cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.pop {
+  animation: pop 420ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.draw {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: draw 420ms 260ms ease-out forwards;
+}
+
+/* Horizontal rows: hide the scrollbar, snap cards. */
+.rail {
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1rem;
+}
+.rail::-webkit-scrollbar {
+  display: none;
+}
+.rail > * {
+  scroll-snap-align: start;
+}
+
+/* Full-bleed hero under the status bar on phones (main has a safe-area top padding). */
+@utility bleed-top {
+  margin-top: calc(-1 * max(1rem, env(safe-area-inset-top)));
+}
+@utility pt-safe {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+@utility pt-safe-sm {
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility pb-safe-sm {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+/* Above the floating tab bar (4rem capsule + 0.75rem gap + safe area). */
+@utility above-tabs {
+  bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+@utility above-tabs-fab {
+  bottom: calc(6rem + env(safe-area-inset-bottom));
+}
+
+/* ── Glass (ADR-0010): navigation and controls only; content stays solid ─────── */
+:root {
+  --glass: rgb(255 255 255 / 0.6);
+  --glass-strong: rgb(246 244 240 / 0.92);
+  --glass-rim: rgb(255 255 255 / 0.75);
+  --glass-line: rgb(20 32 27 / 0.08);
+  --glass-shadow: 0 10px 30px rgb(20 32 27 / 0.14), 0 1px 3px rgb(20 32 27 / 0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --glass: rgb(40 45 42 / 0.55);
+    --glass-strong: rgb(30 34 31 / 0.9);
+    --glass-rim: rgb(255 255 255 / 0.16);
+    --glass-line: rgb(255 255 255 / 0.08);
+    --glass-shadow: 0 10px 30px rgb(0 0 0 / 0.45), 0 1px 3px rgb(0 0 0 / 0.3);
+  }
+}
+@layer components {
+  .glass,
+  .glass-strong {
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    box-shadow:
+      inset 0 1px 0 var(--glass-rim),
+      inset 0 0 0 1px var(--glass-line),
+      var(--glass-shadow);
+  }
+  .glass-strong {
+    background: var(--glass-strong);
+    -webkit-backdrop-filter: blur(30px) saturate(190%);
+    backdrop-filter: blur(30px) saturate(190%);
+  }
+  /* The selected item inside a glass bar: a brighter lens. */
+  .glass-lens {
+    background: var(--glass-strong);
+    box-shadow:
+      inset 0 1px 0 var(--glass-rim),
+      0 1px 4px rgb(20 32 27 / 0.1);
+  }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  .glass-strong {
+    background: var(--card);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-strong {
+    background: var(--card);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* A soft light behind the top of Explore, so the glass has something to catch. */
+.aurora {
+  background:
+    radial-gradient(60% 50% at 15% 0%, rgb(15 107 79 / 0.16), transparent 70%),
+    radial-gradient(45% 40% at 90% 10%, rgb(224 165 38 / 0.14), transparent 70%);
+}
+/* On phones the glow runs edge to edge; wider, it sits inside the content column, so fade its edges
+   instead of showing a pale rectangle. */
+@media (min-width: 48rem) {
+  .aurora {
+    mask-image:
+      linear-gradient(to right, transparent, #000 18%, #000 82%, transparent),
+      linear-gradient(to bottom, transparent, #000 25%, #000 55%, transparent);
+    mask-composite: intersect;
+  }
+}
+
+/* iOS inset-grouped list: separators start after the leading inset, never edge to edge. */
+.ios-list > * + * {
+  position: relative;
+}
+.ios-list > * + *::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 1rem;
+  border-top: 1px solid var(--border);
+}
+/* Cards lift off the grouped background with a whisper of shadow instead of an outline. */
+.lift {
+  box-shadow:
+    0 1px 2px rgb(20 32 27 / 0.04),
+    0 4px 14px rgb(20 32 27 / 0.05);
+}
+@media (prefers-color-scheme: dark) {
+  .lift {
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  }
+}
+
+/* ── Polish (ADR-0012) ─────────────────────────────────────────────────────── */
+
+/* Large titles shrink away and a compact glass title bar fades in as you scroll (iOS navigation bar).
+   Scroll-driven CSS only: no JavaScript; browsers without it keep the plain large title. */
+.compact-bar {
+  opacity: 0;
+  visibility: hidden;
+}
+@supports (animation-timeline: scroll()) {
+  .compact-bar {
+    visibility: visible;
+    animation: compact-in linear both;
+    animation-timeline: scroll(root);
+    animation-range: 56px 96px;
+  }
+  .large-title {
+    transform-origin: left bottom;
+    animation: large-title-out linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 72px;
+  }
+}
+@keyframes compact-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes large-title-out {
+  to {
+    opacity: 0.2;
+    transform: scale(0.94);
+  }
+}
+
+/* Card cover → business page cover (React <ViewTransition>, Chromium/Safari; others just navigate). */
+::view-transition-group(.morph) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Banner that slides down from the top and leaves by itself (src/components/ui/toast.tsx). */
+@keyframes toast {
+  0% {
+    opacity: 0;
+    transform: translateY(-120%);
+  }
+  8%,
+  88% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-120%);
+  }
+}
+.toast {
+  animation: toast 4s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+/* The customer tab bar tucks away while scrolling down (customer-tabs.tsx). */
+.tabs-away {
+  transform: translateY(calc(100% + 1rem));
+  opacity: 0;
+}
+
+/* Section titles that stay pinned while their list scrolls: under the compact title bar on phones
+   (<LargeTitle>), under the header from md. `sticky-head-top` is for screens without a title bar. */
+@utility sticky-head {
+  position: sticky;
+  top: calc(max(0.75rem, env(safe-area-inset-top)) + 2rem);
+  z-index: 5;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  @media (width >= 48rem) {
+    top: 3.5rem;
+  }
+}
+@utility sticky-head-top {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  @media (width >= 48rem) {
+    top: 3.5rem;
+    padding-top: 0.5rem;
+  }
+}
+
+/* Bottom sheets (src/components/ui/sheet.tsx, HTML popover): frosted glass, iOS sheet curve on the way
+   in AND out (@starting-style + allow-discrete; older browsers just appear), swipe down to close
+   (sheet-gestures.tsx). */
+.sheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  width: 100%;
+  max-width: 36rem;
+  max-height: 88dvh;
+  margin: 0 auto;
+  padding: 0 0 1rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 0;
+  border-radius: 1.75rem 1.75rem 0 0;
+  background: color-mix(in srgb, var(--card) 90%, transparent);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
+  color: var(--ink);
+  box-shadow:
+    inset 0 1px 0 var(--glass-rim),
+    0 -10px 40px rgb(0 0 0 / 0.18);
+  transform: translateY(100%);
+  transition:
+    transform 420ms cubic-bezier(0.32, 0.72, 0, 1),
+    overlay 420ms allow-discrete,
+    display 420ms allow-discrete;
+}
+.sheet:popover-open {
+  transform: translateY(var(--sheet-drag, 0px));
+}
+@starting-style {
+  .sheet:popover-open {
+    transform: translateY(100%);
+  }
+}
+.sheet.dragging {
+  transition: none;
+}
+.sheet::backdrop {
+  background: rgb(10 14 12 / 0);
+  -webkit-backdrop-filter: blur(0);
+  backdrop-filter: blur(0);
+  transition:
+    background 320ms ease,
+    backdrop-filter 320ms ease,
+    overlay 420ms allow-discrete,
+    display 420ms allow-discrete;
+}
+.sheet:popover-open::backdrop {
+  background: rgb(10 14 12 / 0.36);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+@starting-style {
+  .sheet:popover-open::backdrop {
+    background: rgb(10 14 12 / 0);
+    backdrop-filter: blur(0);
+  }
+}
+@media (width >= 48rem) {
+  .sheet {
+    inset: 0;
+    height: fit-content;
+    margin: auto;
+    border-radius: var(--radius-card);
+    transform: scale(0.96);
+    opacity: 0;
+    transition:
+      transform 260ms cubic-bezier(0.32, 0.72, 0, 1),
+      opacity 200ms ease,
+      overlay 260ms allow-discrete,
+      display 260ms allow-discrete;
+  }
+  .sheet:popover-open {
+    transform: none;
+    opacity: 1;
+  }
+  @starting-style {
+    .sheet:popover-open {
+      transform: scale(0.96);
+      opacity: 0;
+    }
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .sheet {
+    background: var(--card);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* Full-screen photo viewer (src/components/business/photo-viewer.tsx). */
+.viewer {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: #000;
+  color: #fff;
+}
+.viewer {
+  opacity: 0;
+  transition:
+    opacity 220ms ease,
+    overlay 220ms allow-discrete,
+    display 220ms allow-discrete;
+}
+.viewer:popover-open {
+  opacity: 1;
+}
+@starting-style {
+  .viewer:popover-open {
+    opacity: 0;
+  }
+}
+
+/* ── Smoothness (after Phase 7) ─────────────────────────────────────────── */
+
+/* In-page jumps (#rate, #share) glide; page navigations stay instant (html[data-scroll-behavior]). */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* iOS row highlight: list rows grey out while pressed, then fade back. */
+.ios-list > a,
+.ios-list > li > a,
+.ios-list > button {
+  transition: background-color 200ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.ios-list > a:active,
+.ios-list > li > a:active,
+.ios-list > button:active {
+  background-color: var(--fill);
+  transition-duration: 0ms;
+}
+
+/* The selected-tab lens slides between tabs (React <ViewTransition name="…-tab-lens">). */
+::view-transition-group(.lens) {
+  animation-duration: 340ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+/* Page changes: a short cross-fade (the page-in lift still plays inside). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+}
+
+/* Everything tappable answers instantly: no grey flash from the browser, our own pressed states instead. */
+a,
+button,
+summary,
+label {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Provider "Up next" (Live Activity style): deep green, a soft light in the corner, a rim of light. */
+.live-card {
+  color: #fff;
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgb(120 230 180 / 0.35) 0%, transparent 55%),
+    radial-gradient(90% 70% at 0% 100%, rgb(0 0 0 / 0.25) 0%, transparent 60%),
+    linear-gradient(155deg, var(--live-a), var(--live-b));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 14px 34px rgb(6 41 31 / 0.28);
+}
+.live-dot {
+  box-shadow: 0 0 0 0 rgb(134 239 172 / 0.7);
+  animation: live-pulse 1.8s ease-out infinite;
+}
+@keyframes live-pulse {
+  70% {
+    box-shadow: 0 0 0 7px rgb(134 239 172 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(134 239 172 / 0);
+  }
+}
+
+/* Wider screens (tablet, desktop): large titles and titles step up; body text stays put (ADR-0014).
+   Unlayered, so it wins over the utilities without !important. */
+@media (min-width: 40rem) {
+  .text-display {
+    font-size: 2rem;
+    line-height: 2.5rem;
+  }
+  .text-title {
+    font-size: 1.375rem;
+    line-height: 1.75rem;
+  }
+}
+
+/* Brand hero (ADR-0016): deep emerald with a warm gold glow, for the top of Explore. White text on it. */
+.hero {
+  color: #fff;
+  background:
+    radial-gradient(85% 75% at 100% 0%, rgb(244 180 0 / 0.42), transparent 62%),
+    radial-gradient(70% 70% at 0% 100%, rgb(22 170 122 / 0.5), transparent 70%),
+    linear-gradient(160deg, #08432f 0%, #0a6346 50%, #0b7a55 100%);
+}
+@media (prefers-color-scheme: dark) {
+  .hero {
+    background:
+      radial-gradient(80% 70% at 100% 0%, rgb(245 197 66 / 0.2), transparent 62%),
+      radial-gradient(70% 70% at 0% 100%, rgb(22 170 122 / 0.35), transparent 70%),
+      linear-gradient(160deg, #06261b 0%, #0a3d2c 55%, #0c5a40 100%);
+  }
+}
+.hero .hero-muted {
+  color: rgb(255 255 255 / 0.78);
+}
+.hero .bg-primary-soft {
+  background: rgb(255 255 255 / 0.16);
+  color: #fff;
+}
+.hero input[type="search"] {
+  background: var(--card);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.18);
+}
+
+/* A soft top sheen on filled green surfaces, so primary buttons read as lit, not flat. */
+.bg-primary {
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.14), rgb(255 255 255 / 0) 60%);
+}

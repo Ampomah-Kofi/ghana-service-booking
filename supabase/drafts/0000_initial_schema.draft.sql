@@ -1,5 +1,5 @@
 -- =============================================================================
---  DRAFT: NOT A MIGRATION. DO NOT APPLY.
+--  DRAFT: NOT A MIGRATION. DO NOT APPLY. (moved to supabase/drafts/ in Phase 1)
 -- =============================================================================
 --  Phase 0 draft of the initial schema. It is kept for review only and will be
 --  split into real, timestamped migrations in Phase 1
